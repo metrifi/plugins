@@ -13,6 +13,11 @@ Claude Code drives Claude Design to generate a **page** on the client's establis
 
 **Use this narrowly.** Once an approved prototype exists, ordinary pages are stage 3. If there's no design system yet, run stage 1 first — this stage inherits the system, it does not create one.
 
+## Prerequisites
+
+- **An approved design system must already exist** for this client (from stage 1, generate-claude-design-system). This stage builds a page *on* that system — it does not create one. Check with `metrifi_get_brand`; if there's no resolved brand yet, or the site is brand-new, run stage 1 first.
+- The local Claude Design engine (`@pro-vi/designer`) — the process doc covers setup; see also the plugin README.
+
 ## The process lives in one place
 
 Fetch the canonical stage-2 process from the MetriFi knowledge store and follow it end to end:

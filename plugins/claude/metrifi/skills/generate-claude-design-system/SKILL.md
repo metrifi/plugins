@@ -13,6 +13,11 @@ Claude Code drives Claude Design to produce a client's **design system**, then l
 
 Do not skip ahead: a page designed before the system exists inherits whatever design system happens to be attached to the Claude Design project.
 
+## Prerequisites
+
+- **Brand assets to work from.** Whatever form the institution has them in: most often their existing website (the resolver pulls colors, fonts, logo, and favicon from a URL), but a logo file, a color palette, or brand guidelines all count. **An existing website is not required** — a brand-new credit union or bank with no site yet can still get a design system, built from whatever assets exist or a stated brand direction. If there's genuinely nothing to work from, ask the client how they want the brand to look and feel before generating.
+- The local Claude Design engine (`@pro-vi/designer`) — the process doc covers setup; see also the plugin README.
+
 ## The process lives in one place
 
 Fetch the canonical stage-1 process from the MetriFi knowledge store and follow it end to end:
