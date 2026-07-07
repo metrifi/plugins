@@ -3,7 +3,11 @@
 One install connects your AI tool to MetriFi — the Site Builder tools (design,
 edit, preview, and publish your website the MetriFi way) plus the MetriFi
 site-design skills. You sign in with your MetriFi account the first time; no
-tokens to paste. Full instructions with screenshots: **https://mcp.metrifi.com**
+tokens to paste. Full instructions: **https://mcp.metrifi.com**
+
+> **Not technical? The easiest way to install is to paste a prompt** into your AI
+> agent and let it install itself, no terminal. See [`install-prompt.md`](install-prompt.md),
+> or just go to https://mcp.metrifi.com and pick your app.
 
 ## Claude (claude.ai / Claude Desktop) — no terminal
 
@@ -33,7 +37,13 @@ codex mcp login metrifi
   `page-design-process` (the three-stage MetriFi site-design workflow; the full
   methodology is fetched from MetriFi at runtime, behind your sign-in)
 
-No MetriFi account yet? Ask your MetriFi contact for an invite.
+**After connecting, check it's working:** ask your AI agent **"Who am I on
+MetriFi?"** — it returns your MetriFi account, which confirms the connection for
+any signed-in user (it doesn't require you to have a site yet).
+
+**No MetriFi account yet?** When the sign-in window opens you can **create a new
+MetriFi team** (if your organization doesn't have one yet), or ask an **admin on
+your existing MetriFi team to invite you** first.
 
 ---
 See [NOTICE.md](NOTICE.md). This repository is a release artifact; it is not a
