@@ -1,8 +1,11 @@
 {
   "name": "metrifi",
   "displayName": "MetriFi",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The MetriFi plugin: one MetriFi sign-in to the MCP gateway (Site Builder now; GEO and more as they go live) plus the MetriFi site-design skills — generate-claude-design-system, generate-claude-design-page, and page-design-process. Self-contained: no other plugins needed. Design and edit conversion-optimized credit-union and bank websites the MetriFi way.",
-  "author": { "name": "MetriFi", "email": "ryan.harmon@metrifi.com" },
+  "author": {
+    "name": "MetriFi",
+    "email": "ryan.harmon@metrifi.com"
+  },
   "homepage": "https://mcp.metrifi.com"
 }

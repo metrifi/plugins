@@ -1,7 +1,10 @@
 {
   "name": "metrifi",
-  "version": "1.0.0",
-  "author": { "name": "MetriFi", "email": "ryan.harmon@metrifi.com" },
+  "version": "1.0.1",
+  "author": {
+    "name": "MetriFi",
+    "email": "ryan.harmon@metrifi.com"
+  },
   "homepage": "https://mcp.metrifi.com",
   "interface": {
     "displayName": "MetriFi",
