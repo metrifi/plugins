@@ -8,20 +8,20 @@ tokens to paste. Full instructions with screenshots: **https://mcp.metrifi.com**
 ## Claude (claude.ai / Claude Desktop) — no terminal
 
 Customize → **Plugins** → **Add from a repository** → paste
-`bloomcu/metrifi-plugins` → Install **metrifi** → click **Connect** and sign in
+`metrifi/plugins` → Install **metrifi** → click **Connect** and sign in
 with your MetriFi account.
 
 ## Claude Code
 
 ```
-/plugin marketplace add bloomcu/metrifi-plugins
+/plugin marketplace add metrifi/plugins
 /plugin install metrifi@metrifi
 ```
 
 ## Codex
 
 ```
-codex plugin marketplace add bloomcu/metrifi-plugins
+codex plugin marketplace add metrifi/plugins
 codex plugin add metrifi@metrifi
 codex mcp login metrifi
 ```
