@@ -1,0 +1,11 @@
+{
+  "name": "metrifi",
+  "version": "1.0.0",
+  "author": { "name": "MetriFi", "email": "ryan.harmon@metrifi.com" },
+  "homepage": "https://mcp.metrifi.com",
+  "interface": {
+    "displayName": "MetriFi",
+    "shortDescription": "One MetriFi sign-in to the MCP gateway (Site Builder now; GEO and more as they go live) plus the MetriFi site-design skills. No token paste."
+  },
+  "mcpServers": "./.mcp.json"
+}
