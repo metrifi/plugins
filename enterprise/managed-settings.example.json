@@ -1,0 +1,12 @@
+{
+  "//": "MetriFi zero-touch install + auto-update for a client organization. Drop this into the OS managed-settings.json location (see enterprise/README.md). Because metrifi/plugins is a PUBLIC repo, no GitHub token is needed. Members get the MetriFi plugin installed and kept up to date automatically — no commands, ever.",
+  "extraKnownMarketplaces": {
+    "metrifi": {
+      "source": { "source": "github", "repo": "metrifi/plugins" },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "metrifi@metrifi": true
+  }
+}
