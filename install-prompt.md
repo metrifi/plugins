@@ -5,9 +5,14 @@ technical: copy the prompt for your app, paste it into that AI agent, and it
 installs the plugin itself and walks you through the sign-in. You never touch a
 terminal.
 
-These are the canonical prompts. The live copy-buttons at
-**https://mcp.metrifi.com** serve the same text — keep the two in sync when
-editing.
+These are the canonical prompts. There is a **second, hand-synced copy**: the
+`CLAUDE_PROMPT` / `CODEX_PROMPT` constants in `resources/js/Home.tsx` in
+`bloomcu/metrifi-mcp-gateway-laravel`, served by the live copy-buttons at
+**https://mcp.metrifi.com/install/claude** and **.../install/codex**. If you
+edit a prompt here, make the identical edit there (mind the Windows-path
+backslashes: single here in Markdown, doubled in that JS template literal).
+Single-sourcing these is tracked for M4 in the monolith plan. Keep them in sync
+until then.
 
 ---
 
