@@ -19,18 +19,20 @@ this, and send it:
 ```text
 You are setting up the MetriFi plugin on my computer for me. I am not technical — do everything yourself by running the commands, explain each step in plain language, and don't ask me to open a terminal. If a step needs my permission, ask and wait. Do this in order and tell me what happened:
 
-1. Install the plugin:
+1. Clear any leftover MetriFi files from an earlier install so this one is fresh. If these two folders exist, delete them: ~/.claude/plugins/cache/metrifi and ~/.claude/plugins/cache/metrifi-internal (on Windows they live under %USERPROFILE%\.claude\plugins\cache\ with those same two names). They hold only MetriFi's cached plugin build, nothing else, and the next step rebuilds them. If the folders aren't there, there's nothing to do. Only delete those two MetriFi folders, and leave everything else in that cache alone. This makes sure the install uses the current plugin instead of a stale cached copy from before.
+
+2. Install the plugin:
    - Run: claude plugin marketplace add metrifi/plugins
    - Run: claude plugin install metrifi@metrifi --scope user
    If a command isn't found, tell me my Claude Code may need updating, and stop.
 
-2. Turn on automatic updates so I never have to update this by hand: open my Claude settings file at ~/.claude/settings.json, find the "metrifi" entry under "extraKnownMarketplaces" (the marketplace step in #1 just created it), and add "autoUpdate": true to that entry. Read the file, add only that one key, and write it back without changing anything else. If for any reason you can't safely edit that file, tell me to run /plugin, open the Marketplaces tab, select "metrifi", and choose "Enable auto-update" instead. Confirm which way it got set. With this on, MetriFi ships new skills and fixes to me automatically at app launch, no commands.
+3. Turn on automatic updates so I never have to update this by hand: open my Claude settings file at ~/.claude/settings.json, find the "metrifi" entry under "extraKnownMarketplaces" (the marketplace step in #2 just created it), and add "autoUpdate": true to that entry. Read the file, add only that one key, and write it back without changing anything else. If for any reason you can't safely edit that file, tell me to run /plugin, open the Marketplaces tab, select "metrifi", and choose "Enable auto-update" instead. Confirm which way it got set. With this on, MetriFi ships new skills and fixes to me automatically at app launch, no commands.
 
-3. Activate it now: run /reload-plugins (or tell me to fully quit and reopen Claude).
+4. Activate it now: run /reload-plugins (or tell me to fully quit and reopen Claude).
 
-4. Tell me the one thing only I can do: open Settings -> Connectors, find "MetriFi", click Connect, and sign in with my MetriFi account. The plugin's skills load right away, but nothing works until I do this sign-in. If I don't have a MetriFi account yet: when the sign-in window opens I can create a new MetriFi team right there if my organization doesn't have one yet — otherwise ask an admin on my existing MetriFi team to invite me first.
+5. Tell me the one thing only I can do: open Settings -> Connectors, find "MetriFi", click Connect, and sign in with my MetriFi account. The plugin's skills load right away, but nothing works until I do this sign-in. If I don't have a MetriFi account yet: when the sign-in window opens I can create a new MetriFi team right there if my organization doesn't have one yet — otherwise ask an admin on my existing MetriFi team to invite me first.
 
-5. Wrap up: confirm the plugin is installed and enabled and that auto-update is on, remind me to do the Settings -> Connectors sign-in, then tell me that once I'm signed in I can confirm the connection by asking "Who am I on MetriFi?" — that works even before any sites are set up.
+6. Wrap up: confirm the plugin is installed and enabled and that auto-update is on, remind me to do the Settings -> Connectors sign-in, then tell me that once I'm signed in I can confirm the connection by asking "Who am I on MetriFi?" — that works even before any sites are set up.
 ```
 
 ---
