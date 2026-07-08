@@ -47,12 +47,20 @@ your existing MetriFi team to invite you** first.
 
 ## Staying up to date
 
-- **Your own install:** `/plugin marketplace update metrifi` (Claude Code) or
-  `codex plugin marketplace upgrade metrifi` (Codex) pulls the latest version — no
-  reinstall.
-- **A whole organization, zero-touch:** see [`enterprise/`](enterprise/) — a managed
-  setting installs the plugin for every member and **auto-updates it at launch**, no
-  commands. `metrifi/plugins` is public, so no access token is needed.
+**On Claude, updates are automatic.** The paste-in install prompt (and
+[`install-prompt.md`](install-prompt.md)) turns on auto-update for you, so new
+skills and fixes arrive on their own at app launch — you never run an update
+command. If you installed by hand and want the same, set `"autoUpdate": true`
+on the `metrifi` entry under `extraKnownMarketplaces` in `~/.claude/settings.json`
+(or toggle it in `/plugin` → Marketplaces → metrifi → Enable auto-update).
+
+**On Codex, updates are manual for now** (Codex has no plugin auto-update yet):
+run `codex plugin marketplace upgrade metrifi` to pull the latest skills. The
+hosted MCP server always updates on its own, on both apps.
+
+> **IT / fleet deployments:** to push the plugin and auto-update to every member
+> of an org via a managed setting, see [`enterprise/`](enterprise/). Most users
+> don't need this — the install prompt above already handles auto-update per person.
 
 ## Releasing (MetriFi maintainers)
 
