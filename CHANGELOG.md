@@ -4,6 +4,18 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## Unreleased (docs only, no version bump)
+
+- `install-prompt.md`: the Claude one-paste prompt gained a pre-install step that
+  clears any stale `~/.claude/plugins/cache/metrifi` and `metrifi-internal` build
+  cache before install, so a reinstall is served fresh. Steps renumbered; the
+  Codex prompt is unchanged. The header now names the hand-synced counterpart in
+  `bloomcu/metrifi-mcp-gateway-laravel` (`CLAUDE_PROMPT` / `CODEX_PROMPT` in
+  `resources/js/Home.tsx`, served at `mcp.metrifi.com/install/{claude,codex}`).
+- **No `version` bump on purpose:** these are repo-facing docs, not part of the
+  shipped skill bundle, so there is nothing for `/plugin marketplace update` to
+  deliver to installed clients.
+
 ## 1.0.1
 
 - Skills: added a **Prerequisites** section to `generate-claude-design-system`
