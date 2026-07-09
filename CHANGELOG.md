@@ -6,6 +6,14 @@ updates off this field — same version, no update.
 
 ## Unreleased (docs only, no version bump)
 
+- `install-prompt.md`: both prompts now instruct the installing agent to close
+  with a distinct "## What you need to do" checklist instead of burying the
+  required next steps in a wrap-up paragraph, and to put the "Who am I on
+  MetriFi?" test phrase in its own copyable code block. Formalizes "try a new
+  conversation first, then quit and restart the app if that doesn't work" as
+  the activation step for both providers. The Codex prompt's sign-in step (2)
+  is also brought back in sync with the hand-synced counterpart in
+  `bloomcu/metrifi-mcp-gateway-laravel`, which had drifted ahead.
 - `install-prompt.md`: the Claude one-paste prompt gained a pre-install step that
   clears any stale `~/.claude/plugins/cache/metrifi` and `metrifi-internal` build
   cache before install, so a reinstall is served fresh. Steps renumbered; the
