@@ -22,9 +22,9 @@ Do not skip ahead: a page designed before the system exists inherits whatever de
 
 Fetch the canonical stage-1 process from the MetriFi knowledge store and follow it end to end:
 
-`metrifi_get_doc("docs/generate-claude-design-system.md")`
+`get-doc("docs/generate-claude-design-system.md")`
 
-(Through the gateway the tool is `sitebuilder__metrifi_get_doc`.) That doc is the single source of truth — preflight, brand-input resolution, driving Claude Design, landing tokens with `metrifi_set_brand`, compliance identity, and the approval gate. Don't reconstruct the steps from memory; read it fresh each run.
+(Through the MetriFi plugin it surfaces as `mcp__metrifi__get-doc`.) That doc is the single source of truth — preflight, brand-input resolution, driving Claude Design, landing tokens with `set-brand`, compliance identity, and the approval gate. Don't reconstruct the steps from memory; read it fresh each run.
 
 ## Guardrails (hold regardless)
 

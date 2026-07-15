@@ -5,14 +5,10 @@ technical: copy the prompt for your app, paste it into that AI agent, and it
 installs the plugin itself and walks you through the sign-in. You never touch a
 terminal.
 
-These are the canonical prompts. There is a **second, hand-synced copy**: the
-`CLAUDE_PROMPT` / `CODEX_PROMPT` constants in `resources/js/Home.tsx` in
-`bloomcu/metrifi-mcp-gateway-laravel`, served by the live copy-buttons at
-**https://mcp.metrifi.com/install/claude** and **.../install/codex**. If you
-edit a prompt here, make the identical edit there (mind the Windows-path
-backslashes: single here in Markdown, doubled in that JS template literal).
-Single-sourcing these is tracked for M4 in the monolith plan. Keep them in sync
-until then.
+These are the canonical prompts — the single source. (The old hand-synced copy
+served at mcp.metrifi.com/install/* retired with the MCP gateway at the July 2026
+platform cutover; a platform-hosted install page is future work and should embed
+these verbatim.)
 
 ---
 
@@ -57,7 +53,7 @@ You are setting up the MetriFi plugin in Codex on my computer for me. I am not t
    - Run: codex plugin add metrifi@metrifi
    If a command isn't found, tell me my Codex may need updating, and stop.
 
-2. Sign in to MetriFi: run codex mcp login metrifi — this opens my browser to a MetriFi sign-in. Tell me to approve it there, and that the sign-in page waits only a couple of minutes, so I should do it right away. If I don't have a MetriFi account yet: the sign-in page lets me create one, and I can create a new MetriFi team if my organization doesn't have one yet — otherwise ask an admin on my existing MetriFi team to invite me first. If the login command fails, tell me my Codex may need updating and point me to https://mcp.metrifi.com/install/codex for the manual steps — do not invent another way to authenticate.
+2. Sign in to MetriFi: run codex mcp login metrifi — this opens my browser to a MetriFi sign-in. Tell me to approve it there, and that the sign-in page waits only a couple of minutes, so I should do it right away. If I don't have a MetriFi account yet: the sign-in page lets me create one, and I can create a new MetriFi team if my organization doesn't have one yet — otherwise ask an admin on my existing MetriFi team to invite me first. If the login command fails, tell me my Codex may need updating and point me to https://github.com/metrifi/plugins#codex for the manual steps — do not invent another way to authenticate.
 
 3. Note about updates: Codex doesn't auto-update plugins yet, so to get the latest MetriFi skills later I run: codex plugin marketplace upgrade metrifi (the MCP server itself always updates on its own, no action needed). Remind me of this in your wrap-up.
 

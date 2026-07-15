@@ -30,7 +30,7 @@ That's it. It does two things:
   the new skills are live in that session. **No command, no reinstall.** New skills
   take effect in sessions started after the update (a running session keeps what it
   loaded — reopening picks up the update).
-- **The MetriFi tools themselves** (the MCP server at `mcp.metrifi.com`) are hosted by
+- **The MetriFi tools themselves** (the MCP server at `platform.metrifi.com`) are hosted by
   MetriFi and update the moment we deploy — clients get server changes live, with no
   action at all.
 

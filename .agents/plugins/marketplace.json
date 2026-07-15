@@ -4,12 +4,12 @@
     "name": "MetriFi",
     "email": "ryan.harmon@metrifi.com"
   },
-  "description": "MetriFi for Codex: one sign-in to the MetriFi MCP gateway plus the MetriFi site-design skills, for credit unions and banks.",
+  "description": "MetriFi for Codex: one sign-in to the MetriFi platform plus the MetriFi site-design skills, for credit unions and banks.",
   "plugins": [
     {
       "name": "metrifi",
       "source": "./plugins/codex/metrifi",
-      "description": "The MetriFi plugin: the gateway connection (Site Builder tools now; GEO and more as they go live), the client-report skill for auditing an institution's existing website, and the three-stage site-design skills. Self-contained \u2014 this is the only plugin you need.",
+      "description": "The MetriFi plugin: the MetriFi platform connection (Site Builder, GEO, and CRO tools), the client-report skill for auditing an institution's existing website, and the three-stage site-design skills. Self-contained — this is the only plugin you need.",
       "category": "integration",
       "keywords": [
         "metrifi",

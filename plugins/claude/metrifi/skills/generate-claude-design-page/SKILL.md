@@ -15,20 +15,20 @@ Claude Code drives Claude Design to generate a **page** on the client's establis
 
 ## Prerequisites
 
-- **An approved design system must already exist** for this client (from stage 1, generate-claude-design-system). This stage builds a page *on* that system — it does not create one. Check with `metrifi_get_brand`; if there's no resolved brand yet, or the site is brand-new, run stage 1 first.
+- **An approved design system must already exist** for this client (from stage 1, generate-claude-design-system). This stage builds a page *on* that system — it does not create one. Check with `get-brand`; if there's no resolved brand yet, or the site is brand-new, run stage 1 first.
 - The local Claude Design engine (`@pro-vi/designer`) — the process doc covers setup; see also the plugin README.
 
 ## The process lives in one place
 
 Fetch the canonical stage-2 process from the MetriFi knowledge store and follow it end to end:
 
-`metrifi_get_doc("docs/generate-claude-design-page.md")`
+`get-doc("docs/generate-claude-design-page.md")`
 
-(Through the gateway the tool is `sitebuilder__metrifi_get_doc`.) That doc is the single source of truth — preflight, fetching the conversion rubric with test citations, driving Claude Design, the acceptance check, handoff, building in code per the Page Design Process conventions, QA, and the approval gate. Read it fresh each run.
+(Through the MetriFi plugin it surfaces as `mcp__metrifi__get-doc`.) That doc is the single source of truth — preflight, fetching the conversion rubric with test citations, driving Claude Design, the acceptance check, handoff, building in code per the Page Design Process conventions, QA, and the approval gate. Read it fresh each run.
 
 ## Guardrails (hold regardless)
 
-- Design decisions cite the A/B evidence (`metrifi_get_proven_pattern`, `metrifi_get_anti_patterns`, test IDs); if the data is silent, say so — never invent citations.
+- Design decisions cite the A/B evidence (`get-proven-pattern`, `get-anti-patterns`, test IDs); if the data is silent, say so — never invent citations.
 - Every rate renders through the managed rate components; never type a rate number into a page.
 - Requires the local `@pro-vi/designer` engine; if it can't come up, say so and stop — never fake a generated design.
 - STOP at the approval gate with the preview URL. Never publish without explicit human approval.

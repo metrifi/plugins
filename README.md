@@ -1,13 +1,13 @@
 # MetriFi plugin
 
 One install connects your AI tool to MetriFi — the Site Builder tools (design,
-edit, preview, and publish your website the MetriFi way) plus the MetriFi
-site-design skills. You sign in with your MetriFi account the first time; no
-tokens to paste. Full instructions: **https://mcp.metrifi.com**
+edit, preview, and publish your website the MetriFi way), GEO (AI-search
+visibility), and CRO analytics, plus the MetriFi site-design skills. You sign
+in with your MetriFi account the first time; no tokens to paste. Full
+instructions are right here.
 
 > **Not technical? The easiest way to install is to paste a prompt** into your AI
-> agent and let it install itself, no terminal. See [`install-prompt.md`](install-prompt.md),
-> or just go to https://mcp.metrifi.com and pick your app.
+> agent and let it install itself, no terminal. See [`install-prompt.md`](install-prompt.md).
 
 ## Claude (claude.ai / Claude Desktop) — no terminal
 
@@ -32,7 +32,7 @@ codex mcp login metrifi
 
 ## What's inside
 
-- The MetriFi connector (`https://mcp.metrifi.com/mcp`, OAuth via id.metrifi.com)
+- The MetriFi connector (`https://platform.metrifi.com/mcp`; OAuth with your MetriFi sign-in)
 - Skills: `generate-claude-design-system` → `generate-claude-design-page` →
   `page-design-process` (the three-stage MetriFi site-design workflow; the full
   methodology is fetched from MetriFi at runtime, behind your sign-in)

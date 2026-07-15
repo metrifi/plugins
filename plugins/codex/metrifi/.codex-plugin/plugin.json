@@ -5,10 +5,10 @@
     "name": "MetriFi",
     "email": "ryan.harmon@metrifi.com"
   },
-  "homepage": "https://mcp.metrifi.com",
+  "homepage": "https://platform.metrifi.com",
   "interface": {
     "displayName": "MetriFi",
-    "shortDescription": "One MetriFi sign-in to the MCP gateway (Site Builder now; GEO and more as they go live) plus the MetriFi site-design skills. No token paste."
+    "shortDescription": "One MetriFi sign-in to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) plus the MetriFi site-design skills. No token paste."
   },
   "mcpServers": "./.mcp.json"
 }

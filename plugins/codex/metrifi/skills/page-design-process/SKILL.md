@@ -21,7 +21,7 @@ This is the default, highest-volume way pages get built. Claude Design's job was
 
 The full, canonical Page Design Process — order of operations, use-case analysis, applying A/B insights, the written recommendation, designing in code against the prototype + design system, the rationale doc, the QA pass, and the lifecycle wrap-up — is the Site Builder's own methodology doc. **Read and follow it end to end:**
 
-`metrifi_get_doc("docs/page-design-process.md")`
+`get-doc("docs/page-design-process.md")`
 
 That doc is the single source of truth for the steps; this skill is the discoverable entry point that frames *when* to use it (stage 3, prerequisites above) and the guardrails below. Don't restate or fork the process here — follow the doc.
 
@@ -32,7 +32,7 @@ That doc is the single source of truth for the steps; this skill is the discover
 - **Rates are managed.** Never type a rate number into a page — every rate renders through the managed rate components. See `docs/rate-management.md`.
 - **Compliance is a gate.** The site's compliance record must be resolved and its required disclosure elements present (client-approved text or a tracked placeholder); the server refuses to publish while `COMPLIANCE_UNRESOLVED`. See the Compliance section of `docs/page-qa.md`.
 - **QA before done.** The page passes the `docs/page-qa.md` gate against the live preview and the lifecycle wrap-up (PDP steps 10–11). Those docs own the checklist; don't restate it here.
-- **Publish is human-gated.** Preview with `metrifi_get_preview_url`; never `metrifi_publish_site` without the user's explicit approval.
+- **Publish is human-gated.** Preview with `get-preview-url`; never `publish-site` without the user's explicit approval.
 
 ## When NOT to use this
 
