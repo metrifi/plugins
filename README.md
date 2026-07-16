@@ -32,6 +32,8 @@ codex mcp login metrifi
 
 ## What's inside
 
+- Account tools: whoami (answers "Who am I on MetriFi?"), team and member
+  management (invite, roles, switching), and connection-token management
 - The MetriFi connector (`https://platform.metrifi.com/mcp`; OAuth with your MetriFi sign-in)
 - Skills: `generate-claude-design-system` → `generate-claude-design-page` →
   `page-design-process` (the three-stage MetriFi site-design workflow; the full
