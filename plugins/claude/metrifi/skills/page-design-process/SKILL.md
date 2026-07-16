@@ -38,4 +38,4 @@ That doc is the single source of truth for the steps; this skill is the discover
 
 - No design system / prototype yet → generate-claude-design-system then generate-claude-design-page.
 - A page that intentionally breaks the established system enough to warrant fresh visual exploration → generate-claude-design-page (a deliberate one-off).
-- A human wants to taste design variants interactively → designer-loop.
+- A human wants to sit in the loop and taste design variants interactively, iterating by feel → designer-loop. (But "give me three options to pick from" for a prototype is generate-claude-design-page, not designer-loop.)
