@@ -1,14 +1,27 @@
 {
   "name": "metrifi",
-  "owner": { "name": "MetriFi", "email": "ryan.harmon@metrifi.com" },
+  "owner": {
+    "name": "MetriFi",
+    "email": "ryan.harmon@metrifi.com"
+  },
   "description": "MetriFi for Claude: one sign-in to the MetriFi MCP gateway plus the MetriFi site-design skills, for credit unions and banks.",
   "plugins": [
     {
       "name": "metrifi",
       "source": "./plugins/claude/metrifi",
-      "description": "The MetriFi plugin: the gateway connection (Site Builder tools now; GEO and more as they go live) plus the three-stage site-design skills. Self-contained — this is the only plugin you need.",
+      "description": "The MetriFi plugin: the gateway connection (Site Builder tools now; GEO and more as they go live), the client-report skill for auditing an institution's existing website, and the three-stage site-design skills. Self-contained \u2014 this is the only plugin you need.",
       "category": "integration",
-      "keywords": ["metrifi", "mcp", "site-builder", "credit-union", "bank", "skills"]
+      "keywords": [
+        "metrifi",
+        "mcp",
+        "site-builder",
+        "credit-union",
+        "bank",
+        "skills",
+        "client-report",
+        "audit",
+        "report"
+      ]
     }
   ]
 }
