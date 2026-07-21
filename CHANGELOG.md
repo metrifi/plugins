@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.2.0 — 2026-07-21
+
+- Platform cutover: plugin now connects to platform.metrifi.com/mcp (Site Builder, GEO, CRO); mcp.metrifi.com retired
+
 ## Unreleased (docs only, no version bump)
 
 - `install-prompt.md`: both prompts now instruct the installing agent to close
