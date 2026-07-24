@@ -24,8 +24,8 @@ export const CLAUDE_SKILLS = 'plugins/claude/metrifi/skills';
 // Entries whose consuming skill does not exist yet are a hard error, not a skip:
 // add the mapping in the same change that adds the skill.
 export const REFERENCE_MAP = {
-    'workflow-overview.md': ['start', 'exp-status'],
-    // Phase 2 (exp-research, exp-build) adds: 'methodology-rules.md'.
+    'workflow-overview.md': ['start', 'exp-status', 'exp-research', 'exp-build'],
+    'methodology-rules.md': ['exp-research', 'exp-build'],
     // Phase 3 (exp-review) adds: 'methodology-rules.md' + the four review-*.md batteries.
 };
 

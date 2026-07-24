@@ -38,9 +38,12 @@ codex mcp login metrifi
 - Skills: `generate-claude-design-system` → `generate-claude-design-page` →
   `page-design-process` (the three-stage MetriFi site-design workflow; the full
   methodology is fetched from MetriFi at runtime, behind your sign-in)
-- GEO experiment skills: `start` (orient, then point you at the right skill) and
+- GEO experiment skills: `start` (orient, then point you at the right skill),
   `exp-status` (a read-only rollup of where every experiment and deliverable
-  stands). The phase skills land in follow-on releases.
+  stands), `exp-research` (a topic to a demand-grounded campaign with baseline
+  runs going) and `exp-build` (a populated campaign to a scored opportunity and
+  a drafted client deliverable). The review, deliver, and revise phases land in
+  follow-on releases.
 
 **After connecting, check it's working:** ask your AI agent **"Who am I on
 MetriFi?"** — it returns your MetriFi account, which confirms the connection for
