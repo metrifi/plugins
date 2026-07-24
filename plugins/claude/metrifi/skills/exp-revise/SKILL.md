@@ -193,8 +193,10 @@ the deliverable on the list for them.
 
 Then leave the handoff readable:
 `set-experiment-workflow(team_id, experiment_id, status, note)` with a note the next operator can act
-on, and `add-experiment-event` for the round with a stable `idempotency_key` such as
-`revision-round-2`, so a re-run after a crash does not double the log.
+on, and `add-experiment-event` for the round. Pass `idempotency_key` with a stable value per round,
+such as `revision-round-2`, so a resumed run cannot double-log. If the tool rejects that argument,
+the platform milestone carrying it has not shipped yet: drop it, and read the event log for an
+existing line for this round before writing one.
 
 ## What to report
 

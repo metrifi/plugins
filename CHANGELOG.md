@@ -46,6 +46,10 @@ marketplace publish happen in one `tools/release.mjs` run at the end of M14, not
   to all three new skills, and `methodology-rules.md` plus the four `review-*.md` batteries go
   to both `exp-review` and `exp-revise`. `exp-revise` gets the batteries because it re-runs the
   checks its own article edit staled and cannot call another skill to do that for it.
+- **All three skills degrade on `add-experiment-event`'s `idempotency_key`**, matching what
+  Phase 2 does in `exp-build`: pass a stable key per round, and if the tool rejects the argument
+  (platform M13 Phase 3 has not shipped), drop it and read the event log for an existing line
+  before writing one.
 
 ## Unreleased — M14 Phase 2: `exp-research` + `exp-build`
 
