@@ -41,9 +41,12 @@ codex mcp login metrifi
 - GEO experiment skills: `start` (orient, then point you at the right skill),
   `exp-status` (a read-only rollup of where every experiment and deliverable
   stands), `exp-research` (a topic to a demand-grounded campaign with baseline
-  runs going) and `exp-build` (a populated campaign to a scored opportunity and
-  a drafted client deliverable). The review, deliver, and revise phases land in
-  follow-on releases.
+  runs going), `exp-build` (a populated campaign to a scored opportunity and a
+  drafted client deliverable), `exp-review` (the four pre-publish checks:
+  hygiene, NCUA compliance, accessibility, fact verification), `exp-deliver`
+  (build the client page, preview the email to yourself, send only on your
+  explicit OK), and `exp-revise` (apply what the client answered, push a
+  revision, re-run the checks the edit staled)
 
 **After connecting, check it's working:** ask your AI agent **"Who am I on
 MetriFi?"** — it returns your MetriFi account, which confirms the connection for
