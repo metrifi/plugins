@@ -4,6 +4,35 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## Unreleased — M14 Phase 2: `exp-research` + `exp-build`
+
+The two write phases of the GEO experiment workflow (platform plan `m14-plugin-experiment-skills`).
+**No `version` bump here either:** one `tools/release.mjs` run publishes all of M14 at the end.
+
+- **New skill `exp-research`.** Topic to demand-grounded campaign: a wide candidate set spread
+  across intent angles, segments, and geographies (never a brand name in a prompt), demand measured
+  with `research-keywords` on umbrella noun phrases (rule 2), keep/drop triage on measured volume
+  alone (rules 1 and 3) with every verdict including the drops recorded through
+  `record-keyword-research`, then the campaign, a draft experiment record, only the surviving
+  prompts, the run, and `get-campaign-readiness` read as a fact with no poll loop. Dry-run mode
+  stops after triage and creates no prompts and runs nothing.
+- **New skill `exp-build`.** Populated campaign to a defensible draft: readiness first, then a
+  read-only baseline analysis carrying the institution-citation gate (rule 5), the Viability Verdict
+  block (rule 16), a pivot ladder whose executable tiers are re-select, re-angle, and re-scope
+  (re-campaign and AVOID-at-HIGH go back to the human), pivots attached with `update-experiment`
+  `prompt_ids_mode: "add"` and logged through `add-experiment-event` with a stable idempotency key,
+  a ceiling of two executed pivots, then `set-experiment-opportunity`, the `build-analysis`,
+  `evidence`, and `decisions` documents through `set-experiment-document`, the article through
+  `update-deliverable-draft`, and `build-deliverable` with `dry_run` first.
+- **Both skills consume `methodology-rules.md` and `workflow-overview.md`** from their own
+  `references/` folders; `tools/reference-sync.mjs` gained the four map entries.
+- **Two behaviors recorded from prod reads.** `get-campaign-readiness` counts responses inside a
+  lookback window, so a campaign with an older baseline reports 0 percent populated while
+  `list-prompts` shows responses on every prompt: both skills say to check `window_days` before
+  believing a zero. And `add-experiment-event` only accepts `idempotency_key` once platform M13
+  Phase 3 ships, so `exp-build` degrades to reading the event log, the same shape `exp-status` uses
+  for `list-deliverables-needing-attention`.
+
 ## Unreleased — M14 Phase 1: reference set, sync pipeline, `start` + `exp-status`
 
 First slice of the GEO experiment workflow (platform plan `m14-plugin-experiment-skills`).
