@@ -4,6 +4,49 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## Unreleased (M14 Phase 3): `exp-review`, `exp-deliver`, `exp-revise`
+
+The review, send, and revise phases of the GEO experiment workflow (platform plan
+`m14-plugin-experiment-skills`). **No `version` bump here on purpose:** the bump and the
+marketplace publish happen in one `tools/release.mjs` run at the end of M14, not per phase.
+
+- **New skill `exp-review`.** Runs all four pre-publish checks itself, one at a time, from the
+  four batteries in its own `references/` folder: no fan-out to sub-skills, which is what the
+  old plugin did and what Codex does not document. Each battery writes its full report with
+  `set-experiment-document` (`review-hygiene`, `review-ncua`, `review-ada`, `review-fact`) and
+  records its verdict with `record-deliverable-check`, then a `review-summary` rollup gathers
+  the blockers, the deferred items, and what needs a human. The body states why recording is
+  load-bearing: a ready-status send refuses until all four checks have a current non-failing
+  result, so skipping one is structurally visible, and an article edit stales the checks pinned
+  to it (`article_changed`). It also carries rule 19's three-test gate before any finding is
+  allowed to become a client action item.
+- **New skill `exp-deliver`.** `build-deliverable` (dry run first, then read the summary and
+  every warning aloud), `send-deliverable` with `preview: true` to the operator's own inbox,
+  then the real send only after the human's explicit OK in the conversation, with the recipient
+  named first. `client_email` plus `client_name` capture the client participant, without which
+  the deliverable can never be followed up on. The client magic link is never surfaced before
+  the send. Server refusals (missing/failing/stale check, contract failure, guarded `published`)
+  are documented as instructions to follow rather than obstacles to route around, and picking a
+  status to dodge the check gate is called out by name.
+- **New skill `exp-revise`.** `list-deliverables-needing-attention` for the worklist,
+  `get-deliverable-activity` for the unprocessed window, client answers applied as methodology
+  inputs (rules 15 and 19) rather than literal edit commands, answers that fail the rules
+  `returned` with a plain-language explanation, confirmations re-verified against the real
+  source, the revision pushed via `update-deliverable-draft` plus `build-deliverable`, every
+  staled check re-run and re-recorded, the send held to the same gate discipline (described in
+  full, since no skill may invoke another), and `mark-deliverable-activity-processed` as the
+  LAST step so a crashed run leaves the deliverable correctly still listed. A run that finds
+  nothing reports one line and stops, which is what makes it safe on a cadence. Two behaviors
+  found while sanity-reading prod and written into the body: `get-deliverable-activity`'s `since`
+  filter is exclusive, so passing the worklist's "waiting since" timestamp drops the oldest
+  unprocessed row (read the ledger instead and reconcile against the worklist's per-kind counts),
+  and the ledger does not surface activity ids, so partial marking is usually unavailable and the
+  fallback is to leave the deliverable listed rather than mark work nobody did.
+- **Reference sync map extended** in `tools/reference-sync.mjs`: `workflow-overview.md` now goes
+  to all three new skills, and `methodology-rules.md` plus the four `review-*.md` batteries go
+  to both `exp-review` and `exp-revise`. `exp-revise` gets the batteries because it re-runs the
+  checks its own article edit staled and cannot call another skill to do that for it.
+
 ## Unreleased — M14 Phase 2: `exp-research` + `exp-build`
 
 The two write phases of the GEO experiment workflow (platform plan `m14-plugin-experiment-skills`).
