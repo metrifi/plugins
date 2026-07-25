@@ -49,8 +49,9 @@ whose first send has not gone out.
 
 ## 2. The unprocessed window
 
-`get-deliverable-activity(team_id, deliverable_id)`. Rows come back oldest first, so you can work
-them in order.
+`get-deliverable-activity(team_id, deliverable_id)`. Rows come back oldest first, each printed with
+its activity id (`#123`), so you can work them in order and keep the ids as you go. You need them in
+section 9 if it turns out you can only handle part of the window.
 
 **Do not pass the worklist's "waiting since" timestamp as `since`.** That filter is exclusive, so the
 oldest unprocessed row is exactly the one it drops. Either omit `since` and read the ledger, or pass
@@ -184,19 +185,22 @@ everything on the ledger, which is the normal case: you read the whole unprocess
 with it. Re-marking is a harmless no-op, the watermark never moves backwards, and nothing is logged
 to the experiment, because this is bookkeeping and not a milestone.
 
-Pass `through_activity_id` only when you handled part of a burst and you actually have the row's id.
-If the ledger you read does not show ids, you do not have that option, and the fallback is the safe
-direction: **do not mark at all.** Leaving a deliverable listed costs the next run one read. Marking
-work nobody did hides it for good, and the worklist is only useful while it tells the truth. So if an
-opt-out request, a withdrawn approval, or a surviving blocker still needs a person, say so and leave
-the deliverable on the list for them.
+**Pass `through_activity_id` when you handled only part of the window.** The ledger prints each row's
+activity id, so you have the ids from section 2: pass the id of the newest row you **fully** handled,
+and everything after it stays unprocessed for the next run.
+
+Either way the mark is still the last thing you do. And never mark past a row that still needs a
+person: if an opt-out request, a withdrawn approval, or a surviving blocker sits in the window, mark
+up to the row before it and say plainly what is left, or leave the deliverable unmarked entirely.
+Leaving a deliverable listed costs the next run one read. Marking work nobody did hides it for good,
+and the worklist is only useful while it tells the truth.
 
 Then leave the handoff readable:
 `set-experiment-workflow(team_id, experiment_id, status, note)` with a note the next operator can act
-on, and `add-experiment-event` for the round. Pass `idempotency_key` with a stable value per round,
-such as `revision-round-2`, so a resumed run cannot double-log. If the tool rejects that argument,
-the platform milestone carrying it has not shipped yet: drop it, and read the event log for an
-existing line for this round before writing one.
+on, and `add-experiment-event` for the round. Always pass `idempotency_key` with a stable value per
+round, such as `revision-round-2`, so a resumed run cannot double-log: a key that already exists
+means this round was already logged, and the call returns that event instead of appending a second
+one.
 
 ## What to report
 

@@ -4,6 +4,38 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## Unreleased (M14 Phase 4): punch list + cross-host QA runbook
+
+Copy fixes against the platform as deployed (M11 to M13 live, including migration `geo_0045` and
+platform PR #49), plus the runbook that gates the release. **No `version` bump here either:** the bump
+and the marketplace publish are one `tools/release.mjs` run at the end of M14, which Ryan runs.
+
+- **`start`: the wrong-scope warning no longer talks about quota.** The real cost of creating a
+  campaign against the wrong scope is that the research lands in the wrong client's workspace and
+  pollutes the visibility data they read. That is what it now says.
+- **`idempotency_key` is unconditional in all four skills that log workflow events** (`exp-build`,
+  `exp-review`, `exp-deliver`, `exp-revise`). The argument is live on prod, so the rejected-key
+  fallback prose is gone: always pass a stable key per step, and a repeat call under an existing key
+  returns the event already logged instead of appending a second one.
+- **`exp-revise` partial marking now works.** The activity ledger prints each row's activity id
+  (`#123`), so the skill reads the ids as it works the window and passes `through_activity_id` for the
+  newest row it **fully** handled, marks everything only when it handled everything, and never marks
+  past a row that still needs a person. The mark is still the last step.
+- **`exp-status` no longer carries the pre-M13 degrade path** for
+  `list-deliverables-needing-attention`. The tool is live, so the body starts there and the frontmatter
+  lists it among the reads. Nothing in a customer-facing skill names an internal platform milestone
+  now.
+- **New `docs/m14-phase4-qa-runbook.md`.** The cross-host QA script Ryan and Kaili execute: pass
+  criteria, per-host setup and skill-visibility checks for Claude Code and Codex, the QA safety rails
+  (a dedicated QA team, never `client_email`, preview-only sends to the operator's own inbox, no client
+  URL, DataForSEO spend capped), the step-by-step script including one deliberately refused send and
+  the operator-swap test, the deviations table to paste into the plan's Phase 4 status block, and the
+  go/no-go checklists for the two one-way doors (the `release.mjs` publish, which only Ryan runs, and
+  archiving `paraloom-plugin`).
+- **Two Phase 3 notes below were corrected in place**, because the section has not shipped yet and
+  would otherwise publish two claims that stopped being true when M13 deployed: the activity ledger
+  does print activity ids, and `add-experiment-event` does accept `idempotency_key`.
+
 ## Unreleased (M14 Phase 3): `exp-review`, `exp-deliver`, `exp-revise`
 
 The review, send, and revise phases of the GEO experiment workflow (platform plan
@@ -40,16 +72,14 @@ marketplace publish happen in one `tools/release.mjs` run at the end of M14, not
   found while sanity-reading prod and written into the body: `get-deliverable-activity`'s `since`
   filter is exclusive, so passing the worklist's "waiting since" timestamp drops the oldest
   unprocessed row (read the ledger instead and reconcile against the worklist's per-kind counts),
-  and the ledger does not surface activity ids, so partial marking is usually unavailable and the
-  fallback is to leave the deliverable listed rather than mark work nobody did.
+  and the ledger prints each row's activity id, so partial marking passes `through_activity_id` for
+  the newest fully handled row and never marks past a row that still needs a person.
 - **Reference sync map extended** in `tools/reference-sync.mjs`: `workflow-overview.md` now goes
   to all three new skills, and `methodology-rules.md` plus the four `review-*.md` batteries go
   to both `exp-review` and `exp-revise`. `exp-revise` gets the batteries because it re-runs the
   checks its own article edit staled and cannot call another skill to do that for it.
-- **All three skills degrade on `add-experiment-event`'s `idempotency_key`**, matching what
-  Phase 2 does in `exp-build`: pass a stable key per round, and if the tool rejects the argument
-  (platform M13 Phase 3 has not shipped), drop it and read the event log for an existing line
-  before writing one.
+- **All three skills pass `add-experiment-event`'s `idempotency_key`**, matching what Phase 2 does in
+  `exp-build`: a stable key per round, so a resumed run cannot double-log.
 
 ## Unreleased — M14 Phase 2: `exp-research` + `exp-build`
 
@@ -76,9 +106,8 @@ The two write phases of the GEO experiment workflow (platform plan `m14-plugin-e
 - **Two behaviors recorded from prod reads.** `get-campaign-readiness` counts responses inside a
   lookback window, so a campaign with an older baseline reports 0 percent populated while
   `list-prompts` shows responses on every prompt: both skills say to check `window_days` before
-  believing a zero. And `add-experiment-event` only accepts `idempotency_key` once platform M13
-  Phase 3 ships, so `exp-build` degrades to reading the event log, the same shape `exp-status` uses
-  for `list-deliverables-needing-attention`.
+  believing a zero. And `add-experiment-event` accepts a stable `idempotency_key`, so `exp-build`
+  passes one per pivot and a resumed run cannot double-log.
 
 ## Unreleased — M14 Phase 1: reference set, sync pipeline, `start` + `exp-status`
 
@@ -98,9 +127,9 @@ First slice of the GEO experiment workflow (platform plan `m14-plugin-experiment
 - **New skills `start` and `exp-status`.** `start` orients (whoami, list-teams,
   get-experiment-workflow), carries the identity rule, the three scoping questions, and
   the three human gates, then tells the user which skill fits next. `exp-status` is a
-  read-only rollup; it prefers `list-deliverables-needing-attention` and degrades to
-  `list-deliverables` plus `get-deliverable-activity`, since that tool ships with platform
-  M13. Both consume `workflow-overview.md` from their own `references/` folder.
+  read-only rollup; it starts from `list-deliverables-needing-attention` and fills in the detail
+  with `list-deliverables` plus `get-deliverable-activity`. Both consume `workflow-overview.md`
+  from their own `references/` folder.
 - **`tools/reference-sync.mjs` (new)** holds the source-to-consumer map and the copy.
   `tools/release.mjs` runs it before the Codex mirror and gained `--sync-only`, which runs
   both deterministic sync steps plus validation and stops short of any version bump,

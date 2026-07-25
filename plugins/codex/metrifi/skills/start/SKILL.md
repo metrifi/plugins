@@ -88,8 +88,8 @@ order:
    officer.
 
 Hold every write until all three are answered. There is nothing to undo on your machine, but there
-is a campaign and a set of prompts on the platform, and creating those against the wrong scope
-wastes the client's quota and muddies their data.
+is a campaign and a set of prompts on the platform, and creating those against the wrong scope lands
+the research in the wrong client's workspace, where it pollutes the visibility data they read.
 
 ## The three human gates
 

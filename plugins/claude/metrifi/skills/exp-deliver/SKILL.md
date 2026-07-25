@@ -112,8 +112,8 @@ share with your own operator; `get-deliverable` returns it.
 - Say who it went to and when, and what the client's next move is.
 - `add-experiment-event(team_id, experiment_id, kind, summary)` for the send. Pass
   `idempotency_key` with a stable value, such as `deliverable-sent-v3`, so a resumed run cannot
-  double-log. If the tool rejects that argument, the platform milestone carrying it has not shipped
-  yet: drop it, and read the event log for an existing line for this send before writing one.
+  double-log: a key that already exists means this send was already logged, and the call returns that
+  event instead of appending a second one.
 - `set-experiment-workflow(team_id, experiment_id, status, note)` with a note the next operator can
   act on: what went out, to whom, and what we are waiting for.
 

@@ -104,10 +104,10 @@ After all four, write one `set-experiment-document` with `kind: "review-summary"
 - **Time-sensitive claims** the fact battery flagged for re-verification at publish time.
 
 Then leave the handoff readable: `set-experiment-workflow(team_id, experiment_id, status, note)` with
-a note a colleague can act on, and `add-experiment-event` for the round itself. Pass
+a note a colleague can act on, and `add-experiment-event` for the round itself. Always pass
 `idempotency_key` with a stable value per round, such as `review-round-2`, so a resumed run cannot
-double-log. If the tool rejects that argument, the platform milestone carrying it has not shipped
-yet: drop it, and read the event log for an existing line for this round before writing one.
+double-log: a key that already exists means this round was already logged, and the call returns that
+event instead of appending a second one.
 
 ## Disposition: what happens to each finding
 
