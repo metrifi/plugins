@@ -110,10 +110,10 @@ Executing a re-angle or re-scope pivot:
 5. Read `get-campaign-readiness` again before re-scoring. Same rule as step 1: read the fact, do not
    poll, and stop if the new prompts have not populated. This is safe to resume.
 6. Log it: `add-experiment-event(team_id, experiment_id, kind: "pivot-executed", summary)` naming the
-   round, the tier, the plan, and the new prompt ids. Pass `idempotency_key` with a stable value per
-   pivot, such as `pivot-2-executed`, so a resumed run cannot double-log. If the tool rejects that
-   argument, the platform milestone carrying it has not shipped yet: drop it, and read the event log
-   for an existing line for this pivot before writing one.
+   round, the tier, the plan, and the new prompt ids. Always pass `idempotency_key` with a stable
+   value per pivot, such as `pivot-2-executed`, so a resumed run cannot double-log: a key that
+   already exists means this pivot was already logged, and the call returns that event instead of
+   appending a second one.
 
 **Two executed pivots per experiment is the ceiling.** A third means the market read itself was
 wrong, which is a human call, not another round. At the ceiling, report the closest opportunities

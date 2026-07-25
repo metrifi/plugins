@@ -1,6 +1,6 @@
 ---
 name: exp-status
-description: "Read-only status rollup for MetriFi GEO experiments and client deliverables: for one experiment or across a whole team, report where each one stands, what the last operator left as a note, which of the four pre-publish checks are recorded, missing, or stale, and above all what is waiting on a human. Use whenever someone asks to check in or pick work back up: 'what needs me', 'what is waiting on me', 'where are we with this team', 'status of the HELOC experiment', 'check in on an experiment', 'what is the latest', 'how is it going', 'did the client respond', 'resume where we left off', 'what is in flight', 'give me a rollup'. Answers from platform state only (list-deliverables, list-experiments, get-experiment-workflow, get-deliverable-activity), never from local files, so any operator on the team gets the same answer from any machine. Strictly read-only: it never creates, edits, sends, re-runs prompts, or records a check. When it finds obvious next work it names the skill that does it and stops. NOT for running a phase, NOT for site or page status (that is the Site Builder skills), and NOT a campaign analytics report."
+description: "Read-only status rollup for MetriFi GEO experiments and client deliverables: for one experiment or across a whole team, report where each one stands, what the last operator left as a note, which of the four pre-publish checks are recorded, missing, or stale, and above all what is waiting on a human. Use whenever someone asks to check in or pick work back up: 'what needs me', 'what is waiting on me', 'where are we with this team', 'status of the HELOC experiment', 'check in on an experiment', 'what is the latest', 'how is it going', 'did the client respond', 'resume where we left off', 'what is in flight', 'give me a rollup'. Answers from platform state only (list-deliverables-needing-attention, list-deliverables, list-experiments, get-experiment-workflow, get-deliverable-activity), never from local files, so any operator on the team gets the same answer from any machine. Strictly read-only: it never creates, edits, sends, re-runs prompts, or records a check. When it finds obvious next work it names the skill that does it and stops. NOT for running a phase, NOT for site or page status (that is the Site Builder skills), and NOT a campaign analytics report."
 ---
 
 # exp-status: where everything stands
@@ -28,20 +28,19 @@ Start from `whoami` and `list-teams` if you do not already know the team slug.
 
 ### 1. What needs attention
 
-Start with `list-deliverables-needing-attention(team_id)` when it is available. It is the
-server-side view of deliverables with unprocessed client activity, and it is the fastest path to the
-only question that matters here.
+Start with `list-deliverables-needing-attention(team_id)`. It is the server-side view of deliverables
+with unprocessed client activity, plus anything still carrying an outstanding blocking item, and it is
+the fastest path to the only question that matters here. An empty list means nothing is waiting on
+anyone; say that in one line.
 
-**That tool ships with platform milestone M13.** If it is not in the tool list, or a call returns a
-not-found error, degrade and move on without comment to the user:
+Then fill in the detail on what it named:
 
 - `list-deliverables(team_id)` gives every deliverable with its status, version, action-item counts,
   participant count, and whether it has been sent.
 - For anything already sent, `get-deliverable-activity(team_id, deliverable_id)` is the activity
-  ledger: views, answers, comments, threads, attestations, and opt-out requests, oldest first. A
-  deliverable with client answers newer than its latest revision is one waiting on you.
-
-Do not report the degraded path as a failure. It produces the same answer with one more call.
+  ledger: views, answers, comments, threads, attestations, and opt-out requests, oldest first, each
+  row carrying its activity id. A deliverable with client answers newer than its latest revision is
+  one waiting on you.
 
 ### 2. Per experiment
 
