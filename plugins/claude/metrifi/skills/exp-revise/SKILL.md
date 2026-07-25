@@ -187,8 +187,7 @@ to the experiment, because this is bookkeeping and not a milestone.
 
 **Pass `through_activity_id` when you handled only part of the window.** The ledger prints each row's
 activity id, so you have the ids from section 2: pass the id of the newest row you **fully** handled,
-and everything after it stays unprocessed for the next run. Mark everything, by omitting the
-argument, only when you handled everything you read.
+and everything after it stays unprocessed for the next run.
 
 Either way the mark is still the last thing you do. And never mark past a row that still needs a
 person: if an opt-out request, a withdrawn approval, or a surviving blocker sits in the window, mark
