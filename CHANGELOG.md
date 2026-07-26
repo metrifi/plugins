@@ -4,6 +4,32 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## Unreleased: personalization skill
+
+New `personalization` skill covering the whole loop for behavioural website
+personalization on a MetriFi site: power check, personas, blocks, placement,
+simulate, publish, pooled readout. **No `version` bump here** — the bump and the
+marketplace publish are one `tools/release.mjs` run, per the note above.
+
+- **`personalization` (new).** Fronts the 16 personalization tools added to the
+  Sitebuilder MCP server. The skill carries the reasoning the tool descriptions
+  deliberately do not: why the power check runs first (a persona qualifying 3% of
+  one credit-union site needs years to resolve, pooled across the fleet it needs
+  weeks), why the default holdback is 50% rather than 10% (power peaks at an even
+  split, and a small control arm runs colder on the CDN in a way that inflates
+  measured lift), why rarer outcomes are weaker instruments than proximal ones,
+  and why the composition compliance check exists (a personalized block replaces
+  the default one, taking that block's disclosure off the delivered page, and
+  Reg Z applies to the advertisement as delivered).
+- **The refusals are documented as features.** No lift number below the
+  pre-registered sample, no per-client lift ever, multiplicity correction when
+  reading several experiments together. The skill says what to do instead rather
+  than leaving an agent to route around the gate.
+- **Out-of-scope section names CRM personalization explicitly** and gives the
+  honest alternative (resolve the segment at campaign send time and put a
+  distinct prebuilt landing-page URL in the email), so nobody builds a member-data
+  path that would put MetriFi in every client's GLBA vendor file.
+
 ## Unreleased (M14 Phase 4): punch list + cross-host QA runbook
 
 Copy fixes against the platform as deployed (M11 to M13 live, including migration `geo_0045` and
