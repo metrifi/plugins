@@ -10,5 +10,6 @@
     "displayName": "MetriFi",
     "shortDescription": "One MetriFi sign-in to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) plus the MetriFi site-design skills. No token paste."
   },
-  "mcpServers": "./.mcp.json"
+  "mcpServers": "./.mcp.json",
+  "description": "The MetriFi plugin: one MetriFi sign-in to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) plus the MetriFi skills \u2014 client-report for auditing an institution's existing site, generate-claude-design-system, generate-claude-design-page and page-design-process for designing and building one, and personalization for building and measuring behavioural personalization. Self-contained: no other plugins needed. Analyze, design, personalize and edit conversion-optimized credit-union and bank websites the MetriFi way."
 }
