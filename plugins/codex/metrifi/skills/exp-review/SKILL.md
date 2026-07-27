@@ -16,13 +16,20 @@ it: `references/review-hygiene.md`, `references/review-ncua.md`, `references/rev
 
 ## Why recording matters
 
-`send-deliverable` refuses while the deliverable's status is ready, scheduled, or published and any
-of the four conventional checks (`hygiene`, `ncua-compliance`, `accessibility`, `fact-verification`)
-lacks a recorded, non-failing result against the current article. The refusal names every check that
-is missing, failing, or stale.
+`send-deliverable` refuses any non-preview send whose manifest carries a non-empty article, whatever
+the deliverable's status, when any of the four conventional checks (`hygiene`, `ncua-compliance`,
+`accessibility`, `fact-verification`) has no recorded result, has a failing one, or was recorded
+against different article prose. It refuses on the same blockers when the status is ready, scheduled,
+or published, article or no article. Only a send that carries no article and is not in that ready
+family goes ungated, which is the collaboration loop: asking the client questions before an article
+exists, where a hygiene or an accessibility check has nothing to have read.
 
-So a skipped check is not a quiet omission. It is a send that refuses with that check's name in it.
-Do not work around that by lowering the status or by recording a result you did not earn.
+So a skipped check is not a quiet omission, and there is no status that lets an unchecked article
+reach a client. The send that first puts prose in front of the institution is gated on exactly the
+four checks, and every send after it has to carry current ones. Lowering the status does not open a
+door, because the article is the trigger. The only way through is recording a real result, which
+leaves an audit row, so recording a verdict you did not earn is not a shortcut but a false statement
+with your name on it.
 
 Checks are pinned to the article they ran against. **Editing the article stales the checks recorded
 against it** (the platform reports the reason as `article_changed`), which is by design: a revision

@@ -4,6 +4,56 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## Unreleased (M14 Phase 4): QA follow-up, quota-adaptive sizing + the re-scoped send gate
+
+The skills and the runbook realigned to the platform fixes from the M14 QA run (platform PRs #55 to
+#59) and to Ryan's quota decision of 2026-07-27. **No `version` bump here either:** the bump and the
+marketplace publish are still one `tools/release.mjs` run at the end of M14, which Ryan runs.
+
+- **Quota-adaptive experiment sizing (Ryan, 2026-07-27).** The methodology no longer assumes a fixed
+  sampling volume. New **methodology rule 21**: read `get-team-usage` before proposing a candidate
+  set, reserve about a third of the remaining GEO responses for the pivot, split the rest into
+  prompts times samples per prompt, cut prompt count before samples (floor of two), state the
+  tradeoff in one plain sentence, and pass `min_responses` to `get-campaign-readiness` matching the
+  sizing. Always the best experiment the plan allows, never a refusal and never an overrun. **Rule 5
+  is now budget-relative** (four samples where the plan allows, two as the floor, and the sample size
+  stated whenever it is below four) with the M14 QA origin recorded. `exp-research` gains step 1,
+  "size the experiment to the plan", and carries the sized numbers into the kept set, the run `count`,
+  and readiness; `exp-build` reads readiness at the sized `min_responses`, samples what the budget
+  bought, and re-checks the budget before a pivot run. On a generous plan none of this changes
+  anything.
+- **The send gate is scoped to the article, not the status.** The platform now refuses any non-preview
+  send whose manifest carries an article until the four checks are current, whatever the status, and
+  still refuses a ready, scheduled, or published send on the same blockers. `exp-deliver`,
+  `exp-revise`, `exp-review`, `exp-status`, `start`, and `workflow-overview.md` all say that now
+  instead of the old ready-family-only wording. `exp-review`'s framing gets stronger and says so
+  plainly: there is no status that lets an unchecked article reach a client, and the only way through
+  is a recorded result, which leaves an audit row.
+- **The client link is withheld by the platform, not by agent discipline.** Every "do not surface the
+  URL" instruction became "the platform withholds the link until the send; never try to reconstruct
+  it", with the withheld line read as deliberate rather than as a missing field (`exp-build`,
+  `exp-deliver`, `exp-revise`, `start`, `workflow-overview.md`). `exp-revise` no longer claims the
+  worklist prints a link for an unsent deliverable, because it does not.
+- **`exp-deliver` gains the no-client-contact path.** For an internal or QA send: pass no
+  `client_email` or `client_name` (either one captures a client participant, permanently), preview to
+  yourself, and state before asking for the OK that the real send reaches only the participants
+  already on the record, naming them. The gate still applies.
+- **`exp-research` gains two QA findings.** It checks `get-org-visibility` for the client
+  organization on the campaign and says plainly that a person registers it in the MetriFi GEO app if
+  it is missing, since no tool in this plugin creates one and an unregistered institution reads as
+  zero visibility forever. And it labels DataForSEO volumes as national United States numbers, leads
+  the client-facing table with the geo-anchored phrase as the honest local-demand signal, and never
+  quotes a national umbrella volume to a client unlabeled. It also states that providers are a pool
+  rather than a multiplier, and that the run tools name unsupported providers and refuse an
+  all-unsupported request.
+- **Runbook rewritten around the changes.** The Starter QA team's 50 responses a month is now a
+  feature of the test (rail 8: verify the skill visibly scales down, do not raise the plan), the CLI
+  sign-in path is documented alongside the desktop Connectors panel (`/mcp`, the MetriFi server's
+  `authenticate` tool, its OAuth URL), a new section 3a names the default subject institution and the
+  three rules that keep it safe, step 2 gains the sizing, organization-registration, national-volume
+  and provider-honesty checks, step 4 is rewritten around the article-triggered refusal with no
+  `set-deliverable-status` workaround, and step 6 covers the no-client-contact send.
+
 ## Unreleased (M14 Phase 4): punch list + cross-host QA runbook
 
 Copy fixes against the platform as deployed (M11 to M13 live, including migration `geo_0045` and

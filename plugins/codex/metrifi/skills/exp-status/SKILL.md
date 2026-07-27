@@ -69,7 +69,8 @@ One compact block per experiment:
   been sent.
 - **Checks.** Which of hygiene, NCUA compliance, accessibility, and fact verification have a
   recorded result, which are missing, and which have gone stale because the article changed after
-  they ran. A missing or stale check is why a send will refuse, so say it in those words.
+  they ran. A missing or stale check is why a send carrying the article will refuse, whatever the
+  deliverable's status, so say it in those words.
 - **Next step.** The single next action, and the skill that does it.
 - **Waiting on a human?** The load-bearing line. Name explicitly anything blocked on your operator,
   on the client contact, or on their compliance officer: an unanswered action item, a pending

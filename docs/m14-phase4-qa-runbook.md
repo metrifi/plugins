@@ -34,8 +34,9 @@ Phase 4 passes when all six hold:
 5. **Operator swap:** operator A creates the experiment on machine A, operator B picks it up on a
    different machine with zero file handoff. The only thing passed between them is the team name, in
    chat or out loud.
-6. **The send gate is real:** one deliberately refused send, refused by name for a missing check, then
-   allowed after the check is recorded.
+6. **The send gate is real:** one deliberately refused send of an article-carrying deliverable,
+   refused by name for the missing checks whatever its status, then allowed after the checks are
+   recorded.
 
 A step that needs the operator to do something the skill did not tell them to do is a deviation, even
 if the outcome was right. Record it.
@@ -54,9 +55,18 @@ claude plugin marketplace add metrifi/plugins
 claude plugin install metrifi@metrifi --scope user
 ```
 
-Then sign in once: Settings -> Connectors -> **MetriFi** -> Connect, and complete the MetriFi
-sign-in in the browser. In Claude Desktop the panel path is the same; in the CLI, `/plugin` shows the
-same marketplace and plugin state.
+Then sign in once. There are two paths and they authorize the same connector:
+
+- **Desktop app:** Settings -> Connectors -> **MetriFi** -> Connect, and complete the MetriFi
+  sign-in in the browser.
+- **Terminal CLI:** there is no Connectors panel. Run `/mcp`, pick **metrifi**, and authenticate;
+  the MetriFi MCP server's `authenticate` tool emits an OAuth URL. Open that URL in a browser,
+  complete the MetriFi sign-in, and come back to the same conversation. Asking the agent to sign in
+  to MetriFi reaches the same tool and the same URL. Do not paste tokens or callback URLs into the
+  conversation: the browser round trip is the whole flow.
+
+In the CLI, `/plugin` shows the same marketplace and plugin state as the desktop panel. Record which
+path you used and whether it worked first try, per host.
 
 Verify, in this order:
 
@@ -107,9 +117,12 @@ These are not suggestions. Any one of them broken ends the run and gets reported
    operator's own address, so the only participant on the deliverable is the operator and even an
    unexpected successful send lands on the operator. Use `preview: true` for every rehearsal, and
    treat the one real send in section 4 as real anyway: name the recipient out loud first.
-4. **Never surface a client URL.** The magic link stays out of chat, out of notes, out of this
-   runbook's results, and out of the deviations table. After the QA send it is fine to read it back
-   from `get-deliverable` on the operator's own screen.
+4. **Never surface a client URL.** The platform now withholds it: until the first send, every tool
+   that would print the link prints a withheld line instead, and the raw token appears nowhere. Read
+   that as working correctly, never as a missing field, and never reconstruct the link by hand. After
+   the QA send it is fine to read it back from `get-deliverable` on the operator's own screen. Either
+   way it stays out of chat, out of notes, out of this runbook's results, and out of the deviations
+   table.
 5. **DataForSEO spend stays under a couple of dollars.** `research-keywords` bills per keyword looked
    up live. So: one batch per host, 40 to 60 keywords, and **never** `refresh: true` in a loop. The
    30-day cache is the point: the second host should reuse the first host's numbers, which costs
@@ -119,6 +132,35 @@ These are not suggestions. Any one of them broken ends the run and gets reported
    script says to. Reusing the Claude leg's experiment is what proves the state model.
 7. **`send-deliverable-followup` is out of scope.** It nudges a client contact, and there is no client
    here. Do not call it.
+8. **The QA team's GEO response quota is part of the test, not an obstacle.** A team created fresh
+   lands on the smallest plan, which is 50 GEO responses a month on Starter. That is now exactly the
+   condition worth testing: `exp-research` reads `get-team-usage` first and sizes the experiment to
+   what is left (methodology rule 21). Do not raise the plan, and do not top up the quota, unless the
+   run exhausts it and a later step is genuinely blocked. If you do change it, record what it was and
+   what you changed it to, because the sizing behavior below is only meaningful against a known
+   budget.
+
+## 3a. Pick the subject institution, once
+
+The QA experiment needs a real financial institution to be *about*: `exp-review`'s fact battery
+verifies claims against a live site, and `exp-build` drafts against published wording. Choose one
+before step 2 and use the same one on both hosts.
+
+**The default:** a real, publicly documented credit union in the topic's geography that is not on the
+MetriFi client roster. For the north Alabama HELOC topic below, Redstone Federal Credit Union
+(Huntsville, Alabama) is a reasonable default; check the roster first, and if it is a client, pick
+another institution of similar size and record which one you used.
+
+Three things follow, and they are what keep this safe:
+
+- **Nothing is ever sent to them.** No email, no contact, no participant. The QA send goes to the
+  operator's own inbox (rail 3), and `client_email` is never passed (rail 2).
+- **Only their public website is read**, the same way any reader would, at a courteous pace.
+- **Record the choice** in section 5, because the fact battery's findings only make sense against a
+  named institution.
+
+Write down its name as it writes it, its charter type, and its website root before step 5 asks for
+them.
 
 ## 4. The script
 
@@ -136,11 +178,36 @@ Fail: it creates a campaign or a prompt before you answered all three.
 Give it a concrete topic with geography, for example "homeowners in north Alabama comparing a HELOC
 against a cash-out refinance". Ask for the **dry run** first.
 
-Pass: the dry run creates the campaign and nothing else, reports a demand table with keep and drop
-verdicts, and stops. Then, on your go, it creates a draft experiment with **no dates**, creates only
-the kept prompts, records every verdict including the drops, runs the prompts, and reports
-`get-campaign-readiness` once with no polling loop. Fail: a prompt containing a brand name, a prompt
-created for a dropped candidate, a poll loop, or a `started_at` on the experiment.
+**The sizing pass is the first thing to watch.** Before it proposes anything, the skill calls
+`get-team-usage`, reports the GEO responses remaining this period, and says in one plain sentence
+what the budget bought: how many prompts it will track, how many samples per prompt, and what got
+thinner as a result. On a fresh Starter QA team that number is small, so the skill should visibly
+scale down (fewer tracked prompts, or a thinner baseline behind each one) rather than proposing the
+usual fifteen to twenty at three or four samples.
+
+Pass, in this order:
+
+1. `get-team-usage` is called before any campaign, prompt, or keyword call, and the sizing sentence
+   names actual numbers.
+2. The dry run creates the campaign and nothing else, reports a demand table with keep and drop
+   verdicts, and stops. National-only DataForSEO volumes are **labeled as national**, with the
+   geo-anchored phrase presented as the local-demand signal.
+3. The skill checks whether the subject institution is registered as an organization on the campaign,
+   and says plainly that a person adds it in the MetriFi GEO app if it is not there, rather than
+   reporting an empty visibility read as a finding.
+4. On your go, it creates a draft experiment with **no dates**, creates only the kept prompts, records
+   every verdict including the drops (over-budget drops carry that reason and their volume), and runs
+   the prompts at the sized `count`.
+5. It reports `get-campaign-readiness` once, with no polling loop, passing `min_responses` equal to
+   the samples per prompt it sized for, and says which number it read the percentage at.
+6. It reports honestly which providers actually ran. The run tools name any provider the platform
+   cannot run and skip it, and refuse a request naming only unsupported ones, so the skill should
+   repeat that back and call a single-provider baseline single-provider.
+
+Fail: a prompt containing a brand name, a prompt created for a dropped candidate, a poll loop, a
+`started_at` on the experiment, sizing numbers that ignore the quota, a run that exceeds the
+remaining quota or refuses the experiment because of it, or a national volume quoted as if it were
+local demand.
 
 Responses populate over minutes to hours. This is the natural break between sittings.
 
@@ -153,22 +220,38 @@ four responses per candidate prompt; it opens with the Viability Verdict block; 
 pivots by the ladder (and returns a re-campaign pivot to you rather than executing it); it writes
 `build-analysis`, `evidence`, and `decisions` with the rejected alternatives; it drafts the article
 with no rate numbers in the body and no em dashes; `build-deliverable --dry_run` passes the contract;
-and it does **not** hand you the client URL. Fail: any of those inverted, especially a URL in chat or
-a real build before a dry run.
+and it reads the withheld client-link line back as deliberate rather than hunting for the URL or
+reconstructing it. It should also read readiness at the `min_responses` the research phase sized for,
+and say the per-prompt sample size next to the citation-gate verdict when that sample is below four.
+Fail: any of those inverted, especially a URL in chat or a real build before a dry run.
 
 Set every action item's `assignee_email` to your own address here (rail 3).
 
 ### Step 4: the deliberately refused send
 
-Do this before running the review skill, on purpose.
+Do this before running the review skill, on purpose. The platform gate changed in M14: the trigger is
+the **article**, not the status. Any real send whose manifest carries an article is refused until the
+four checks are current, whatever the status says, and a ready, scheduled, or published send is
+refused on the same blockers with or without an article. Only an article-less send outside that ready
+family goes ungated.
 
-1. Ask `exp-deliver` to build with `status: "ready"` while the four checks are still missing.
+So the refusal to observe is the ordinary one, on the send that first puts the article in front of a
+reader:
+
+1. Ask `exp-deliver` to build with `status: "needs-input"`, the honest status while blocking items are
+   open, with the drafted article in the manifest and the four checks still missing.
 2. Ask it to send for real. Say yes when it asks.
-3. **Pass:** `send-deliverable` refuses and the refusal names the missing checks (`hygiene`,
-   `ncua-compliance`, `accessibility`, `fact-verification`). The skill reports the refusal as the way
-   through and does **not** lower the status, does not record a check nobody ran, and does not call
-   the preview a send. Fail: it works around the gate in any way, or it treats the refusal as an error
-   to retry unchanged.
+3. **Pass:** `send-deliverable` refuses, and the refusal leads with the article as the trigger ("this
+   send carries the article") and names each blocking check by name (`hygiene`, `ncua-compliance`,
+   `accessibility`, `fact-verification`) with its own reason. The skill reports the refusal as the way
+   through and does **not** lower or raise the status, does not record a check nobody ran, and does
+   not call the preview a send.
+4. **Fail:** the send goes through, or the skill works around the gate in any way, or it treats the
+   refusal as an error to retry unchanged.
+
+Nothing here needs a `set-deliverable-status` workaround, and none is expected: status changes no
+longer move the gate, and there is no force flag. If you want the ready-family half of the rule too,
+repeat the attempt with `status: "ready"`, which refuses on the same blockers.
 
 Because the only participant is you (rail 3) and `client_email` is never passed (rail 2), a send that
 unexpectedly succeeds here still lands only in your own inbox. That is the safety net, not the test.
@@ -194,7 +277,9 @@ Pass, in order:
 2. `send-deliverable(preview: true)` with no `client_email`, and **the preview email actually arrives
    in your inbox**. Read it.
 3. It names who receives the real send and asks for an explicit OK. It does not proceed on "sounds
-   good" about something else.
+   good" about something else. **This is the no-client-contact case**, so it should also say that with
+   no `client_email` the real send reaches only the participants already on the record, name them
+   (here, you), and not offer to add a client contact to make the send look normal.
 4. The real send goes, refused-then-allowed now that the checks are recorded, and it lands in your own
    inbox because you are the only participant.
 5. It logs the send with `add-experiment-event` and a stable `idempotency_key`, and writes a handoff
@@ -244,8 +329,12 @@ magic links in this table.
 Severity: **blocker** stops the release, **minor** ships with a follow-up issue, **note** is a copy or
 routing observation worth keeping. Also record, in prose under the table:
 
-- The four setup facts per host: host version, install commands that worked, whether all seven skills
-  were visible, and whether sign-in worked first try.
+- The five setup facts per host: host version, install commands that worked, which sign-in path you
+  used (desktop Connectors panel or the CLI `authenticate` URL), whether all seven skills were
+  visible, and whether sign-in worked first try.
+- The subject institution you chose, and the plan and remaining GEO responses the QA team had at the
+  start of step 2, against the sizing the skill chose (prompts times samples). This pair is the
+  evidence that adaptive sizing worked.
 - Total DataForSEO keywords looked up per host, and any refresh you spent.
 - Anything a skill asked the operator to do that it should have done itself.
 - Anything that needed a local file, a runtime, or a paste to work around. This is the criterion the

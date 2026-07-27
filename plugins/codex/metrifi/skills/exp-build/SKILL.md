@@ -9,7 +9,7 @@ This phase decides whether the experiment is worth running at all, and only then
 client will read. Getting that order backwards is how a weak target ships.
 
 Read `references/methodology-rules.md` and `references/workflow-overview.md` before you write. Rules
-5, 9, 10, 11 to 14, 16, 19, and 20 all bite inside this phase.
+5, 9, 10, 11 to 14, 16, 19, 20, and 21 all bite inside this phase.
 
 ## Orient first
 
@@ -38,6 +38,13 @@ Widen it with `window_days` to see what actually exists. If the baseline is real
 age in the analysis, since a stale baseline measures a model that has since moved; if it is thin,
 running the prompts again is the fix.
 
+**Read it at the sampling the research phase paid for.** The default `min_responses` of three is a
+bar a budget-sized baseline may never have been meant to clear (rule 21): a team whose plan bought
+two responses per prompt reports 0 percent populated at the default and 100 percent at
+`min_responses: 2`. The research phase's handoff note and the `tracked-prompts` document say which
+number was sized; pass that, and say which number you read the percentage at. Re-running prompts to
+reach an arbitrary three is spending a client's quota to satisfy a default.
+
 The one other exception is a deliberate partial read the person asked for. Then say in the analysis
 exactly which prompts had no data, and treat them as pending rather than as failures.
 
@@ -50,7 +57,10 @@ Nothing in this step writes.
    program administrators and government lenders out of the competitor set: they are not the
    institution's competitors and they inflate the ranking.
 3. `list-responses(team_id, prompt_id)` then `get-response(team_id, response_id)` to read bodies.
-   **Sample at least four responses per candidate target prompt** (rule 5).
+   **Read every response the budget bought for that prompt** (rules 5 and 21): four is the number to
+   reach for, two is the floor below which the citation gate cannot be read, and where N is below
+   four the analysis says so next to the verdict, because a two-of-two read is weaker evidence than
+   a two-of-four one.
 
 Per prompt, record four things:
 
@@ -103,7 +113,11 @@ Executing a re-angle or re-scope pivot:
    caused the pivot.
 2. `list-prompts` and drop candidates duplicating an existing prompt's intent.
 3. `create-prompt` for the survivors, then `run-prompt` for each new prompt id. Do not re-run the
-   whole campaign: the existing prompts already have a clean baseline.
+   whole campaign: the existing prompts already have a clean baseline. **Check the budget before you
+   run:** `get-team-usage(team_id)` reports the responses left this period, and rule 21 reserved
+   roughly a third of the original budget for exactly this. Size the pivot to what is actually left,
+   at the same samples per prompt as the baseline so the two sets are comparable, and say the size
+   out loud. A pivot the plan cannot pay for is a smaller pivot, not a refusal and not an overrun.
 4. `update-experiment(..., prompt_ids: [the new ids], prompt_ids_mode: "add")`. The **add** mode is
    the point: replace would detach the originals, and a prompt whose slot is closed today can open
    later as model training data moves.
@@ -229,8 +243,11 @@ rather than shipping a broken page.
 An anchor that will not resolve means the article moved under it. Then build for real with a
 `changelog` line describing what changed.
 
-Do not surface the client page URL to anyone. Sending is a later phase behind a human gate, and a URL
-handed over early is a send that nobody approved.
+**The platform withholds the client link until the send; never try to reconstruct it.** Every tool
+that would otherwise print the client URL prints a line saying it is withheld until the first send,
+because the link is a live credential for the client's review page and sending is a later phase
+behind a human gate. Read that line as deliberate, not as a missing field, and never assemble the
+URL from a slug, a token, or a pattern you saw elsewhere.
 
 ## 9. Hand off
 
