@@ -31,8 +31,8 @@ of four that dies on the second should leave the first one done and marked, not 
 `list-deliverables-needing-attention(team_id)` is the whole starting point. It returns every
 deliverable where a client did something nobody has dealt with yet, plus every deliverable still
 carrying an outstanding blocking item, with the unprocessed activity broken down by kind and how long
-it has been waiting, the blocking items, the followup state, the client link, and the linked
-experiment.
+it has been waiting, the blocking items, the followup state, the linked experiment, and the client
+link on anything already sent.
 
 **An empty list is a clean, complete result.** Say "nothing is waiting on you" in one line and stop.
 Do not go looking for work in `list-deliverables` to justify the run. This skill gets invoked on a
@@ -42,9 +42,10 @@ A deliverable listed only for an **outstanding blocking item, with no new activi
 revision. The client has not answered yet. That is a nudge candidate (one personal followup, capped
 at three, then escalate to a human), or it is simply patience. Say which and move on.
 
-Some of those have **never been sent at all**: a blocking item is enough to list a deliverable, and
-the worklist prints a client link either way. A link existing is not a send having happened. Check
-before you assume the client has seen anything, and do not pass that link to anyone on a deliverable
+Some of those have **never been sent at all**: a blocking item is enough to list a deliverable. The
+platform withholds the client link until the first send, so a row whose link is withheld is a
+deliverable nobody has ever received. Read that as the useful signal it is, check the send state
+before assuming the client has seen anything, and never try to reconstruct the link for a deliverable
 whose first send has not gone out.
 
 ## 2. The unprocessed window
@@ -161,10 +162,13 @@ Same gate as any other send, and it applies in full here. A later send announces
 than re-introducing the deliverable, but it is still an email to a real person and still a one-way
 door.
 
-1. **The checks first.** `send-deliverable` refuses while the status is ready, scheduled, or
-   published and any conventional check is missing, failing, or stale. The refusal names each one.
-   Follow it: re-run the check. Never lower the status to dodge the gate, and never record a result
-   nobody earned.
+1. **The checks first.** `send-deliverable` refuses any real send whose manifest carries the article,
+   whatever the status, when a conventional check is missing, failing, or recorded against different
+   article prose, and it refuses on the same blockers when the status is ready, scheduled, or
+   published. A revision is exactly the case this catches: the edit you just made staled the checks
+   pinned to it. The refusal names each one. Follow it: re-run the check. Lowering the status does
+   not open a door, because the trigger is the article, and recording a result nobody earned leaves
+   an audit row saying you did.
 2. **Preview to yourself.** `send-deliverable(..., preview: true)` delivers every email to you, the
    signed-in operator, and records nothing. Read it in your inbox: what changed, what it asks for,
    and whether it reads like a revision to someone who already replied once.
@@ -172,8 +176,10 @@ door.
    wait for your human operator's explicit OK in this conversation. An OK on the first send is not an
    OK on this one. Pass `client_email` with `client_name` if the client contact is not already
    captured; without one the deliverable can never be followed up on.
-4. **The client URL stays private until the send.** Do not paste the magic link into the conversation
-   ahead of it.
+4. **The platform withholds the link until the send; never try to reconstruct it.** On a deliverable
+   already sent the link reads back as it always did, because the client holds it. On one that has
+   not been sent, the tools print a withheld line in its place, and that line is the answer, not a
+   gap to fill.
 
 If your operator would rather run the send as its own step, say so and let them start the deliver
 skill themselves. Never start another skill on their behalf.

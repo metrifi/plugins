@@ -41,8 +41,13 @@ No phase reads or writes a file.
 
 Skill: **exp-research**.
 
-Propose candidate prompts the way a consumer would actually ask an AI assistant, never with a brand
-name in the prompt, spread across intent angles, geographies, and audience segments. Measure real
+Read `get-team-usage(team_id)` first and size the experiment to the GEO responses the team has left
+this period (methodology rule 21): prompt count and samples per prompt scale to the budget, the
+tradeoff gets said out loud in one sentence, and the run happens at the size the plan allows rather
+than being refused or overspent.
+
+Then propose candidate prompts the way a consumer would actually ask an AI assistant, never with a
+brand name in the prompt, spread across intent angles, geographies, and audience segments. Measure real
 demand with `research-keywords`, leading with umbrella noun phrases (methodology rule 2). Triage
 keep or drop on measured volume only (rules 1 and 3) and record every verdict, including the drops,
 with `record-keyword-research`. Then create the campaign and its prompts and run them with
@@ -50,7 +55,8 @@ with `record-keyword-research`. Then create the campaign and its prompts and run
 
 Baseline responses populate asynchronously. There is no polling loop: `get-campaign-readiness`
 reports the share of prompts with enough completed responses, as a fact you read, not a gate that
-refuses.
+refuses. Pass `min_responses` matching the samples per prompt you budgeted, so the population line
+measures the experiment you actually bought.
 
 ### 2. Build: from a populated campaign to a defensible draft
 
@@ -85,10 +91,15 @@ performed by the agent, not by a script, using the reference battery that ships 
 skill. Each produces a full report as an experiment document (`review-hygiene`, `review-ncua`,
 `review-ada`, `review-fact`) and a recorded verdict through `record-deliverable-check`.
 
-Recording is what makes skipping visible. `send-deliverable` refuses while the deliverable's status
-is ready, scheduled, or published and any conventional check lacks a non-failing result recorded
-against the current article. It names every check that is missing or stale. Fix the finding, record
-the result, send again.
+Recording is what makes skipping visible, and there is no status that gets an unchecked article past
+it. `send-deliverable` refuses any non-preview send whose manifest carries a non-empty article,
+whatever the status, when any of the four conventional checks has no recorded result, has a failing
+one, or was recorded against different article prose. It also refuses on those same blockers when
+the status is ready, scheduled, or published, whether or not there is an article. A send carrying no
+article is ungated unless its status puts it in that ready family, which is the collaboration loop:
+asking the client questions before an article exists. The refusal names each blocking check with its
+own reason and names `record-deliverable-check` as the way through. Fix the finding, record the
+result, send again.
 
 Checks are pinned to the article they ran against, so editing the article stales them by design. A
 revision cannot ride a green check from an older draft.
@@ -102,8 +113,13 @@ to you, the signed-in operator, recording nothing: no send timestamp, no partici
 entry, and the check gate does not apply. Use it to read the email in your own inbox.
 
 The real send happens only after your human operator says so in conversation, in this session, after
-you have told them exactly who it goes to. Do not surface the client URL before that, and do not
-treat an earlier approval on a different deliverable as approval for this one.
+you have told them exactly who it goes to. Do not treat an earlier approval on a different
+deliverable as approval for this one.
+
+The client link is not yours to hand out early: the platform withholds it until the first send. Every
+tool that would otherwise print it says so in place of the URL until `sent_at` is set, and the raw
+token appears nowhere at any time. Never try to reconstruct the link, and read the withheld line as
+deliberate rather than as a missing field.
 
 ### 5. Revise: apply what the client said
 

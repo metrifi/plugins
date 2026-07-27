@@ -74,6 +74,41 @@ monthly volume, verdict, notes, and a footer with the total tracked prompts and 
 volume across the top phrases. That document is the audit boundary, and it is the thing a client
 can be shown.
 
+### Rule 21: size the experiment to the remaining response budget
+
+**The trap:** the sampling numbers in this methodology used to read as absolutes: about twenty
+tracked prompts, at least four sampled responses per target prompt, an 80 percent population line
+computed at three responses each. A team on a small plan cannot reach any of them. A Starter team
+gets 50 GEO responses a month, and twenty prompts at three responses each needs 60 before a single
+prompt is scored. An agent holding the absolutes as requirements either refuses to run the
+experiment at all or spends the whole period's budget in week one and leaves nothing for the pivot
+the build phase may need.
+
+**The rule:** the methodology never assumes a fixed sampling volume. Read
+`get-team-usage(team_id)` before proposing a candidate set, take the GEO responses remaining in the
+current period, and size the experiment to that number.
+
+- **Reserve about a third** of what remains for the pivot, the re-runs, and the second look the
+  build phase legitimately asks for. Size the baseline inside the rest.
+- **The arithmetic is prompts times samples per prompt.** Providers are a pool, not a multiplier:
+  the run tools spread the requested count across the providers they can actually run, so naming
+  three providers does not triple the cost or the sample.
+- **Cut prompt count before cutting samples per prompt**, down to a floor of two samples. Rule 5
+  reads body text for institution mentions, and one response per prompt cannot tell a structurally
+  closed slot from an unlucky draw.
+- **State the tradeoff to the operator in one plain sentence**, in their terms: fewer tracked
+  prompts than usual, or a thinner baseline behind each one, and which you chose.
+- **Carry the sized number forward.** Pass `min_responses` to `get-campaign-readiness` equal to the
+  samples per prompt you budgeted, or the population line measures a bar nobody paid for and reads
+  as 0 percent forever.
+- **Always run the best experiment the plan allows.** Never refuse the experiment over the budget,
+  and never quietly exceed it. On a generous plan none of this changes anything.
+
+**Where it came from:** Ryan's decision, 2026-07-27, after the M14 QA run: "the methodology never
+assumes a fixed sampling volume", it "sizes the experiment to it", and the skill "always does the
+best experiment the plan allows rather than refusing or blowing the cap". The QA team was on
+Starter, 50 responses a month, which put the old absolute gates out of reach from the first call.
+
 ---
 
 ## Baseline gathering
@@ -85,15 +120,21 @@ not. The article gets written assuming the lender slot is reachable. It is not, 
 hypothesis cannot materialize.
 
 **The rule:** before locking target prompts, verify per prompt that specific financial institutions
-appear in the model's **body text**, not only in a search results panel. Sample at least four
-responses per candidate target prompt. If zero of N name any specific institution, the prompt drops
-from the target set regardless of demand. Record per prompt: which institutions are named, in how
-many of the N responses, and whether the mention is body text or a citation list.
+appear in the model's **body text**, not only in a search results panel. Sample every response the
+budget bought for that prompt: four is the number to reach for where the plan allows it, and two is
+the floor below which the gate cannot be read at all (rule 21). If zero of N name any specific
+institution, the prompt drops from the target set regardless of demand. Record per prompt: which
+institutions are named, in how many of the N responses, and whether the mention is body text or a
+citation list, and say the sample size in the analysis whenever N is below four, because a
+two-of-two read is a weaker verdict than a two-of-four one and the client's reviewer deserves to see
+which they are looking at.
 
 **Where it came from:** the abandoned experiment 102. Thirty-two baseline responses across four
 target prompts contained zero specific lender mentions in body text. The article would have
 published into a slot the model never fills. The pivot to lender-decision-shaped prompts, where the
-gate passes, is what made the follow-on experiment work.
+gate passes, is what made the follow-on experiment work. The absolute four became budget-relative
+after the M14 QA run (2026-07-27), where a Starter team's 50 responses a month made a fixed four
+per prompt unreachable across a normal candidate set.
 
 ### Rule 6: document the single-provider caveat every time
 

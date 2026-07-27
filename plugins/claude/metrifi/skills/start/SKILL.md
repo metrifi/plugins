@@ -111,8 +111,11 @@ Everything else runs without pausing.
   via `update-deliverable-draft` and `build-deliverable`. Any operator on the team can pick up any
   experiment from any machine.
 - **The platform owns structure and completeness; you own judgment.** The server validates the page
-  and refuses to send while a required check is missing, failing, or stale. It never judges your
-  content. Reading, deciding, and browsing are yours.
+  and refuses any send that carries the article while a required check is missing, failing, or
+  recorded against older prose. It never judges your content. Reading, deciding, and browsing are
+  yours.
+- **The client link is withheld until the first send.** The platform decides that, not your
+  discretion, so there is nothing to reconstruct and nothing to hand out early.
 - **The methodology rules are not optional.** They exist because each one cost a real experiment.
   The research, build, and review skills carry them.
 - **Prompts never contain a brand name.** They are written the way a consumer asks an AI assistant.

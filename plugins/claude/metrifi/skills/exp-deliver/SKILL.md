@@ -1,6 +1,6 @@
 ---
 name: exp-deliver
-description: "Build a MetriFi GEO client deliverable and get it in front of the institution's contact, behind the send gate: assemble and validate the client page with build-deliverable, read the summary and every warning it returns, preview the notification email to your own inbox first, and send for real only after your human operator says so explicitly in the conversation. Use when a reviewed draft is ready to go out or someone asks about sending one: 'ship it', 'send the deliverable', 'send it to the client', 'send it to Kaili', 'build the deliverable', 'rebuild the client page', 'get this in front of the client', 'is it ready to send', 'send the revision', 'nudge the client', 'they never responded', 'why is the send refusing', 'what is the client link'. The real send emails real people and is a one-way door, so it never happens on an implied yes, on an earlier approval for a different deliverable, or without naming the recipient first; client_email captures the client contact so the deliverable can be followed up on later. The client URL is never surfaced before the send. When the server refuses a send it names the way through (a missing, failing, or stale pre-publish check): follow the refusal rather than lowering the status or recording a check nobody ran. NOT the check-running step, NOT the client's sign-off (a person at the institution gives that), and NOT for publishing or emailing anything on a website (those are the Site Builder skills)."
+description: "Build a MetriFi GEO client deliverable and get it in front of the institution's contact, behind the send gate: assemble and validate the client page with build-deliverable, read the summary and every warning it returns, preview the notification email to your own inbox first, and send for real only after your human operator says so explicitly in the conversation. Use when a reviewed draft is ready to go out or someone asks about sending one: 'ship it', 'send the deliverable', 'send it to the client', 'send it to Kaili', 'build the deliverable', 'rebuild the client page', 'get this in front of the client', 'is it ready to send', 'send the revision', 'nudge the client', 'they never responded', 'why is the send refusing', 'what is the client link'. The real send emails real people and is a one-way door, so it never happens on an implied yes, on an earlier approval for a different deliverable, or without naming the recipient first; client_email captures the client contact so the deliverable can be followed up on later, and a send with no client participant (an internal or QA send) passes no client_email at all and reaches only the people already on the record. The platform withholds the client link until the first send, so it is never surfaced early and never reconstructed. When the server refuses a send it names the way through (a missing, failing, or stale pre-publish check on any send that carries the article): follow the refusal rather than lowering the status or recording a check nobody ran. NOT the check-running step, NOT the client's sign-off (a person at the institution gives that), and NOT for publishing or emailing anything on a website (those are the Site Builder skills)."
 ---
 
 # exp-deliver: build it, preview it, then ask
@@ -30,7 +30,8 @@ Everything else in this skill runs without pausing.
    open blocking items, and the latest check results.
 2. `list-deliverable-checks(team_id, deliverable_id)` when any check looks missing or stale. All four
    conventional checks (`hygiene`, `ncua-compliance`, `accessibility`, `fact-verification`) need a
-   recorded, non-failing result against the current article before a ready-status send will go.
+   recorded, non-failing result against the current article before any real send that carries the
+   article will go, whatever the status, and before any ready, scheduled, or published send at all.
 3. `get-deliverable(team_id, deliverable_id)` for the article, the checklist, the action items with
    their statuses, and the participants already on the record.
 
@@ -58,10 +59,13 @@ the dossier sections, the checklist, the action items, the version. Warnings are
 exactly why they get skipped and then turn up as the thing the client noticed. Report the counts and
 every warning to your human in plain language before going near the send.
 
-**Never pick a status to dodge the gate.** A `needs-input` send is never check-gated, and that is
-correct when the client genuinely owes answers. Using it to slip an unreviewed article past a gate is
-the one move this whole design exists to make visible. If the honest status is `ready` and a check is
-stale, re-run the check.
+**The status is not a way past the gate.** The trigger is the article, not the label: the platform
+refuses any real send whose manifest carries an article until the four checks are current, whatever
+the status says, and it refuses a ready, scheduled, or published send on the same blockers whether or
+not there is an article. A `needs-input` send is ungated only when it carries no article, which is
+the collaboration loop asking the client questions before there is prose to check. So set the status
+because it is the honest description of where the deliverable stands, and when a check is stale,
+re-run the check.
 
 ## 2. Preview to yourself
 
@@ -96,16 +100,36 @@ Then wait for the explicit yes.
 
 `send-deliverable(team_id, deliverable_id, client_email, client_name)`.
 
-**Always pass `client_email` with `client_name`** on the real send. That captures the institution's
-contact as the client participant, and it is what makes the deliverable followable up on later.
-Without it, the deliverable can never be nudged and the quiet-client path below is closed for good.
-Get the address right the first time and read it back before sending.
+**Pass `client_email` with `client_name`** on the real send whenever there is a client contact. That
+captures the institution's contact as the client participant, and it is what makes the deliverable
+followable up on later. Without it, the deliverable can never be nudged and the quiet-client path
+below is closed for good. Get the address right the first time and read it back before sending.
 
-**Do not surface the client URL before the send.** The client link is a magic link belonging to the
-person the platform sends it to. Handing it around ahead of the send lets the deliverable be opened
-outside the record, and it tempts an operator into pasting it into their own email, which skips the
-participant record, the activity ledger, and every followup after. After the send, the URL is fine to
-share with your own operator; `get-deliverable` returns it.
+**The platform withholds the client link until the send; never try to reconstruct it.** Before the
+first send, every tool that would print the client URL prints a line saying it is withheld until then
+instead, and the raw token appears nowhere at any time. That is deliberate output hygiene, not a
+missing field: the link is a live credential for the review page, and an operator who has it early
+tends to paste it into their own email, which skips the participant record, the activity ledger, and
+every followup after. Do not assemble the URL from a slug or a token or a pattern you saw somewhere
+else. After the send, `get-deliverable` returns it as it always did, and it is fine to share with
+your own operator.
+
+### When there is no client contact
+
+An internal or QA send has no person at an institution on the other end. That is a legitimate send,
+and it has its own shape:
+
+- **Pass no `client_email` and no `client_name`.** Passing either one captures a client participant
+  on the record and opens the followup path, which is a real relationship you did not mean to start.
+  There is no way to un-capture it afterwards.
+- **Preview to yourself first**, exactly as above. The preview mails only the signed-in operator, so
+  on an internal deliverable it is usually the whole rehearsal you need.
+- **Say what the real send will actually reach**, before you ask for the OK: with no client contact,
+  it goes only to the participants already on the record, which in practice means whoever the action
+  items are assigned to. Name them. If that set is only you, say that too, plainly, so nobody
+  believes a client was contacted.
+- **The gate still applies.** A send with no client contact is still a real send: it still needs the
+  explicit OK, and if it carries the article it still needs the four checks current.
 
 ## 5. Report, then hand back
 
@@ -124,9 +148,13 @@ for the revise phase to pick up.
 
 The refusal message names the way through. Take it literally.
 
-- **A missing, failing, or stale check** on a ready, scheduled, or published send. It names each one.
-  The way through is to re-run that check and record the result. Not lowering the status, not
-  recording a result nobody earned, not calling the preview a send.
+- **A missing, failing, or stale check** on any send that carries the article, and on any ready,
+  scheduled, or published send. It names each check with its own reason (no result recorded, latest
+  result is fail, recorded against an older article) and names `record-deliverable-check` as the way
+  through. When the trigger was the article rather than the status, the refusal says so in its first
+  sentence, so read that line before deciding the status is the problem. The way through is to re-run
+  that check and record the result. Not lowering the status, not recording a result nobody earned,
+  not calling the preview a send. There is no force flag and no operator override.
 - **A build contract failure**: an anchor quote that no longer resolves, an illegal enum, an em dash
   in client copy. The way through is the article or the manifest, and the message says which.
 - **`published` refused.** That status needs the client's approval plus a genuinely publish-ready
@@ -149,7 +177,8 @@ nudge as outward-facing too, and keep your operator informed before you send one
 ## Judgment calls
 
 - **A deliverable with open blocking items is not broken.** It is a `needs-input` send, and the deep
-  links per item are the product working.
+  links per item are the product working. If that send carries the article, it carries the four
+  checks too.
 - **Re-sending is a revision announcement**, not a duplicate. Say that to your operator so nobody
   fears having spammed the client.
 - **You are not the sign-off authority.** A designated person at the institution signs off before the
