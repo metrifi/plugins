@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.3.0 — 2026-07-27
+
+- GEO experiment workflow: seven skills (start, exp-research, exp-build, exp-review, exp-deliver, exp-revise, exp-status) running the full experiment lifecycle against platform.metrifi.com, with quota-adaptive experiment sizing and the pre-publish check gate.
+
 ## Unreleased (M14 Phase 4): QA follow-up, quota-adaptive sizing + the re-scoped send gate
 
 The skills and the runbook realigned to the platform fixes from the M14 QA run (platform PRs #55 to
