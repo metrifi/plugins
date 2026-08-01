@@ -136,18 +136,56 @@ submissions before adding them to the directory." No functional test of the MCP 
   developers. This will increase the likelihood of verification and will reduce the number of
   warnings shown to users." **This is an argument for doing submission B before or alongside A.**
 
-### After approval
-- Updates are automatic. [AN-PLUG]: "After your plugin is published, updates pushed to your
-  GitHub repo are picked up automatically—CI mirrors changes to the public marketplace and runs
-  automated screening on each update. You do not need to re-submit the form for updates."
-- Expect a publication lag. [CC-PLUG]: "The public catalog syncs nightly from the review
-  pipeline, so there can be a delay between approval and your plugin appearing in
-  `marketplace.json`." One developer reported a much longer gap: [C-GH14] (first-hand) reports a
-  plugin showing "Published" status as of 2026-04-24 that had still not appeared in the
-  repository's `marketplace.json` or on claude.com/plugins. **Do not read a delay as a rejection.**
-- Approved plugins are pinned. [CC-PLUG]: "Approved plugins are pinned to a specific commit SHA
-  in the `anthropics/claude-plugins-community` catalog, and CI bumps the pin automatically as
-  you push new commits to your repository."
+### After approval: set expectations low
+
+The official description and the field reports diverge sharply here. Approval is not the same as
+being listed, and several developers have been stuck between the two for months.
+
+- The official claim. [CC-PLUG]: "The public catalog syncs nightly from the review pipeline, so
+  there can be a delay between approval and your plugin appearing in `marketplace.json`."
+  [AN-PLUG]: "updates pushed to your GitHub repo are picked up automatically—CI mirrors changes
+  to the public marketplace... You do not need to re-submit the form for updates."
+- **The field reality.** Four independent first-hand reports of approved-but-unlisted:
+  - [C-GH14] ameya85, 2026-04-27: "My plugin was submitted via platform.claude.com/plugins/submit
+    and shows \"Published\" status since April 24, 2026. It does not appear in: This repo's
+    marketplace.json / claude.com/plugins". Still open.
+  - [C-GH14] aman-immersa, 2026-05-29: "Our plugin was submitted and approved more than 8 weeks
+    ago and the PR merged - but still does not show up in https://claude.com/plugins."
+  - [C-GH14] chitkwanlin, 2026-06-27, on the nightly claim: "In reality, it seems more like
+    weekly?" and later "there have been no syncs since."
+  - [C-GH605] nicodiansk, 2026-06-30: "The catalog total has been flat at 2202 entries for the
+    past several days even though the repo keeps receiving `bump(...)` commits — consistent with
+    new-plugin additions being paused".
+- **The catalog is over the documented client limit.** [C-GH1058] ettoreperri, 2026-07-14:
+  "anthropics/claude-plugins-community: marketplace.json lists 2248 plugins (max 2000)". I
+  fetched the live catalog on 2026-07-23 and counted **2307 entries**, so it has kept growing
+  past the reported cap. `[LOCAL]`
+- `[!]` **Our plugin lives in a subdirectory, and the source type the pipeline picks matters.**
+  Our `marketplace.json` declares `"source": "./plugins/claude/metrifi"`. In the live catalog,
+  subdirectory plugins are represented as `git-subdir` (405 entries) and repo-root plugins as
+  `url` (1898). Five entries carry the broken `url` + `path` shape. [C-GH1185] Eigenwise,
+  2026-07-17, reports what that costs: his plugin "installs with zero agents/skills: source uses
+  `url` type with a `path` field" and, critically, "Submission through the form does NOT fix
+  this". He also found the repo will not take a community fix: "I opened #4200 with this exact
+  change, but it was auto-closed since the repo only accepts PRs from Anthropic team members."
+  **Action: after we appear in the catalog, confirm our entry is `git-subdir` with
+  `path: plugins/claude/metrifi`. If it is `url` + `path`, the plugin installs empty and we must
+  open an issue rather than a PR.** `[LOCAL]` `[C-GH1185]`
+- **Listing can exist while install fails.** [C-GH40] ayn-builds, 2026-05-26: "My plugin is live
+  here: https://claude.com/plugins/migration-to-aws but when I try installing it I see the
+  following error: `The plugin installation failed — \"migration-to-aws\" wasn't found in the
+  claude-plugins-official marketplace.`" Still open. **Test the install yourself after listing.**
+- **Pinned SHAs can go stale ("bump starvation").** [CC-PLUG] says "CI bumps the pin automatically
+  as you push new commits". [C-GH995] ryanjmichie-git, 2026-07-12, found a limit: "bump.sh
+  iterates entries in file order and stops at max-bumps (default 30) ... daily churn among early
+  entries exhausts the cap before discovery reaches later ones (forgeproof is at index 836 of
+  2248). This affects every entry in the latter part of the file, not just ours." [C-GH1588]
+  talkstream, 2026-07-30, on the consequence: "Users installing `ru-text@claude-community` today
+  get a build from before the plugin's AI-text-cleanup rules existed — which is the capability
+  the listing description advertises." **Action: after listing, periodically verify the pinned
+  `sha` in the catalog matches our latest release.**
+- **The README's submission link was dead.** [C-GH22] dspv, 2026-05-05: the URL "resolves to a
+  **non-existent domain** (`DNS_PROBE_FINISHED_NXDOMAIN`)". Use `platform.claude.com/plugins/submit`.
 
 ---
 
@@ -157,14 +195,43 @@ The submission that functionally tests every tool. Highest bar, and the highest 
 because our buyers are in claude.ai rather than the CLI.
 
 ### Access
-- `[x]` claude.ai Team org exists `[LOCAL]`
+- `[x]` claude.ai Team org exists `[LOCAL]`. This is the gate that stops most solo developers:
+  [C-RD4] (first-hand, 2026-07-24): "I'm on Pro with no organization, so there's no Organization
+  settings for me to open." [C-RD1] (first-hand, approved) on the cost: "the submission portal is
+  only available to Team/Enterprise orgs — for a solo dev that means a minimum of 2 seats,
+  ~€52/month." **We already clear this.**
 - `[ ]` Submitting user has directory-management access. [AN-SUB]: "By default, only organization
   Owners and Primary owners can submit and manage directory listings... Team plans don't have
   custom roles, so on Team this stays with Owners."
+- `[?]` **Unknown whether a published listing survives the Team plan lapsing.** [C-RD1]
+  (first-hand): "that exact question was #1 in my pre-submission email to the review team — whether
+  a published listing survives the plan lapsing — and it's the one question that never got an
+  answer (the ticket is still open). So: officially unknown". Not a blocker for us, but budget for
+  keeping the Team seat indefinitely.
+
+### The portal live-checks your server before it lets you submit
+
+This is the most useful single fact about submission B, and it is not in the docs. [C-RD1]
+(first-hand, approved 2026-07-30) describes the current portal: "It connects to your server live:
+counts tools/resources and checks auth support before it even lets you submit." And specifically
+on annotations: "Missing annotations.title on tools gets flagged immediately. I added titles and
+redeployed mid-submission — the re-check passed. The automated checks seem to care most about
+read-only hints and honest descriptions."
+
+[AN-SUB] corroborates the mechanism: tools "sync automatically from the connected server... If
+any tools are flagged for missing titles or annotations, fix them on your server before
+submitting."
+
+**Consequence for our plan: the annotation work (D.1) is not a review risk, it is a hard gate on
+even opening the submission.** But it also means we get a free pre-flight: we can start a draft
+submission, let the portal tell us which tools it flags, fix, and re-check, without burning a
+review cycle.
 
 ### Tool design
 Reported as the single largest rejection cause by a developer who went through the process.
-[C-DEV] (first-hand) calls tool annotations "the #1 reason for rejection."
+[C-DEV] (first-hand) calls tool annotations "the #1 reason for rejection." Note that [C-DEV] also
+states "Missing annotations reportedly cause around 30% of all directory rejections" with no
+source given; **do not repeat that number, it is unsourced.**
 
 - `[ ]` Every tool has a `title` `[AN-SUB]` `[AN-REV]` `[AN-POL]`
 - `[ ]` Every read-only tool has `readOnlyHint: true` `[AN-REV]`
@@ -229,9 +296,34 @@ Reported as the single largest rejection cause by a developer who went through t
 - `[x]` No credentials in URL query parameters. [AN-AUTH]: tokens in the connector URL "are
   **not recommended**... The MCP authorization specification explicitly prohibits access tokens
   in the URI query string." We use OAuth. `[LOCAL]`
-- `[!]` **WAF/CDN must not block `160.79.104.0/21`.** [AN-AUTH]: "Anthropic's outbound traffic to
-  your server originates from `160.79.104.0/21`." We are behind Cloudflare, so this is a live
-  risk, not a hypothetical. Verify from outside our network; it fails silently. `[AN-AUTH]` `[LOCAL]`
+- `[!]` **WAF/CDN must not block or rate-limit `160.79.104.0/21`.** [AN-AUTH]: "Anthropic's
+  outbound traffic to your server originates from `160.79.104.0/21`." We are behind Cloudflare,
+  so this is a live risk, not a hypothetical. Two independent first-hand reports show both
+  failure modes:
+  - **Rate limiting**, measured on a connector that was already listed. [C-GH709] ctr00-BU,
+    2026-07-26: "| Anthropic egress | **HTTP 429**, 3 of 3 attempts across ~13 minutes | / | My
+    residential browser | **HTTP 200**, valid RFC 8414 metadata |", reasoning that "Since every
+    Claude.ai user's connect attempt leaves from `160.79.104.0/21`, a shared anonymous bucket on
+    that host is at least plausible." [C-RD1] (first-hand, approved) says the same from the other
+    side: "All claude.ai clients come from a shared pool of Anthropic egress IPs: an aggressive
+    per-IP rate limit will throttle real users."
+  - **Silent drop.** [C-GH623] gunter1020, 2026-07-15, with request logging at sample rate 1.0
+    across seven days: "**Zero requests from Anthropic's published outbound range
+    `160.79.104.0/21`**" despite Anthropic's proxy reporting 502.
+  **Action: allowlist the range in Cloudflare AND exempt it from per-IP rate limiting and bot
+  fight mode. A shared-IP rate limit will look fine in testing and throttle every real user.**
+- `[ ]` **Do not stage or submit from a tunnel hostname.** [C-GH699] daltonch, 2026-07-25, and
+  [C-GH700] FabSchn0815, same date, both report failures on `ts.net` and `trycloudflare.com`
+  hosts, with the hypothesis that it is "a policy applied to tunnel-provider hostnames (`ts.net`
+  and `trycloudflare.com` are Public Suffix List entries". Unconfirmed, but cheap to avoid.
+- `[?]` **Check the authorize endpoint returns 302, not 307.** [C-GH250] peachbluetech, 2026-05-01,
+  with a confirmed fix: "`claude.ai` web's custom-connector OAuth handshake silently fails with
+  the generic `\"Method Not Allowed\"` error toast when the server's authorization response uses
+  HTTP **307 Temporary Redirect** instead of **302 Found**", and "MCP Inspector, Claude Desktop,
+  Cursor, and Anthropic API `mcp_connector` all accept 307 fine — only claude.ai's web custom
+  connector validates the status code." **This is a Next.js default and a plausible Laravel
+  `redirect()` outcome.** I could not verify ours: `/oauth/authorize` returns 401 without a
+  session. Test with a logged-in session before submitting. `[LOCAL]`
 - `[ ]` Endpoint latency inside Anthropic's budget. [AN-AUTH]: "Claude waits up to **10 seconds**
   for a response from your OAuth discovery, registration, and token endpoints, and up to **30
   seconds** for refresh token requests." Also: "check that any reverse proxy, API gateway, or WAF
@@ -332,6 +424,24 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
   change to your server—no resubmission to Anthropic is required, and there is no scheduled
   re-review. Claude picks up the new tool surface on the next connection." **This is the opposite
   of OpenAI's rule — see [G](#g-cross-vendor-contradictions).**
+- `[!]` **But existing users do not see new tools until they refresh.** [C-RD1] (first-hand):
+  "claude.ai caches the tool SET at connect time. A new tool, a changed schema, or updated widget
+  HTML won't reach existing users until they manually hit \"Refresh tools list\" in the connector
+  settings. Only descriptions and response contents update live. Conclusion: finalize your
+  toolset BEFORE distribution." Not in the docs, and it sits directly against [AN-AFTER]'s
+  "Claude picks up the new tool surface on the next connection." **Treat the tool set as
+  effectively frozen at launch for existing connections.**
+- **Approval appears to change client-side permission defaults.** [C-RD1] (first-hand, checked
+  after being challenged): "connecting the approved connector fresh from the directory, all tools
+  defaulted to \"always allow\" — zero permission prompts, and the permissions UI groups tools by
+  their read-only/interactive annotations. Custom connectors default to ask-mode instead." Single
+  source, but if true it is a real user-experience argument for listing. Note the counter from
+  [MCP-SPEC]: annotations are hints and "Clients should never make tool use decisions based on
+  ToolAnnotations received from untrusted servers" — directory listing is plausibly what makes a
+  server trusted.
+- **Expect ongoing automated probing.** [C-RD1] (first-hand): "Since submission, Anthropic egress
+  IPs hit my server daily with initialize + tools/list - every day, short sessions, zero tool
+  calls. That looks a lot like ongoing automated monitoring". Budget for it; do not alert on it.
 - Listing metadata is editable without review; the display name is not. [AN-MANAGE]: "**Display
   name**: editable, but changing the name of a published server affects existing users and
   requires re-review."
@@ -340,11 +450,44 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 - Permanent URL: `https://claude.ai/directory/connectors/SLUG` `[AN-AFTER]`
 - Delisting: email `mcp-review@anthropic.com` `[AN-AFTER]`
 
+### Portal bugs worth knowing before you hit an error
+- **"Slug already exists" is misleading; the real conflict is the display name.** [C-GH600]
+  hjhlarsen, 2026-07, hit "A submission with this slug already exists. Pick a different slug on
+  the Listing step" and found changing the slug did nothing. wchest posted the fix: "The API error
+  response indicated \"A server with that name already exists.\" So, I added a space after the
+  submission name and it submitted." Independently confirmed in the same thread: "adding a space
+  to the name solved the issue." **If we hit this, change the name, not the slug.**
+- **The URL validator rejects some valid HTTPS URLs.** [C-GH368] masbouj, 2026-05-27, with eight
+  "same problem" confirmations through 2026-06-13: the field rejected
+  `https://prod.metabase.eu-west-3.xxxx.xxxx/api/mcp`. Affects deep subdomains and newer TLDs.
+  `platform.metrifi.com/mcp` is a simple shape, so we are probably fine.
+
 ### Review and labelling
 - Timeline is not published. [AN-SUB]: "Review times vary with queue volume. The submission
-  portal is always open." [C-DEV] (first-hand) reports Anthropic citing roughly two weeks and
-  his own submission sitting "about a month" with no response, which he was told is "within the
-  normal range."
+  portal is always open."
+- **Timelines split hard around the June 2026 cutover** from a Google Form to the in-app portal.
+  Weight the portal-era account most.
+  - **Portal era, the one complete account:** [C-RD1] (first-hand): "Timeline: submitted July 10
+    via the admin portal, approved July 30 as a Community connector — 20 days, zero pings from my
+    side. There's no published SLA."
+  - **Form era, and it went badly.** [C-BLOG] Josh Symonds, 2026-07-31, submitted 2026-03-22:
+    "After more than four months, multiple customer-support requests, and two explicit assurances
+    that my application was waiting in Anthropic's review process, the company informed me through
+    an automated email that the process had failed, the old queue was being discarded, and I
+    should begin again." For contrast he notes "OpenAI approved it on April 28: 29 days from
+    submission to acceptance."
+  - Corroborating form-era silence: [C-RD3] (submitted 2026-05-21, no response after 7 weeks),
+    [C-RD5] ("heard literally nothing for like 5 months"), [C-GH723] (6 weeks, form plus email,
+    nothing), [C-DEV] ("about a month", told that is "within the normal range").
+- `[?]` **The escalation address may not answer.** [AN-SUB] names `mcp-review@anthropic.com`.
+  [C-RD4] (first-hand, 2026-07-24): "Emailed mcp-review@anthropic.com on 8 July, followed up on
+  the 19th, no answer yet." [C-RD1], who was approved, says his own pre-submission question to
+  the review team "never got an answer (the ticket is still open)." **Plan as though there is no
+  responsive escalation path.**
+- `[?]` **Status tracking may not work as documented.** [AN-SUB]: "track your submission's status
+  and read reviewer feedback in the submissions dashboard." [C-RD2] (first-hand, form era): "I
+  haven't found a way to check status, it's basically just waiting." The dashboard is new, and
+  [C-RD1] using the portal did not report a problem, so this may be resolved.
 - Ranking is usage-based. [AN-DIR]: "Ranking is usage-based, similar to other app stores."
 - **Publishing to the open MCP Registry does nothing for this directory.** [AN-VSCUSTOM]: "The
   Anthropic Directory is independent of the open MCP Registry and the
@@ -625,14 +768,33 @@ every tool with invalid input.
 
 1. ~~Trim over-length skill descriptions, add LICENSE, add `license`/`repository`/`keywords`,
    link policies from README.~~ **Done 2026-07-23.** `[LOCAL]`
-2. **Submit A (Claude plugin directory).** Nothing else blocks it. **1 hour.**
-3. Platform repo: D.1 annotations, D.2 description rewrite, D.3 error audit. **3–4 days.**
-4. Exercise every tool via MCP Inspector and as a custom connector; write the public docs page
+2. **Submit A (Claude plugin directory) now, but reset expectations.** It costs an hour and
+   nothing blocks it, so there is no reason to wait. But the field evidence in
+   [After approval](#after-approval-set-expectations-low) says approval and listing are different
+   events, separated by weeks to months, and the catalog has been stalled or over capacity for
+   stretches of 2026. **Submit it as a queue ticket, not as the thing that gets MetriFi live.**
+3. **Check the two infra blockers in parallel, they are cheap and gate everything else.**
+   - Cloudflare: allowlist `160.79.104.0/21` and exempt it from per-IP rate limiting.
+   - OpenAI project data residency (EU blocks submission C entirely).
+   **Half a day for both.**
+4. Platform repo: D.1 annotations, D.2 description rewrite, D.3 error audit. **3–4 days.**
+   Remember the portal live-checks annotations before allowing submission, so this gates B.
+5. Open a **draft** submission B early to use the portal's live server check as free pre-flight
+   ([C-RD1]), fix whatever it flags, then complete it. Also verify the 302-not-307 authorize
+   redirect and add a security vulnerability contact.
+6. Exercise every tool via MCP Inspector and as a custom connector; write the public docs page
    and the three example prompts. **1 day.** `[AN-REV]` `[AN-POL]`
-5. **Submit B (Connectors Directory).**
-6. OpenAI: identity verification, domain challenge, logo + composerIcon, manifest listing fields,
+7. **Submit B (Connectors Directory).** Portal-era evidence is 20 days to approval ([C-RD1]).
+8. OpenAI: identity verification, domain challenge, logo + composerIcon, manifest listing fields,
    8 test cases, starter prompts. **3–5 days.**
-7. **Submit C (OpenAI).**
+9. **Submit C (OpenAI).** One first-hand comparison point: 29 days submission to acceptance
+   ([C-BLOG]).
+
+**Why B may matter more than A.** [AN-PLUG] says using connectors "that already exist in the
+Connectors Directory... will increase the likelihood of verification and will reduce the number of
+warnings shown to users." Our plugin bundles our own connector, so a listed connector improves the
+plugin listing. Combined with the plugin catalog's sync problems and the connector portal's
+working 20-day turnaround, **B is the submission that actually puts MetriFi in front of buyers.**
 
 ## G. Cross-vendor contradictions
 
@@ -668,6 +830,21 @@ plugin will become Anthropic Verified." [CC-PLUG] on the curated marketplace: "A
 which plugins to include at its discretion. There is no application process, and the submission
 form does not add plugins to the official marketplace." [AN-REV] says Verified escalation "is
 assessed automatically, and you do not need to take any action."
+
+No developer found in this research has documented a Community → Verified upgrade. [C-RD1]
+(first-hand, approved as Community): "There is no public process for upgrading. Has anyone here
+gone Community → Verified? Genuinely curious how." He also claims, from his own testing and
+explicitly asking for counter-evidence, that the tier affects discovery: "the in-chat connector
+auto-suggestions... only surface **verified** connectors. Community tier gets directory search and
+the browse shelves — but not the auto-suggestion panel." **Single-source and unreplicated.** It
+would sit against [AN-VER]'s framing that the label "is a quality signal shown to users; it does
+not change how your connector runs once connected" — though that sentence is about runtime, not
+discovery, so both can be true.
+
+Plan for Community tier. Treat Verified as upside you cannot schedule.
+
+Also on placement, on the OpenAI side: [OA-REV] "Plugins appear on the directory's main pages only
+if OpenAI selects them for enhanced distribution."
 
 ---
 
@@ -727,15 +904,48 @@ Note: `developers.openai.com/codex/*` 308-redirects to `learn.chatgpt.com/docs/*
 `/codex/skills` → `/docs/build-skills`.
 
 ### Non-official developer reports
+
+All first-hand unless marked. **No source below reports a stated rejection reason from Anthropic.**
+A research pass across Reddit, GitHub, and blogs found accounts of silence, lost submissions,
+portal bugs, and one detailed approval, but nobody saying "Anthropic rejected me because X." That
+absence is itself a finding: the failure mode people actually hit is the queue, not the criteria.
+
 | ID | Source | Kind | Date |
 |----|--------|------|------|
-| `[C-DEV]` | [dev.to — "How to Submit Your MCP Server to Anthropic's Connector Directory (From Someone Who Did It)"](https://dev.to/qrflows/how-to-submit-your-mcp-server-to-anthropics-connector-directory-from-someone-who-did-it-143m) | **first-hand** submitter account | 2026 |
-| `[C-SUN]` | [sunpeak.ai — "Claude Connector Directory Submission: Requirements, Annotations, and How to Pass Review"](https://sunpeak.ai/blogs/claude-connector-directory-submission/) | **second-hand** vendor blog restating and expanding the docs | May 2026 |
-| `[C-GH14]` | [github.com/anthropics/claude-plugins-community issue #14](https://github.com/anthropics/claude-plugins-community/issues/14) | **first-hand** post-approval sync problem | Apr 2026 |
+| `[C-RD1]` | [r/mcp — "Anthropic approved my MCP server into the Claude directory"](https://old.reddit.com/r/mcp/comments/1vana5k/anthropic_approved_my_mcp_server_into_the_claude/) (u/Capable_Advisor5282) | **first-hand, approved via the current portal.** The single most useful source here | 2026-07-30 |
+| `[C-BLOG]` | [joshsymonds.com — "Anthropic hates developers"](https://joshsymonds.com/blog/anthropic-hates-developers/) (Josh Symonds, Savecraft) | **first-hand**, four months then told to restart | 2026-07-31 |
+| `[C-DEV]` | [dev.to — "How to Submit Your MCP Server to Anthropic's Connector Directory (From Someone Who Did It)"](https://dev.to/qrflows/how-to-submit-your-mcp-server-to-anthropics-connector-directory-from-someone-who-did-it-143m) | **first-hand** submitter; parts restate the docs | 2026-06-03 |
+| `[C-RD2]` | [r/mcp thread, u/ElectronicTonicWater](https://old.reddit.com/r/mcp/comments/1urs17q/submitted_my_mcp_to_anthropic_around_7_weeks_ago/) | first-hand, status visibility | 2026-07-09 |
+| `[C-RD3]` | [r/mcp, u/ValuablePace4109 (HookLayer)](https://old.reddit.com/r/mcp/comments/1urs17q/submitted_my_mcp_to_anthropic_around_7_weeks_ago/) | first-hand, 7 weeks silent | 2026-07-09 |
+| `[C-RD4]` | [r/mcp — "Solo dev can't reach the in-app directory"](https://old.reddit.com/r/mcp/comments/1v5owzt/solo_dev_cant_reach_the_inapp_directory/) (u/Think-Ad986) | first-hand, Team gate + unanswered escalation | 2026-07-24 |
+| `[C-RD5]` | [r/mcp — "Built an MCP app, turns out you can't even submit"](https://old.reddit.com/r/mcp/comments/1ui7366/built_an_mcp_app_turns_out_you_cant_even_submit/) (u/BaseMac) | first-hand, 5 months silent | 2026-06-29 |
+| `[C-GH14]` | [claude-plugins-community #14](https://github.com/anthropics/claude-plugins-community/issues/14) | first-hand, approved-but-unlisted (multiple reporters) | 2026-04-27+ |
+| `[C-GH40]` | [claude-plugins-community #40](https://github.com/anthropics/claude-plugins-community/issues/40) | first-hand, listed but not installable | 2026-05-26 |
+| `[C-GH22]` | [claude-plugins-community #22](https://github.com/anthropics/claude-plugins-community/issues/22) | first-hand, dead submission URL | 2026-05-05 |
+| `[C-GH605]` | [claude-plugins-community #605](https://github.com/anthropics/claude-plugins-community/issues/605) | first-hand, catalog additions paused | 2026-06-30 |
+| `[C-GH995]` | [claude-plugins-community #995](https://github.com/anthropics/claude-plugins-community/issues/995) | first-hand, SHA bump starvation | 2026-07-12 |
+| `[C-GH1058]` | [claude-plugins-community #1058](https://github.com/anthropics/claude-plugins-community/issues/1058) | first-hand, catalog over client max | 2026-07-14 |
+| `[C-GH1185]` | [claude-plugins-community #1185](https://github.com/anthropics/claude-plugins-community/issues/1185) and [claude-plugins-official #4201](https://github.com/anthropics/claude-plugins-official/issues/4201) | first-hand, `url`+`path` source installs empty | 2026-07-17 |
+| `[C-GH1588]` | [claude-plugins-community #1588](https://github.com/anthropics/claude-plugins-community/issues/1588) | first-hand, stale pinned build | 2026-07-30 |
+| `[C-GH250]` | [claude-ai-mcp #250](https://github.com/anthropics/claude-ai-mcp/issues/250) | first-hand, 307 vs 302 OAuth failure **with confirmed fix** | 2026-05-01 |
+| `[C-GH368]` | [claude-ai-mcp #368](https://github.com/anthropics/claude-ai-mcp/issues/368) | first-hand, URL validator rejects valid HTTPS | 2026-05-27 |
+| `[C-GH600]` | [claude-ai-mcp #600](https://github.com/anthropics/claude-ai-mcp/issues/600) | first-hand, slug/name portal bug **with workaround** | 2026-07 |
+| `[C-GH623]` | [claude-ai-mcp #623](https://github.com/anthropics/claude-ai-mcp/issues/623) | first-hand, zero inbound traffic from Anthropic egress | 2026-07-15 |
+| `[C-GH699]` | [claude-ai-mcp #699](https://github.com/anthropics/claude-ai-mcp/issues/699) | first-hand, tunnel-hostname failure | 2026-07-25 |
+| `[C-GH700]` | [claude-ai-mcp #700](https://github.com/anthropics/claude-ai-mcp/issues/700) | first-hand, same on `ts.net` | 2026-07-25 |
+| `[C-GH709]` | [claude-ai-mcp #709](https://github.com/anthropics/claude-ai-mcp/issues/709) | first-hand, **HTTP 429 measured from Anthropic egress** | 2026-07-26 |
+| `[C-GH723]` | [claude-ai-mcp #723](https://github.com/anthropics/claude-ai-mcp/issues/723) | first-hand, 6 weeks no response | 2026-07-29 |
+| `[C-SUN]` | [sunpeak.ai blog](https://sunpeak.ai/blogs/claude-connector-directory-submission/) | **second-hand** vendor blog | 2026-05-22 |
 
-Second-hand sources are used above only for operational gotchas (WAF egress, JSON-only token
-endpoints, payload size) that the official docs do not cover. Where they restate official
-requirements, the official source is cited instead.
+Second-hand sources are used only for operational gotchas the official docs do not cover. Where
+they restate official requirements, the official source is cited instead.
+
+**Claims deliberately excluded** for lack of support: [C-DEV]'s "Missing annotations reportedly
+cause around 30% of all directory rejections" (no source given, nothing found supporting it), and
+[C-DEV]'s "must be Streamable HTTP, SSE is no longer accepted" (contradicted by [AN-SUB], which
+accepts "streamable HTTP or SSE"). An r/ClaudeWorkflows post covering the same connector as
+[C-RD1] is a bot-generated summary ("This post was generated automatically from the workflow
+library database") and is not an independent data point.
 
 ### Local verification
 `[LOCAL]` — direct checks against this repository and `https://platform.metrifi.com` performed
