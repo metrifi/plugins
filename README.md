@@ -77,6 +77,16 @@ It regenerates the Codex skills from the Claude skills (Claude is the single sou
 bumps both manifests, updates the CHANGELOG, validates, and commits + tags + pushes.
 CI (`tools/validate.mjs`) guards structure and Claude/Codex parity on every push.
 
+## Legal
+
+- [Terms of Service](https://metrifi.com/legal/terms-of-service/)
+- [Privacy Policy](https://metrifi.com/legal/privacy-policy/)
+- [Cookie Policy](https://metrifi.com/legal/cookie-policy/)
+- [License](LICENSE) — the source is public so you can review what the plugin
+  does before installing; the contents remain proprietary to MetriFi.
+
+Support: [ryan.harmon@metrifi.com](mailto:ryan.harmon@metrifi.com)
+
 ---
 See [NOTICE.md](NOTICE.md). Proprietary release artifact; not an open-source project
 and not accepting external contributions. Authored content (the skills) lives under
