@@ -507,6 +507,41 @@ One submission, listed in both ChatGPT and Codex. [OA-SUBP]: approved plugins ap
 now submitted and published as plugins." Most mechanically strict of the three, and the error
 catalogue is public, which makes this the easiest one to pre-validate.
 
+### `[!]` Measure the tool-surface token budget before anything else
+
+**This may be a hard blocker, and it is undocumented.** [C-OA-SCAN] isaac-b reports hitting
+`Tool scan failed: Internal service error` and, after roughly two months, getting these limits
+from OpenAI support (2026-05-01):
+
+> "Each individual tool definition must be under 5,000 tokens. This includes the tool name,
+> description, and input schema. All tools combined (including name, description, and input
+> schema) must be less than 16000 tokens."
+
+His own empirical finding differs from what support told him: "Our full MCP is ~54k tokens,
+resulting in the 500 error. We truncated the tool/list, and found that the tool scan worked when
+the MCP definition was below ~32k tokens." So the real enforced ceiling is somewhere between 16k
+and 32k tokens. **Neither number appears in any documentation I could fetch.** Treat as
+credible-but-unverified, and measure before doing any other OpenAI work.
+
+**Why this is alarming for us:** the MetriFi server exposes roughly 180 tools, and our
+descriptions are long by design (several run 1,000 to 3,000 characters including schema). A rough
+extrapolation puts the full surface somewhere in the 30k to 60k token range, which would be over
+even the generous reading of the limit. `[LOCAL]`
+
+- `[ ]` **Measure it precisely.** Fetch an authenticated `tools/list` and count tokens over the
+  full JSON of every tool's `name` + `description` + `inputSchema`. Also flag any single tool
+  over 5k.
+- `[ ]` If we are over, the options are, in rough order of preference:
+  1. Cut description length (this pairs with the [D.2] rewrite, which shortens them anyway)
+  2. Split the MCP surface, submitting a narrower product-scoped server to OpenAI than the full
+     platform server we give Anthropic
+  3. Collapse near-duplicate tools
+- Corroborating symptom to watch for: [C-OA-FORM] ShoaibYounus, 2026-06-08, with 236 tools, could
+  not submit at all: "The form confirms 'Imported 236 tool justifications. Skipped 0. Missing 0.
+  Mismatched 0' and every visible field is populated, but Submit for Review fires the generic
+  'This is a required field' toast with no field-level indication." He notes "our MCP server
+  exposes 236 tools (large surface compared to most submissions)." We are in the same size class.
+
 ### Prerequisites
 - `[ ]` Verified identity. [OA-REV]: "Before submitting a plugin with MCP, complete identity
   verification in the OpenAI Platform Dashboard for the name you plan to publish under in the
@@ -514,6 +549,21 @@ catalogue is public, which makes this the easiest one to pre-validate.
   business name will result in rejection."
 - `[ ]` `api.apps.write` permission. [OA-REV]: "To create plugin drafts with MCP and submit them
   for review, you need the `api.apps.write` permission."
+- `[!]` **Developer name must match the verified legal name character for character**, and the
+  verification state lags. Rejection wording, [C-OA-REJ1]: "The developer name you entered does
+  not match your verified individual or business name." OpenAI Support's rule, [C-OA-REJ4]: "Even
+  small differences like abbreviations or branding vs legal name can trigger that rejection." Two
+  further traps:
+  - The verified name may not be visible to you. [C-OA-REJ4] ManuelDario: "I tried to find it, but
+    there's no option to see my verified name."
+  - **"Verified" appears days before submission actually works.** [C-OA-VERIF] techsign, after
+    being blocked: "After a few days, it worked. I think the settings section marks as 'confirmed'
+    a few days too early. The actual confirmation seems to take a few days." Corroborated by
+    EdgarM the same week. **Do the verification early and expect to wait, do not schedule it as
+    the last step.**
+- `[ ]` Give the organization and project real names, not "Default". Buried in the workaround that
+  cleared a multi-week scanner outage, [C-OA-SCANFIX] Walo_Fenton: "Went to
+  /settings/organization/general and gave a name to my Organization (had Default)".
 - `[!]` **Check the OpenAI project's data residency.** [OA-REV]: "For now, projects with EU data
   residency cannot submit plugins with MCP servers for review. Use a project with global data
   residency." **Verify before doing any other OpenAI work; this is a hard block.**
@@ -528,6 +578,22 @@ catalogue is public, which makes this the easiest one to pre-validate.
 - `[ ]` Return **only** the token. [OA-SUB]: "The challenge endpoint must return only that
   plugin's verification token—do not return JSON, a list of tokens, or multiple tokens from the
   same URL."
+- `[x]` **It must be at the domain ROOT, and this will never change.** Our MCP server is at
+  `platform.metrifi.com/mcp`, so the challenge goes at the root of that host, not under `/mcp`.
+  [C-OA-SUBPATH] NatKSS documented the behavior: "The verifier always strips the path and checks
+  the root domain, regardless of the MCP URL or challenge base URL configured in the submission
+  form." OpenAI confirmed it is deliberate (casey-chow, OpenAI, 2026-04-15): "we don't support
+  non-root .well-known locations when performing domain verification. This is not something we
+  plan on supporting, given that doing so would run against RFC-8615". **We control the root of
+  `platform.metrifi.com`, so we are fine. Worth knowing that a subpath-only deployment could
+  never be listed.** `[LOCAL]`
+- `[!]` **Do not put mTLS or a WAF rule in front of the challenge endpoint.** [C-OA-MTLS] E_D,
+  2026-07-16: "the mTLS that we configured in our domain, using OpenAI's root and intermediate
+  certificates, rejects the domain verification request made to
+  '/.well-known/openai-apps-challenge'. When we removed the mTLS it worked fine". Also
+  [C-OA-DV] DevidMxm, 2026-05-05, whose challenge was correct but the verifier stopped sending
+  requests entirely. **The verifier's user agent is `OpenAI-Domain-Verification`, so allowlist it
+  in Cloudflare** alongside Anthropic's egress range.
 
 ### Authentication
 - `[ ]` Register ChatGPT's redirect URI. [OA-AUTH]: "ChatGPT completes the OAuth flow by
@@ -605,6 +671,24 @@ smaller applies at final submission and the larger at draft validation.
   destructiveHint values and a justification for each value on every MCP tool."
 - `[ ]` Successful tool scan against the production server (`scan_required`). [OA-SUB] adds
   "Re-scan after server changes before submitting new versions." `[OA-ERR]`
+- `[?]` **The scanner may hang on OAuth-protected servers, and we are OAuth-protected.**
+  [C-OA-OAUTH] AldiPower, 2026-02-19: "I can clearly see in our server logs that OpenAI has
+  obtained a valid access token from us. So far so good. The problem is that I then land again on
+  the MCP Server submission page and the tools are not scanned". [C-OA-SPLIT] Dan425953,
+  2026-07-23, diagnosed it and published the structural fix: "the apps-manage 'Authorize MCP'
+  scanner and per-user runtime OAuth fight each other... The fix is to split discovery from auth
+  — 'anonymous discovery, auth at call time': Make the MCP server answer initialize, tools/list,
+  and ping unauthenticated, so the apps-manage scanner enumerates all tools with no OAuth popup
+  at all... Keep every tools/call returning an in-band auth challenge." **Our server currently
+  401s on `initialize` (verified). If the scan hangs, this is the fix, and it is a real
+  architectural decision, not a config toggle.** `[LOCAL]`
+- **Working in ChatGPT Developer Mode proves nothing about the review scanner.** [C-OA-DEVMODE]
+  NatKSS, 2026-05-06: "Works perfectly when connected via chatgpt.com → Developer Mode → Create
+  App... Fails in the App Review submission form at Step 2 ('MCP Server') when clicking Scan
+  Tools, with: MCP details save failed: OAuth discovery returned unsupported OAuth config type."
+  Another developer reproduced the same error against Atlassian's, Linear's, and Datadog's
+  production MCP servers. That instance was an OpenAI-side migration bug, since fixed, but the
+  lesson stands: test in the submission form, not just Developer Mode.
 - `[ ]` Responses stripped of internals. [OA-GUI]: "Return only data directly relevant to
   requests" and "Exclude diagnostic data, session IDs, timestamps, or logging metadata."
   [OA-SUB]: "Remove personal data, secrets, debug payloads, and undisclosed fields from responses."
@@ -624,10 +708,26 @@ smaller applies at final submission and the larger at draft validation.
   behavior, result shape, and fixture data."
 - `[ ]` **3 negative test cases** showing safe refusals or clarifications `[OA-SUB]`
 - `[ ]` Starter prompts showing "realistic user workflows" `[OA-SUB]`
+- `[!]` **Test every case on ChatGPT mobile, in a fresh session, on the first message.** The
+  rejection email wording, [C-OA-REJ5] AEj, 2026-04-29: "Ensure the same test cases pass
+  consistently on both ChatGPT web and mobile." Two teams were rejected for a mobile failure
+  neither could reproduce. [C-OA-MOBILE] Goo_park, 2026-05-15, found the cause: "Mobile client:
+  the first prompt after opening the app often returns a text-only response with no widget. If we
+  send the exact same prompt again, the widget renders normally", and asks the right question:
+  "does the OpenAI review team test apps with a fresh mobile session each time? If so, that could
+  consistently trigger this issue during review."
 - `[ ]` Demo credentials that just work. [OA-SUB]: credentials must work "without MFA, SMS, email
   confirmation, or private-network access." [OA-APP] is blunter: "Apps requiring any additional
   steps for login—such as requiring new account sign-up or 2FA through an inaccessible
-  account—will be rejected."
+  account—will be rejected." **A working bypass is not enough if it is non-obvious**:
+  [C-OA-LOGIN] Domantas_Vanagas, 2026-05-14, set up an email that skips their magic-link flow,
+  "Tested it, everything works. Got a rejection that they can't log in…" Our
+  `reviewer@metrifi.com` account is a plain password login, which is the right shape. `[LOCAL]`
+- `[ ]` Keep responses free of extraneous content. Rejection wording, [C-OA-REJ6] Ido_Avnir,
+  2026-07-15, who was rejected twice ("First rejection: missing test-user credentials... Second
+  rejection: feedback on how our tools are described"). [OA-REV]'s matching text: "Ensure that the
+  returned textual output closely adheres to the user's request, and does not offer extraneous
+  information that is irrelevant to the request, including personal identifiers."
 - `[ ]` Release notes "summarizing plugin function, submission type, changes, and test credential
   details" `[OA-SUB]`
 - `[ ]` Country/region availability, limited to where "publisher, product, support, and legal
@@ -691,12 +791,78 @@ as 'functionally read-only' in the justification doesn't make the tool read-only
 [OA-REF] additionally marks `readOnlyHint`, `destructiveHint`, and `openWorldHint` as **Required**
 fields, with `idempotentHint` optional.
 
-### Review flow
+`[?]` **OpenAI staff give two conflicting definitions of `openWorldHint`.** Use the engineering
+one. casey-chow (OpenAI engineering), 2026-05-14, [C-OA-ANNO]: "The idea behind openWorld is that
+it hints to the model that it has effects that are visible to someone other than the current
+user, so for example, sending a Slack message would be open-world for a Slack MCP, but updating a
+user's daily digest would not be." OpenAI Support the same day, [C-OA-REJ2]: "use that when the
+tool connects to anything outside the local sandbox, like an external API, network resource, or
+third-party system." Those give opposite answers for most read-only third-party integrations, and
+the developer who followed Support's version set everything to `true` and said "I assume that's
+the problem, but I didn't understand it." **Write our justifications against the
+effects-visible-to-others definition, since it matches [OA-REV]'s published wording.**
+
+`[!]` **Annotations must never be null.** Verbatim from a rejection email, [C-OA-REJ1] Hyunje_kim,
+2026-04-20: "One or more of your tool's annotations do not appear to match the tool's behavior.
+Please confirm annotations are explicitly set to true or false (not null) for every tool. Include
+a clear justification for why the hint is set that way based on the tool's actual behavior." His
+own diagnosis is a pattern we share: a tool that "generates a session on our backend (POSTs to
+create...) was declared readOnlyHint: true, which doesn't match the write behavior."
+
+Rejections on annotations do not name the offending tool. [C-OA-REJ3] Jonathan_Labs, 2026-04-18,
+on his fourth rejection: "If you've flagged an improper tool annotation - tell me which one. Now I
+need to 'guess' again what OpenAI is referring to during this rejection. For context, this is the
+4th time this app has been rejected, and each time I need to wait 1 to 2 weeks to hear back."
+[C-OA-REJ4] ManuelDario hit five rejections on the same two reasons: "I can't understand which
+tool have the problem". **With ~180 tools, a guess-and-wait loop is unaffordable. Get the
+annotations right the first time.**
+
+### Review flow and realistic timelines
 [OA-SUB]: submitting "starts review, doesn't auto-publish"; OpenAI reviews; the **developer**
-then publishes the approved plugin from the portal. [OA-SUBP] on timing: "Review timelines may
-vary as OpenAI builds and scales the review process." [OA-REV] closes the door on chasing it:
-"Please do not contact support to request expedited review, as these requests cannot be
-accommodated."
+then publishes the approved plugin from the portal. [OA-SUBP]: "Review timelines may vary as
+OpenAI builds and scales the review process." [OA-REV]: "Please do not contact support to request
+expedited review, as these requests cannot be accommodated." OpenAI Support, [C-OA-SLA],
+2026-06-30, states it plainly: **"App-review timelines vary, and we don't publish an SLA or offer
+expedited review."**
+
+First-hand accounts, newest first. **Do not trust third-party blogs claiming "one to two weeks";
+no first-hand account supports it.**
+
+| Reported | Outcome | Source |
+|---|---|---|
+| Jun 11 → still pending at 6+ weeks (Jul 24) | pending | [C-OA-T6] Tushar_Dhar |
+| Jul 9 → Jul 10 | **approved in 1 day** (fastest found) | [C-OA-T7] Serhii_xTiles |
+| Jul 17 → still stuck (Jul 29) | pending | [C-OA-T7] Serhii_xTiles, after resubmitting as a Plugin |
+| "60 days to 120 days in my experience" | mixed | [C-OA-T4] Jonathan_Labs |
+| 5 weeks → rejected; +3 weeks on resubmit → silent | rejected | [C-OA-T2] Aiterna-Technologies |
+| Dec 2025 → Mar 2 2026 | rejected, ~3 months | [C-OA-T1] hunter_h |
+| Update to an approved app | 8–10 days | [C-OA-T5] hunter_h, achieving100ms |
+
+**The most actionable pattern: the review itself is fast, the queue-to-decision gap is what takes
+weeks.** [C-OA-T2] Aiterna-Technologies: "based on what we see in our database, the app used and
+tested within 1–2 days after submission. However, during the following 5–6 weeks, there doesn't
+seem to be any further testing activity." Corroborated by [C-OA-T1] hunter_h ("the person that
+looks at the app does so like many days before I get an email") and Sai_Harish. **Consequence: a
+rejection costs a full queue cycle, not a fast re-test. Front-load correctness.**
+
+### When rejection feedback does not arrive
+The documented appeal path has failed for several developers. Plan for it.
+
+- Rejection emails have arrived blank. [C-OA-BLANK] ablestyle: "the rejection email contains no
+  reason for rejection. It says, 'Please see the details below:' but then there is just whitespace".
+- Rejections have arrived with no email at all. [C-OA-NOEMAIL] _millie.on, 2026-07-15: "the status
+  of my app simply changed to 'Rejected' without any further details or feedback", and support
+  "told me that they don't have access to the review notes and they simply advised me to just fix
+  and resubmit."
+- Status has flipped to Rejected and back with no notification. [C-OA-FLIP] olivier_millier,
+  2026-07-23.
+- Appeal addresses have bounced. [C-OA-BOUNCE] ManuelDario: "Your message to
+  openai-review@openai.com has been blocked." casey-chow (OpenAI) later: "Going forward, any
+  rejection email will have a webform instead."
+- **When escalating, give the `asdk_app_...` ID, not the support case number.** casey-chow
+  (OpenAI), 2026-07-23, [C-OA-NOEMAIL]: "Case ID is actually more of a historical artifact than
+  anything for us because the review system is built on top of our trust and safety system haha,
+  unfortunately it's hard to correlate from that".
 
 ### Post-publish contract (much stricter than Anthropic's)
 - [OA-REV]: "Treat the metadata exposed by your MCP server as a versioned API contract for the
@@ -709,8 +875,29 @@ accommodated."
   plugin with the new MCP server origin." We migrated from `mcp.metrifi.com` to
   `platform.metrifi.com` in v1.2.0. **Decide deliberately that `platform.metrifi.com` is the
   forever hostname before submitting C.** `[LOCAL]`
+- **Tool metadata is a reviewed snapshot; changing a description costs a full review cycle.**
+  [C-OA-CACHE] jbrodriguez, 2026-07-22, after approval: "we made a small change to one tool
+  description, however this change is not being reflected on chatgpt (web or desktop)... it seems
+  to be caching the tool/list call at the version/submission level." OpenAI Support confirmed it
+  is by design: "published tool metadata is stored as a reviewed snapshot, so reconnecting or
+  reinstalling won't refresh a changed tool description."
+- **You can deploy safely between submissions.** casey-chow (OpenAI), [C-OA-VERSION], 2026-04-30:
+  "Your MCP server tool schema is snapshotted at the time of submission, but is not served until
+  publication. That's to say, your tools/list response is locked at time of submission, but all
+  actual tool calls still make their way to your live server." And 2026-06-01: "If you're just
+  changing tool descriptions, make the changes in prod and submit the new version. We continue
+  serving the old tool descriptions until the new version is released." **This resolves the
+  apparent conflict with Anthropic's live-update model: we can keep deploying, OpenAI just serves
+  the last approved metadata.**
+- Recommended versioning practice, casey-chow (OpenAI), [C-OA-VERSION]: "I see teams adopt a
+  versionless policy–new endpoints tools can be added, but old ones not removed for some time
+  (usually 2-3 submission versions back) to allow for transition. The URL does not change across
+  versions in this scheme."
 - Directory placement is not guaranteed. [OA-REV]: "Plugins appear on the directory's main pages
-  only if OpenAI selects them for enhanced distribution."
+  only if OpenAI selects them for enhanced distribution." Approval is also not publication:
+  [C-OA-LIST] Tushar_Dhar, 2026-04-08, approved and searchable, asked how to get onto the listing
+  page and was told placement "is based on things like strong real-world utility and user
+  satisfaction."
 - Press embargo. [OA-REV]: "Before issuing any press releases or public announcements regarding
   the launch of your plugin, please first reach out to press@openai.com"
 
@@ -785,10 +972,15 @@ every tool with invalid input.
 6. Exercise every tool via MCP Inspector and as a custom connector; write the public docs page
    and the three example prompts. **1 day.** `[AN-REV]` `[AN-POL]`
 7. **Submit B (Connectors Directory).** Portal-era evidence is 20 days to approval ([C-RD1]).
-8. OpenAI: identity verification, domain challenge, logo + composerIcon, manifest listing fields,
-   8 test cases, starter prompts. **3–5 days.**
-9. **Submit C (OpenAI).** One first-hand comparison point: 29 days submission to acceptance
-   ([C-BLOG]).
+8. **Measure the OpenAI tool-surface token budget before committing to submission C at all.**
+   With ~180 tools this may force splitting the server or a deep description cut, which would
+   change the scope of C entirely. **Half a day to measure, unknown to fix.**
+9. OpenAI: identity verification (start early, it lags), domain challenge at the root,
+   logo + composerIcon, manifest listing fields, 8 test cases tested on **mobile**, starter
+   prompts. **3–5 days.**
+10. **Submit C (OpenAI).** Timelines range from 1 day to 120 days with no SLA; the median
+    first-hand report is roughly a month, and a rejection costs a full queue cycle rather than a
+    fast re-test.
 
 **Why B may matter more than A.** [AN-PLUG] says using connectors "that already exist in the
 Connectors Directory... will increase the likelihood of verification and will reduce the number of
@@ -936,6 +1128,54 @@ absence is itself a finding: the failure mode people actually hit is the queue, 
 | `[C-GH709]` | [claude-ai-mcp #709](https://github.com/anthropics/claude-ai-mcp/issues/709) | first-hand, **HTTP 429 measured from Anthropic egress** | 2026-07-26 |
 | `[C-GH723]` | [claude-ai-mcp #723](https://github.com/anthropics/claude-ai-mcp/issues/723) | first-hand, 6 weeks no response | 2026-07-29 |
 | `[C-SUN]` | [sunpeak.ai blog](https://sunpeak.ai/blogs/claude-connector-directory-submission/) | **second-hand** vendor blog | 2026-05-22 |
+
+**OpenAI side.** All from the OpenAI Developer Community forum. Note that `casey-chow`,
+`mstoiber`, and `OpenAI_Support` are OpenAI staff, not independent developers; their statements
+are labelled as such inline.
+
+| ID | Thread | Kind | Date |
+|----|--------|------|------|
+| `[C-OA-SCAN]` | [Tool scan failed: internal service error](https://community.openai.com/t/openai-app-submission-tool-scan-failed-internal-service-error/1376398) | **first-hand, the undocumented 5k/16k token limits** | 2026-03→05 |
+| `[C-OA-SUBPATH]` | [Domain verification does not support subpath-hosted MCP servers](https://community.openai.com/t/chatgpt-app-submissions-domain-verification-step-does-not-support-subpath-hosted-mcp-servers/1379021) | first-hand + OpenAI confirmation it is intended | 2026-04-15 |
+| `[C-OA-MTLS]` | [openai-apps-challenge does not support mTLS](https://community.openai.com/t/well-known-openai-apps-challenge-call-during-app-submission-does-not-support-mtls/1387218) | first-hand | 2026-07-16 |
+| `[C-OA-DV]` | [Domain verification fails](https://community.openai.com/t/chatgpt-app-submission-domain-verification-fails/1380339) | first-hand, verifier UA name | 2026-05-05 |
+| `[C-OA-SPLIT]` | [Submission blocked: OAuth code issued but /token never called](https://community.openai.com/t/apps-sdk-submission-blocked-mcp-oauth-code-issued-but-chatgpt-never-calls-token-authorize-mcp-modal-hangs/1385089) | **first-hand, anonymous-discovery workaround** | 2026-07-23 |
+| `[C-OA-OAUTH]` `[C-OA-SCANFIX]` | [MCP app submission scan tool not working](https://community.openai.com/t/mcp-app-submission-scan-tool-not-working/1374513) | first-hand outage + step-by-step workaround | 2026-02→03 |
+| `[C-OA-DEVMODE]` | [Works in Developer Mode but fails in App Review](https://community.openai.com/t/oauth-mcp-server-works-in-chatgpt-developer-mode-create-app-but-fails-in-app-review-form-what-does-unsupported-oauth-config-type-really-mean/1380378) | first-hand, reproduced on 3 major servers | 2026-05-06 |
+| `[C-OA-ANNO]` `[C-OA-REJ1]` | [Rejection feedback: annotations and developer name](https://community.openai.com/t/clarification-needed-on-rejection-feedback-tool-annotations-and-developer-name-mismatch/1379402) | **first-hand rejection email text** + OpenAI's openWorldHint definition | 2026-04-20 |
+| `[C-OA-REJ2]` `[C-OA-REJ4]` | [Understanding the rejecting conditions](https://community.openai.com/t/understanding-the-rejecting-conditions-on-a-chatgpt-app-clarification-needed-on-rejection-feedback/1380927) | first-hand, 5 rejections; conflicting Support definition | 2026-05-14 |
+| `[C-OA-REJ3]` `[C-OA-REJ5]` | [App submission flow improvements roundup](https://community.openai.com/t/app-submission-flow-improvements-roundup/1379047) | first-hand rejections (CSP, annotations, test cases) | 2026-04 |
+| `[C-OA-REJ6]` | [Xpoz submission rejected twice](https://community.openai.com/t/app-review-xpoz-submission-rejected-twice-seeking-guidance-on-tool-descriptions/1386944) | first-hand, most recent rejection account | 2026-07-15 |
+| `[C-OA-MOBILE]` | [Mobile widget failure rejection](https://community.openai.com/t/request-for-assistance-in-checking-current-app-status-help-centers-ai-response-is-not-helping/1380951) | first-hand, cold-start mobile race | 2026-05-15 |
+| `[C-OA-LOGIN]` | [ChatGPT apps with auth login credentials](https://community.openai.com/t/chatgpt-apps-with-auth-login-credentials/1380896) | first-hand, working bypass still rejected | 2026-05-14 |
+| `[C-OA-VERIF]` | [Completed verification not recognized by app review](https://community.openai.com/t/completed-verification-is-not-recognized-by-app-review/1381417) | first-hand, verification lag | 2026-05→06 |
+| `[C-OA-FORM]` | [Unable to submit: "This is a required field"](https://community.openai.com/t/unable-to-submit-mcp-connector-for-review-this-is-a-required-field-but-all-fields-are-completed/1383050) | first-hand, 236-tool surface | 2026-06-08 |
+| `[C-OA-BLANK]` | [App rejected, no reason given](https://community.openai.com/t/app-rejected-no-reason-given/1378971) | first-hand, blank rejection email | 2026-04-14 |
+| `[C-OA-NOEMAIL]` | [App rejected after a month with no explanation](https://community.openai.com/t/app-rejected-after-a-month-with-no-explanation-where-can-i-find-the-reason/1386788) | first-hand, no email at all | 2026-07-14 |
+| `[C-OA-FLIP]` | [Status reverted to Review](https://community.openai.com/t/app-rejected-with-no-reason-shown-status-reverted-to-review/1387930) | first-hand | 2026-07-23 |
+| `[C-OA-BOUNCE]` | see `[C-OA-REJ4]` | first-hand, appeal address bounced | 2026-05-14 |
+| `[C-OA-CACHE]` | [How to surface MCP server updates for an existing plugin](https://community.openai.com/t/how-to-surface-mcp-server-updates-for-an-existing-plugin/1387824) | **first-hand, approved**, metadata snapshot | 2026-07-22 |
+| `[C-OA-VERSION]` | [MCP server URL and versioning during update submission](https://community.openai.com/t/clarification-on-mcp-server-url-and-versioning-during-chatgpt-app-update-submission/1379705) | OpenAI staff guidance on deploying between submissions | 2026-04→06 |
+| `[C-OA-LIST]` | [Showing app on the listing page](https://community.openai.com/t/showing-app-on-the-listing-page/1378720) | **first-hand, approved**, placement is separate | 2026-04-08 |
+| `[C-OA-SLA]` | [How long does app review typically take](https://community.openai.com/t/how-long-does-app-review-typically-take/1378373) | OpenAI Support: no SLA; also the screenshot-guidance dispute | 2026-06-30 |
+| `[C-OA-T1]`…`[C-OA-T7]` | [I submitted an app, how long should review take](https://community.openai.com/t/i-submitted-an-app-how-long-should-the-review-process-take/1369797), [App review process timelines](https://community.openai.com/t/app-review-process-timelines-for-chatgpt-app-store/1378947), [Stuck in review 6 weeks](https://community.openai.com/t/chatgpt-app-review-pending-for-6-weeks-is-this-normal/1388077), [xTiles stuck since July 17](https://community.openai.com/t/xtiles-plugin-stuck-in-review-since-july-17/1388331) | first-hand timelines | 2026-03→07 |
+
+**Era caveat.** The unified Plugins Directory is too new for a large body of first-hand reports.
+Most OpenAI evidence above comes from its immediate predecessor, the ChatGPT Apps SDK submission
+flow (Dec 2025 onward), which uses the same portal, pipeline, and rejection emails. The 2023
+"ChatGPT plugins store" is a different retired system and was excluded entirely.
+
+**Gap, stated rather than guessed:** no first-hand account of a **skills-only** plugin going
+through OpenAI review was found. Two developers asked publicly and got no reply
+([this](https://community.openai.com/t/how-can-third-party-community-plugins-be-published-to-the-codex-marketplace/1377928),
+2026-03-27, and [this](https://community.openai.com/t/should-each-breaking-major-version-use-a-separate-plugin-identity/1388515),
+2026-07-31). A circulating claim that bundled skills get a scan "which can take up to 2 hours"
+traces to an OpenAI help article that returned HTTP 403 and **could not be verified**.
+
+**Excluded for lack of first-hand content:** Reddit (r/OpenAI, r/ChatGPTPro, r/ChatGPTCoding
+produced nothing verifiable), Hacker News (the launch thread is business-model speculation),
+`openai/plugins` on GitHub (zero issues), and the vendor blogs alpic.ai and sunpeak.ai's OpenAI
+post (both restate the docs with no rejection text, timelines, or named cases).
 
 Second-hand sources are used only for operational gotchas the official docs do not cover. Where
 they restate official requirements, the official source is cited instead.
