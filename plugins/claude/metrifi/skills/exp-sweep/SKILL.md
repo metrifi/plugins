@@ -42,7 +42,7 @@ resolving an opt-out request, no marking client activity processed on work it di
   real cohort before ever putting the sweep on a schedule.
 - **`--team <slug>`**: one team, its full chain, no sweep. Useful for retrying a team that hit a
   transient failure.
-- **`--no-new`**: sweep and move existing work, but start no new experiments. The lane-5 escape
+- **`--no-new`**: sweep and move existing work, but start no new experiments. The lane-6b escape
   hatch for a period when quota is tight or a client relationship is in flux.
 
 **Dispatch is the default here, and that is deliberately the opposite of a devops triage sweep.**
@@ -52,68 +52,80 @@ is the brake.
 ## 2. Step 0: read the cohort
 
 ```
-get-team-health(limit: 0)
+list-all-teams(top_customer: true, limit: 500)
 ```
 
-One call, and it is the right one. It already filters to the teams carrying the manual
-`is_top_customer` flag, which is exactly the book of business this sweep covers, and it returns
-each team with a verdict, a reason, and a suggested next action, in priority order. `limit: 0`
-returns all of them; the default of 5 is for chat and will silently truncate your cohort.
+That is the cohort: every team carrying the manual `is_top_customer` flag, returned **as slugs**,
+which is what every later call needs. It is one cheap directory query.
 
-Three things to know before you trust it:
+**Do not use `get-team-health` for this.** It covers the same cohort, but it builds a full
+visibility and AI-traffic board with per-team external calls to do it, takes around fifteen seconds,
+and then returns team **names** rather than slugs, so you would have to resolve every one of them
+against the directory anyway. Reach for it only when the sweep genuinely needs the health verdicts,
+and never just to find out who the top customers are.
+
+Two more things to know:
 
 - **It is platform-staff only.** If the call is refused, you are not signed in as staff. Say that
   in one line and stop. Do not fall back to `list-teams` and sweep your own memberships instead:
   that is a different, smaller, quietly wrong cohort, and a sweep that silently changes what it
   covers is worse than one that refuses.
-- **Its "dormant" verdict is not this skill's "not in motion".** Team health scores dormancy on
-  prompts run inside the reporting window. A team can be dormant there while a deliverable of
-  theirs sits in active client review, and a team can look healthy there on prompt volume alone
-  while every experiment it owns is stalled. Use the verdict for ordering. Use section 3 for the
-  actual decision.
-- **Two lookalikes to avoid.** `get-master-health` returns a `top_clients` block, but that is a
-  performance leaderboard ranked by a composite of visibility movement, traffic movement, and
-  deploy rate. It is not the cohort. And `list-all-teams` does not carry the top-customer flag at
-  all, so it cannot define the cohort either.
+- **`get-master-health`'s `top_clients` is not the cohort either.** It is a performance leaderboard
+  ranked by a composite of visibility movement, traffic movement, and deploy rate. Different thing,
+  similar name.
 
-Then, per team in the cohort, three reads that fill in the picture:
+Then, per team in the cohort, two reads that fill in the picture:
 
 ```
-list-experiments(team_id)
-list-deliverables(team_id)
 list-deliverables-needing-attention(team_id)
+list-experiments(team_id)
 ```
 
-Say the cohort size in the report's first line. A cohort that came back smaller than you expected
-usually means a client nobody flagged as a top customer, and that is invisible to this sweep by
-design.
+**`list-experiments` alone cannot tell you whether a team is in motion.** It returns no workflow
+status and no last-event date, so treat it as an index: it names the team's experiments newest
+first, and the newest one is the only candidate worth opening. Open exactly that one with
+`get-experiment-workflow(team_id, experiment_id)`. One call per team, not one per experiment.
+
+Say the cohort size in the report's first line. A cohort smaller than you expected means a client
+nobody flagged as a top customer, and that client is invisible to this sweep by design.
 
 ## 3. In motion, defined mechanically
 
 The whole sweep turns on this, so it is a definition and not a judgment call.
 
-**An experiment is in motion when both hold:**
+**Judge it on artifacts, not on bookkeeping.** `workflow_status` and the event log are written only
+when an operator or a run remembers to write them, and in practice most experiments carry
+`workflow_status: not set` with zero events **even when substantial work exists**: nine completed
+working documents and a deliverable already in the client's hands will still show an empty event
+log. A rule keyed on status and events therefore reports thriving work as abandoned, and the
+consequence is the worst mistake this sweep can make: opening a second experiment for a client who
+already has a live deliverable in front of them.
 
-1. Its workflow status is not done, abandoned, or archived, **and**
-2. either it has an event in the last **7 days**, or it is legitimately **parked**.
+So work down these in order, and stop at the first that answers:
 
-**Parked** means waiting on something real that has not timed out: baseline responses still
-populating, a client who has not answered yet and is inside the followup cadence, or a deliverable
-sitting ready for your operator's send decision.
+1. **A deliverable exists with unprocessed client activity or an open blocking item** → in motion.
+   Something is genuinely in flight with the client.
+2. **A deliverable exists and has been sent, with nothing outstanding** → in motion, at rest. The
+   round finished. Nothing to do, and it is not a reason to start something new today.
+3. **Working documents exist but no deliverable has been sent** → in motion, mid-build. Resume it.
+4. **Neither documents nor a deliverable, but prompts are attached** → an **experiment shell**: a
+   campaign someone stood up and never carried forward. Not in motion, but see lane 6a: it is a
+   resume, not a restart.
+5. **Only now** fall back to `workflow_status` and the event log, which are reliable when populated.
+   A status of `in-progress` with a note explaining what it waits on is the strongest signal on the
+   board, because a human wrote it deliberately.
 
-**A team is in motion when at least one of its experiments is.** A team is not in motion when it
-has no experiments at all, when every experiment it owns has finished, or when every experiment it
-owns is stalled: no event in 7 days and nothing legitimately parked.
+**A team is in motion when at least one of its experiments is.**
 
-Two traps worth naming, because both cost real client trust when you get them backwards:
+Two traps, both of which cost real client trust when you get them backwards:
 
-- **Parked is not stalled.** A deliverable that has been waiting 10 days on a client contact is in
-  motion. Starting a second experiment for that team because the first one "looks quiet" gives the
-  client two open asks and makes both easier to ignore. The nudge for that deliverable belongs to
-  `exp-revise`, which caps followups at three and then escalates to a person.
-- **Stalled is not failed.** An experiment with no event in 7 days is usually one where a run died
-  mid-phase. That is a resume, not a restart. Read the workflow note the last operator (or the last
-  run) left before assuming anything.
+- **Parked is not stalled.** A deliverable waiting 10 days on a client contact is in motion.
+  Starting a second experiment for that team because the first "looks quiet" gives the client two
+  open asks and makes both easier to ignore. That deliverable's nudge belongs to `exp-revise`,
+  which caps followups at three and then escalates to a person.
+- **Stalled is not failed.** An experiment that stopped mid-phase is a resume. Read whatever the
+  last run left, in the workflow note if there is one and in the documents if there is not, before
+  assuming anything.
 
 ## 4. The five lanes
 
@@ -122,16 +134,30 @@ order is the point: **existing work always beats new work.**
 
 | # | The team's state | Lane | Skill |
 |---|---|---|---|
-| 1 | A deliverable has unprocessed client activity, or an outstanding blocking item | Client responded, or needs a nudge | **exp-revise** |
-| 2 | Baseline responses have populated and no draft exists yet | Analyze and build | **exp-build** |
-| 3 | A draft exists and a check is missing, stale, or failing | Run the checks | **exp-review** |
-| 4 | Checks green, deliverable assembled, never sent | **Waiting on your operator** | report only |
-| 5 | Not in motion by section 3 | Start something | **exp-research** |
+| 1 | A deliverable has unprocessed client activity | Client responded | **exp-revise** |
+| 2 | A deliverable has an open blocking item and no new activity | Client has gone quiet | **exp-revise** (nudge path) |
+| 3 | Baseline responses have populated and no draft exists yet | Analyze and build | **exp-build** |
+| 4 | A draft exists and a check is missing, stale, or failing | Run the checks | **exp-review** |
+| 5 | Checks green, deliverable assembled, never sent | **Waiting on your operator** | report only |
+| 6a | An experiment shell exists but was never carried forward | Resume it | **exp-build**, or **exp-research** if it has no usable prompts |
+| 6b | No experiment at all, or every one finished | Start something | **exp-research** |
 
-Lane 4 is not a dispatch. It is the pile this whole skill exists to produce: report it, name the
+Lane 5 is not a dispatch. It is the pile this whole skill exists to produce: report it, name the
 recipient it would go to, and stop. `exp-deliver` runs when a human starts it.
 
-Lane 1 outranks lane 5 for the same reason a team never gets two open asks at once. A team already
+**Lane 2 is not a lesser version of lane 1, and it is usually the largest lane on the board.** A
+deliverable sitting on an unanswered attestation with no followup ever sent is the single most
+common state a real cohort is in, and it is worth more than any new experiment: the work is already
+built and one nudge unblocks it. `exp-revise` owns the decision of whether a given one is a nudge or
+simply patience.
+
+**Lane 6a is the one to get right.** A team whose only experiment is a shell (prompts attached, no
+documents, no deliverable) is not a team with nothing. Someone already picked that topic and stood
+up the campaign, and the responses may well be sitting there unread. Resume it. Starting a fresh
+experiment alongside it abandons work someone already paid for and splits the client's visibility
+data across two campaigns on the same ground.
+
+Lanes 1 and 2 outrank 6 for the same reason a team never gets two open asks at once. A team already
 carrying work never gets a new experiment in the same sweep, however tempting the gap looks.
 
 ## 5. The chain contract
@@ -147,13 +173,13 @@ started, so never leave one mid-chain to go look at another.
 **Do not stop at a phase boundary.** This is the rule that turns four days of one-node-per-day into
 one overnight run. When `exp-build` finishes and a draft now exists, the checks are runnable, so run
 `exp-review` in the same session. When the review comes back green, assemble the deliverable and
-stop at lane 4. A phase ending is not a reason to stop; only a gate is.
+stop at lane 5. A phase ending is not a reason to stop; only a gate is.
 
 **Four gates, and only these four, end a chain:**
 
 | Gate | What it looks like | What happens next |
 |---|---|---|
-| **G1 Responses** | `get-campaign-readiness` says the baseline has not populated to the sized `min_responses` yet | Leave a workflow note saying so. Tomorrow's sweep picks it up at lane 2. |
+| **G1 Responses** | `get-campaign-readiness` says the baseline has not populated to the sized `min_responses` yet | Leave a workflow note saying so. Tomorrow's sweep picks it up at lane 3. |
 | **G2 Ready to send** | Checks green, deliverable assembled, nothing blocking | Report it. Your operator sends with `exp-deliver`. |
 | **G3 Waiting on a client** | An action item is out and unanswered, inside the followup cadence | `exp-revise` owns the nudge. Nothing else to do. |
 | **G4 Halt** | An opt-out request, a withdrawn approval, or a check finding that survives a fix attempt | Stop the chain, do not revise around it, hand it to a person by name in the report. |
@@ -166,7 +192,7 @@ you can see coming, `set-experiment-workflow(team_id, experiment_id, status, not
 next run can act on, and `add-experiment-event` for what happened. That note is the only memory
 this system has. Pass a stable `idempotency_key` on the event so a resumed run cannot double-log.
 
-## 6. Lane 5: choosing a topic without a human
+## 6. Lane 6b: choosing a topic without a human
 
 This is the section that makes unattended operation possible, and it is the one most likely to
 produce a bad outcome if it is done loosely.
@@ -210,7 +236,7 @@ geography produces a campaign scoped to the wrong place, and that scope is inher
 prompt, every response, and the client's own visibility history afterwards. Getting it wrong is not
 a bad day's work; it is permanently muddied data on a top client.
 
-### Two more preconditions on lane 5
+### Two more preconditions on lane 6b
 
 - **Quota.** `exp-research` reads `get-team-usage` and sizes the experiment to what the team's plan
   has left, and budgets are per team, so a busy sweep cannot drain a shared pool. But if what is
@@ -227,9 +253,14 @@ a bad day's work; it is permanently muddied data on a top client.
 Every cap that bites gets a line in the report saying what was held back. Silent truncation reads
 as full coverage and is the one failure mode a scheduled sweep cannot recover from.
 
-- **New experiments: 3 per sweep**, longest-quiet first. A cohort where eight teams went quiet at
-  once is a business signal for a human, not a mandate to open eight campaigns.
-- **Teams dispatched: 8 per sweep.** Priority order from the cohort read.
+- **New experiments (lane 6b): 3 per sweep**, longest-quiet first. A cohort where eight teams went
+  quiet at once is a business signal for a human, not a mandate to open eight campaigns. **This is
+  the lowest-priority lane, not the headline.** On a healthy book of business it fires zero times,
+  and that is the correct outcome, not an idle sweep.
+- **Lanes 1 and 2 are uncapped.** Client-facing work that is already built and waiting on one
+  answer is the highest-value thing the sweep touches, and there is no honest reason to hold it
+  back. If the volume is genuinely large, `exp-revise`'s own three-followup cap is the brake.
+- **Teams dispatched: 8 per sweep.** Priority order: lane 1, then 2, then 3 through 6.
 - **One agent per team, ever.** Before dispatching, check whether that team already has a chain
   running. Two agents on one team will race on the same deliverable draft, and
   `update-deliverable-draft` replaces whole lists rather than merging them, so the loser's work
@@ -242,18 +273,20 @@ Lead with the pile your operator cares about. A sweep where nothing moved is thr
 should not re-derive the board to prove it looked.
 
 ```markdown
-# Sweep: <N> top clients · <M> in motion · started <S>, moved <D>, ready to send <R>
+# Sweep: <N> top clients · <M> in motion · nudged <U>, moved <D>, ready to send <R>, started <S>
 
 **Ready to send:** <team, deliverable, who it would go to, or "nothing">
 **Needs you:** <halts, topic decisions, quota blocks, or "nothing">
+**Waiting on clients:** <count, and how long the oldest has waited>
 **Started:** <team and topic for each new experiment, or "nothing new">
 
 ## Moved
 | Team | Experiment | From | To | Stopped at |
 |---|---|---|---|---|
 
-## Waiting
-<one line each: what it waits on, and how long it has waited>
+## Waiting on a client
+| Team | Deliverable | What it needs | Waiting | Followups sent |
+|---|---|---|---|---|
 
 ## Held back
 <every cap that bit, and what it left undone. Omit only if none did.>
@@ -261,6 +294,10 @@ should not re-derive the board to prove it looked.
 ## Quiet, not started
 <teams not in motion that got no experiment, with the reason: cap, quota, no defensible topic>
 ```
+
+The "Followups sent" column earns its place: a deliverable that has waited three weeks with zero
+followups is a different problem from one that has been nudged twice, and the two need opposite
+responses.
 
 Table rules: plain language over status enums, real durations with their units ("9 days"), and the
 "Stopped at" column names the gate (G1 to G4) so the reason a chain ended is never a mystery. No em
