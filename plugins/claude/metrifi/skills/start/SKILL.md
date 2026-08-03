@@ -65,6 +65,7 @@ say what it will do, and let them choose. Do not try to start another skill your
 | "Ship it", "send it to the client", "publish the deliverable" | `exp-deliver` | it previews to you first, then sends only on an explicit OK |
 | "The client answered", "apply their answers", "revise the deliverable" | `exp-revise` | it treats answers as methodology inputs, not edit commands |
 | "Where are we", "what needs me", "status", "check in", "resume" | `exp-status` | a read-only rollup across everything active |
+| "Run the daily sweep", "sweep all clients", "move everything forward", "who has nothing running" | `exp-sweep` | it works the whole top-customer cohort at once and moves each team up to its next human gate |
 
 If the ask spans several phases ("run an experiment end to end"), name the whole sequence, then hand
 off to the first one. If it is genuinely ambiguous between new work and in-flight work, say what you

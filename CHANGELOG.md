@@ -4,6 +4,55 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## Unreleased: `exp-sweep`, the daily cross-client sweep
+
+**No `version` bump here.** The bump and the marketplace publish stay one `tools/release.mjs` run
+that Ryan makes.
+
+- **New skill `exp-sweep`.** The sweep node over the whole top-customer cohort, and the piece the
+  experiment workflow was missing: every existing skill takes a single `team_id`, so nothing looked
+  across clients. It reads the cohort in one `get-team-health(limit: 0)` call (that tool already
+  filters to the manual `is_top_customer` flag on the team and returns per-team verdicts in priority
+  order), classifies each team into one of five lanes, and hands the team to the phase skill that
+  owns the work. It never re-implements a phase, never sends anything to a client, and never crosses
+  a human gate.
+- **The chain contract, which is what makes overnight operation worth anything.** A dispatched team
+  runs its chain as far as it goes rather than stopping at a phase boundary, so `exp-build` finishing
+  flows straight into `exp-review` in the same session. Exactly four gates end a chain: baseline
+  responses not populated yet, a deliverable ready for the operator's send decision, a client who has
+  not answered, and a halt (opt-out, withdrawn approval, or a surviving check finding). The intended
+  end state is a login that shows built, checked deliverables waiting on a send, not experiments
+  waiting to be executed.
+- **"In motion" is defined mechanically**, because the sweep's whole decision turns on it: workflow
+  status not done/abandoned/archived, and either an event in the last 7 days or legitimately parked.
+  Parked is not stalled (a deliverable waiting 10 days on a client is in motion, and its nudge
+  belongs to `exp-revise`), and stalled is not failed (no event in 7 days is a resume, not a
+  restart).
+- **Autonomous topic selection, with a hard precondition.** `exp-research` asks once and waits when
+  the topic or geography is vague, which would stall an unattended run on step one, so `exp-sweep`
+  hands over a complete brief instead of a bare topic. Topics come off a signal ladder: never repeat
+  a topic already targeted, then `get-org-visibility` per existing campaign for the measured gap
+  where the client ranks below competitors, then the institution's own live site for a genuinely cold
+  team. If all four brief fields cannot be filled from platform state and the live site, the team is
+  reported as needing a topic decision rather than dispatched: a guessed geography muddies that
+  client's visibility history permanently.
+- **Dispatch is the default, inverted from a devops triage sweep**, because autonomy is the point.
+  `--dry-run` is the brake, `--no-new` suppresses lane 5, `--team <slug>` runs one chain. Caps: 3 new
+  experiments and 8 teams per sweep, one agent per team (two would race on
+  `update-deliverable-draft`, which replaces whole lists rather than merging them), one retry per
+  phase failure, and every cap that bites gets a line in the report.
+- **Two lookalike traps written into the skill**, both found while wiring it: `get-master-health`'s
+  `top_clients` is a performance leaderboard ranked by a composite, not the cohort, and
+  `list-all-teams` does not carry the top-customer flag at all. Also, team health's own "dormant"
+  verdict scores prompts run in a window and is not this skill's "not in motion", so it orders the
+  sweep but never decides it.
+- **One honest gap, recorded rather than papered over.** A team the sweep decided *not* to start an
+  experiment for has no object to hang a note on, so that decision is re-derived from scratch each
+  run. That is acceptable because every reason for not starting is itself re-derived from current
+  state. Creating an empty experiment to hold the note is explicitly ruled out: it would be a lie in
+  the client's own history.
+- `start` routes to it, and `workflow-overview.md` is mapped to it in `tools/reference-sync.mjs`.
+
 ## 1.3.0 — 2026-07-27
 
 - GEO experiment workflow: seven skills (start, exp-research, exp-build, exp-review, exp-deliver, exp-revise, exp-status) running the full experiment lifecycle against platform.metrifi.com, with quota-adaptive experiment sizing and the pre-publish check gate.
