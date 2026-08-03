@@ -11,11 +11,12 @@ that Ryan makes.
 
 - **New skill `exp-sweep`.** The sweep node over the whole top-customer cohort, and the piece the
   experiment workflow was missing: every existing skill takes a single `team_id`, so nothing looked
-  across clients. It reads the cohort in one `get-team-health(limit: 0)` call (that tool already
-  filters to the manual `is_top_customer` flag on the team and returns per-team verdicts in priority
-  order), classifies each team into one of five lanes, and hands the team to the phase skill that
-  owns the work. It never re-implements a phase, never sends anything to a client, and never crosses
-  a human gate.
+  across clients. It reads the cohort in one `list-all-teams(top_customer: true)` call, classifies
+  each team into one of six lanes, and hands the team to the phase skill that owns the work. It
+  never re-implements a phase, never sends anything to a client, and never crosses a human gate.
+  **Needs the `top_customer` filter shipped on the platform side** (metrifi-platform, 2026-08-03);
+  before it, isolating the cohort meant `get-team-health`, which spends a full visibility and
+  AI-traffic board and then returns team names rather than the slugs every other tool takes.
 - **The chain contract, which is what makes overnight operation worth anything.** A dispatched team
   runs its chain as far as it goes rather than stopping at a phase boundary, so `exp-build` finishing
   flows straight into `exp-review` in the same session. Exactly four gates end a chain: baseline
@@ -23,11 +24,21 @@ that Ryan makes.
   not answered, and a halt (opt-out, withdrawn approval, or a surviving check finding). The intended
   end state is a login that shows built, checked deliverables waiting on a send, not experiments
   waiting to be executed.
-- **"In motion" is defined mechanically**, because the sweep's whole decision turns on it: workflow
-  status not done/abandoned/archived, and either an event in the last 7 days or legitimately parked.
-  Parked is not stalled (a deliverable waiting 10 days on a client is in motion, and its nudge
-  belongs to `exp-revise`), and stalled is not failed (no event in 7 days is a resume, not a
-  restart).
+- **"In motion" is judged on artifacts, not on bookkeeping**, and the first dry run is what forced
+  that. Four of seven experiments read on the real cohort carried `workflow_status: not set` with an
+  empty event log, including one with nine completed working documents and a deliverable sent to the
+  client three weeks earlier. Status and events are written only when an operator or a run remembers
+  to write them, so the original rule (status plus a recent event) would have declared thriving work
+  abandoned and opened a second experiment for a client already holding a live deliverable. The rule
+  now walks deliverable state first, then documents, and reaches `workflow_status` only when neither
+  exists. Parked is still not stalled (a deliverable waiting 10 days on a client is in motion, and
+  its nudge belongs to `exp-revise`), and stalled is still not failed (a stall is a resume).
+- **Nudges outrank new experiments, which is the reverse of the first draft.** On the real 15-team
+  cohort, zero teams qualified for a new experiment while nine deliverables sat waiting on client
+  attestations with no followup ever sent. Chasing already-built work that one answer would unblock
+  is worth more than any kickoff, so lanes 1 and 2 (client responded, client went quiet) are
+  uncapped and run first, and starting new experiments is explicitly the lowest-priority lane where
+  firing zero times is the correct outcome rather than an idle sweep.
 - **Autonomous topic selection, with a hard precondition.** `exp-research` asks once and waits when
   the topic or geography is vague, which would stall an unattended run on step one, so `exp-sweep`
   hands over a complete brief instead of a bare topic. Topics come off a signal ladder: never repeat
@@ -41,11 +52,18 @@ that Ryan makes.
   experiments and 8 teams per sweep, one agent per team (two would race on
   `update-deliverable-draft`, which replaces whole lists rather than merging them), one retry per
   phase failure, and every cap that bites gets a line in the report.
-- **Two lookalike traps written into the skill**, both found while wiring it: `get-master-health`'s
-  `top_clients` is a performance leaderboard ranked by a composite, not the cohort, and
-  `list-all-teams` does not carry the top-customer flag at all. Also, team health's own "dormant"
-  verdict scores prompts run in a window and is not this skill's "not in motion", so it orders the
-  sweep but never decides it.
+- **Two lookalike traps written into the skill.** `get-master-health`'s `top_clients` is a
+  performance leaderboard ranked by a composite of visibility movement, traffic movement and deploy
+  rate, not the cohort. And team health's own "dormant" verdict scores prompts run inside a window,
+  which is not this skill's "not in motion": a team can be dormant there while a deliverable of
+  theirs is in active client review.
+- **A team whose only experiment is an empty shell gets resumed, not restarted.** The first draft
+  contradicted itself here, routing a team with a stalled experiment to `exp-research` to start
+  something new while its own prose said a stall is a resume. Split into lane 6a (prompts attached,
+  no documents, no deliverable: someone already picked the topic and stood up the campaign, and the
+  responses may be sitting there unread) and lane 6b (genuinely nothing). Starting fresh alongside a
+  shell abandons work already paid for and splits the client's visibility data across two campaigns
+  covering the same ground.
 - **One honest gap, recorded rather than papered over.** A team the sweep decided *not* to start an
   experiment for has no object to hang a note on, so that decision is re-derived from scratch each
   run. That is acceptable because every reason for not starting is itself re-derived from current
