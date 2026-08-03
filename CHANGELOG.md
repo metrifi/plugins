@@ -4,6 +4,15 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.0 — 2026-08-03
+
+- **New skill `exp-sweep`**, the daily cross-client sweep over every top-customer team. Every other experiment skill takes a single team_id, so nothing ever looked across clients. It reads the cohort in one `list-all-teams(top_customer: true)` call, classifies each team into one of six lanes, and hands the team to the phase skill that owns the work. Dispatched teams run their chain as far as it goes rather than stopping at a phase boundary, stopping only at four real gates: baseline responses not populated, ready to send, waiting on a client, or a halt. It never re-implements a phase, never sends to a client, and never crosses a human gate.
+- **Four bugs its first dry run found, against the real 15-team cohort.** In-motion is now judged on artifacts (deliverable state, then documents) rather than workflow_status and events, which are only written when someone remembers to: four of seven experiments read had "not set" with zero events, including one with nine completed documents and a deliverable already with the client, so the old rule would have opened a second experiment for a client already holding a live deliverable. list-experiments is now an index (it carries no status or last-event date), the cohort read no longer spends a get-team-health board to get names it then has to resolve to slugs, and a team whose only experiment is an empty shell is resumed rather than restarted.
+- **Nudges outrank new experiments.** On the real cohort, zero teams qualified for a new experiment while nine deliverables sat waiting on clients with no followup ever sent. Chasing built work that one answer unblocks now runs first and uncapped; starting new experiments is the lowest-priority lane, where firing zero times is correct.
+- **`exp-revise` records manual shares.** A deliverable whose client link reads "withheld" while the client is viewing and answering it was shared by hand, so it has no captured client contact and can never be nudged. That is the actual reason those nine were never chased. It records the share with `record-deliverable-shared`, back-dated where the first view establishes it, and records only what it can evidence.
+- **`exp-revise` reads the scoped staleness reason.** It re-read the whole article against all four batteries on every revision. Staleness now names the sections that moved, so it works those in the context of the full article, and still treats a structural change or an unpinned check as a whole-article job.
+- **Use `deferred`, never `n/a`, when handing a check to the institution's compliance officer.** `n/a` satisfies the send gate and `deferred` blocks it. Found in production: an NCUA check recorded as n/a meaning "the compliance officer still owes us this" left an unreviewed article one call from a real send.
+
 ## Unreleased: `exp-sweep`, the daily cross-client sweep
 
 **No `version` bump here.** The bump and the marketplace publish stay one `tools/release.mjs` run
