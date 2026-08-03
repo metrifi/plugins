@@ -151,6 +151,13 @@ common state a real cohort is in, and it is worth more than any new experiment: 
 built and one nudge unblocks it. `exp-revise` owns the decision of whether a given one is a nudge or
 simply patience.
 
+**Check lane 2 rows for an unrecorded manual share, because it is often the real reason nothing has
+been chased.** A deliverable whose client link reads "withheld until first send" while the client has
+been viewing or answering it is one somebody shared by hand, outside the platform. It has no captured
+client contact, so it cannot be nudged at all, and it will sit at zero followups forever no matter how
+many times the sweep looks at it. Flag those explicitly in the report; `exp-revise` records the share
+and unfreezes the cadence.
+
 **Lane 6a is the one to get right.** A team whose only experiment is a shell (prompts attached, no
 documents, no deliverable) is not a team with nothing. Someone already picked that topic and stood
 up the campaign, and the responses may well be sitting there unread. Resume it. Starting a fresh

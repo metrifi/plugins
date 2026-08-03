@@ -48,6 +48,18 @@ deliverable nobody has ever received. Read that as the useful signal it is, chec
 before assuming the client has seen anything, and never try to reconstruct the link for a deliverable
 whose first send has not gone out.
 
+**One important exception, and it is common.** "Withheld" means the platform never sent it, not that
+the client has never seen it: operators frequently paste the client link into Slack, a call recap, or
+their own email instead of sending from the platform. The tell is client activity on a deliverable
+whose link reads withheld: views, answers, or comments mean somebody has the link, whatever `sent_at`
+says. When you see that, say so and record it with
+`record-deliverable-shared(team_id, deliverable_id, client_email, client_name, shared_at)`, back-dated
+to when it actually went out if you can establish that from the first view. It sends nothing and
+writes a `shared` activity rather than a `sent` one, so the ledger never claims an email that never
+left. Do it because of what it unblocks: without a captured client contact, that deliverable can
+**never** be nudged, which is how a deliverable ends up waiting weeks on a client with zero followups.
+Never record a share you cannot evidence; absent activity, a withheld link means exactly what it says.
+
 ## 2. The unprocessed window
 
 `get-deliverable-activity(team_id, deliverable_id)`. Rows come back oldest first, each printed with
@@ -136,6 +148,18 @@ Every check is pinned to the article it ran against, so an article edit stales t
 against it (the platform reports the reason as `article_changed`). A revision cannot ride a green
 check from an older draft, by design.
 
+**Read what the refusal actually says before re-reading anything.** Staleness is scoped to the
+sections that moved, so the reason names them: `only these sections changed since it ran: "Rates at a
+glance"`. That is the whole re-read. Work those sections against the battery **in the context of the
+full article** (a rate added in one section can need a disclosure that lives in another), then record
+the result. Do not re-read the entire article four times for a one-line client correction; that cost
+is exactly what the scoping removed.
+
+Two cases where the whole article is still the job, and the refusal says so plainly: the reason reads
+`the article structure changed` (a section was added, removed, or reordered, which changes the
+heading hierarchy an accessibility review evaluates and can strand a claim whose disclosure section is
+gone), or the check predates section pinning and has no map to compare against.
+
 `list-deliverable-checks(team_id, deliverable_id)` names which results are stale, missing, or
 failing. For each one, do the same three steps the review phase does, one battery at a time:
 
@@ -148,8 +172,9 @@ failing. For each one, do the same three steps the review phase does, one batter
    `accessibility`, `fact-verification`), the `result`, a one-line `summary`, the `findings` array,
    `document_kind` pointing at the report, and `recorder` naming yourself.
 
-Finish and record each battery before starting the next. In practice a prose edit stales all four,
-and even a one-section fix stales the fact check if it touched a quoted claim.
+Finish and record each battery before starting the next. A prose edit does stale all four, but each
+one is now scoped to the sections that moved, so four batteries over one changed section is a small
+job rather than four full re-reads.
 
 A surviving blocker is a genuine stop. Report it and do not send.
 
