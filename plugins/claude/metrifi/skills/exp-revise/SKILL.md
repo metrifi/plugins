@@ -48,6 +48,18 @@ deliverable nobody has ever received. Read that as the useful signal it is, chec
 before assuming the client has seen anything, and never try to reconstruct the link for a deliverable
 whose first send has not gone out.
 
+**One important exception, and it is common.** "Withheld" means the platform never sent it, not that
+the client has never seen it: operators frequently paste the client link into Slack, a call recap, or
+their own email instead of sending from the platform. The tell is client activity on a deliverable
+whose link reads withheld: views, answers, or comments mean somebody has the link, whatever `sent_at`
+says. When you see that, say so and record it with
+`record-deliverable-shared(team_id, deliverable_id, client_email, client_name, shared_at)`, back-dated
+to when it actually went out if you can establish that from the first view. It sends nothing and
+writes a `shared` activity rather than a `sent` one, so the ledger never claims an email that never
+left. Do it because of what it unblocks: without a captured client contact, that deliverable can
+**never** be nudged, which is how a deliverable ends up waiting weeks on a client with zero followups.
+Never record a share you cannot evidence; absent activity, a withheld link means exactly what it says.
+
 ## 2. The unprocessed window
 
 `get-deliverable-activity(team_id, deliverable_id)`. Rows come back oldest first, each printed with
