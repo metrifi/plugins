@@ -13,10 +13,7 @@ updates off this field — same version, no update.
 - **`exp-revise` reads the scoped staleness reason.** It re-read the whole article against all four batteries on every revision. Staleness now names the sections that moved, so it works those in the context of the full article, and still treats a structural change or an unpinned check as a whole-article job.
 - **Use `deferred`, never `n/a`, when handing a check to the institution's compliance officer.** `n/a` satisfies the send gate and `deferred` blocks it. Found in production: an NCUA check recorded as n/a meaning "the compliance officer still owes us this" left an unreviewed article one call from a real send.
 
-## Unreleased: `exp-sweep`, the daily cross-client sweep
-
-**No `version` bump here.** The bump and the marketplace publish stay one `tools/release.mjs` run
-that Ryan makes.
+### Detail: `exp-sweep`, the daily cross-client sweep (shipped in 1.4.0)
 
 - **New skill `exp-sweep`.** The sweep node over the whole top-customer cohort, and the piece the
   experiment workflow was missing: every existing skill takes a single `team_id`, so nothing looked
