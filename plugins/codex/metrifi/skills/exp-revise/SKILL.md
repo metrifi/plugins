@@ -148,6 +148,18 @@ Every check is pinned to the article it ran against, so an article edit stales t
 against it (the platform reports the reason as `article_changed`). A revision cannot ride a green
 check from an older draft, by design.
 
+**Read what the refusal actually says before re-reading anything.** Staleness is scoped to the
+sections that moved, so the reason names them: `only these sections changed since it ran: "Rates at a
+glance"`. That is the whole re-read. Work those sections against the battery **in the context of the
+full article** (a rate added in one section can need a disclosure that lives in another), then record
+the result. Do not re-read the entire article four times for a one-line client correction; that cost
+is exactly what the scoping removed.
+
+Two cases where the whole article is still the job, and the refusal says so plainly: the reason reads
+`the article structure changed` (a section was added, removed, or reordered, which changes the
+heading hierarchy an accessibility review evaluates and can strand a claim whose disclosure section is
+gone), or the check predates section pinning and has no map to compare against.
+
 `list-deliverable-checks(team_id, deliverable_id)` names which results are stale, missing, or
 failing. For each one, do the same three steps the review phase does, one battery at a time:
 
@@ -160,8 +172,9 @@ failing. For each one, do the same three steps the review phase does, one batter
    `accessibility`, `fact-verification`), the `result`, a one-line `summary`, the `findings` array,
    `document_kind` pointing at the report, and `recorder` naming yourself.
 
-Finish and record each battery before starting the next. In practice a prose edit stales all four,
-and even a one-section fix stales the fact check if it touched a quoted claim.
+Finish and record each battery before starting the next. A prose edit does stale all four, but each
+one is now scoped to the sections that moved, so four batteries over one changed section is a small
+job rather than four full re-reads.
 
 A surviving blocker is a genuine stop. Report it and do not send.
 
