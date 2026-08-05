@@ -546,19 +546,36 @@ the MCP definition was below ~32k tokens." So the real enforced ceiling is somew
 and 32k tokens. **Neither number appears in any documentation I could fetch.** Treat as
 credible-but-unverified, and measure before doing any other OpenAI work.
 
-**Why this is alarming for us:** the MetriFi server exposes roughly 180 tools, and our
-descriptions are long by design (several run 1,000 to 3,000 characters including schema). A rough
-extrapolation puts the full surface somewhere in the 30k to 60k token range, which would be over
-even the generous reading of the limit. `[LOCAL]`
+**Measured 2026-07-23** against `metrifi/metrifi-platform` at `app/**/Mcp/Tools/*.php`: `[LOCAL]`
 
-- `[ ]` **Measure it precisely.** Fetch an authenticated `tools/list` and count tokens over the
-  full JSON of every tool's `name` + `description` + `inputSchema`. Also flag any single tool
-  over 5k.
-- `[ ]` If we are over, the options are, in rough order of preference:
-  1. Cut description length (this pairs with the [D.2] rewrite, which shortens them anyway)
+| Metric | Value |
+|---|---|
+| Tools | 156 |
+| Name characters | 2,478 |
+| Description characters | 47,033 |
+| Schema source characters | 71,811 |
+| Combined | 121,322 chars ≈ **30,330 tokens** |
+| Largest single tool | `set-experiment-case-study`, ~1,027 tokens |
+| Tools over the 5,000-token per-tool limit | **0** |
+
+**Verdict: borderline, not obviously fatal.** We are roughly 14k over the support-stated 16k
+total, but just under the ~32k threshold [C-OA-SCAN] found empirically. The per-tool limit is not
+close to being a problem. An earlier estimate in this document put us at 30k–60k and called it
+likely fatal; the measurement says the low end of that range, so treat this as a real risk to
+manage rather than a wall.
+
+Two caveats on the number: the schema figure counts PHP builder source, not the emitted JSON
+Schema, which will differ in both directions; and chars÷4 is a rough token ratio. A precise
+figure needs an authenticated `tools/list` counted with a real tokenizer.
+
+- `[ ]` **Confirm with a real tokenizer** against an authenticated `tools/list` before betting on it.
+- `[ ]` Bring the surface down. In order of preference:
+  1. **Cut description length.** Descriptions are 47k of the 121k characters, and the [D.2]
+     rewrite removes behavioral instructions from them anyway. A 50% description cut lands the
+     total near 16k. **These two tasks should be done as one pass.**
   2. Split the MCP surface, submitting a narrower product-scoped server to OpenAI than the full
-     platform server we give Anthropic
-  3. Collapse near-duplicate tools
+     platform server we give Anthropic.
+  3. Collapse near-duplicate tools.
 - Corroborating symptom to watch for: [C-OA-FORM] ShoaibYounus, 2026-06-08, with 236 tools, could
   not submit at all: "The form confirms 'Imported 236 tool justifications. Skipped 0. Missing 0.
   Mismatched 0' and every visible field is populated, but Submit for Review fires the generic
@@ -929,10 +946,20 @@ The documented appeal path has failed for several developers. Plan for it.
 ## D. Platform work spanning B and C
 
 ### D.1 Tool annotations
-Roughly 180 tools need `title` + `readOnlyHint`/`destructiveHint` + `openWorldHint`, driven by
-[AN-REV], [AN-POL], [OA-ERR: annotations_required], and [OA-SUB]. Do it in one shared
-registration helper and add a registry test that fails CI when an unannotated tool lands.
-Handoff prompt exists for the platform repo. **Estimate 1–2 days.**
+**Smaller than first estimated.** Measured 2026-07-23 in `metrifi/metrifi-platform`: `[LOCAL]`
+
+- 156 tools total
+- **95 already carry a `Laravel\Mcp\Server\Tools\Annotations` attribute**: 79 `#[IsReadOnly]`,
+  8 `#[IsDestructive]`, 8 `#[IsIdempotent]`
+- **61 tools carry no annotation at all**
+- **`IsOpenWorld` is used zero times**, and OpenAI requires `openWorldHint` on every tool
+  ([OA-ERR: annotations_required], [OA-REF] marks it Required)
+
+So the work is: annotate the 61 bare tools, add an open-world attribute to all 156, verify the
+95 existing classifications against OpenAI's stricter definitions (which reclassify any tool that
+"triggers actions"), and add `title` everywhere. The attribute mechanism already exists, so this
+is filling gaps rather than building a system. Add a registry test that fails CI when an
+unannotated tool lands. **Revised estimate: 1 day, not 1–2.**
 
 Note that [AN-SUB]'s portal does this check for us before we can submit: tools "sync
 automatically from the connected server, grouped by whether their annotations declare them
