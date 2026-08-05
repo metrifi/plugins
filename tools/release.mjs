@@ -7,6 +7,7 @@
 //      (Claude Code only pulls a new version when this field changes).
 //
 // Usage:
+//   node tools/release.mjs --sync-only                     # references + Codex mirror + validate; no version, no commit
 //   node tools/release.mjs --notes "what changed"          # patch bump (default)
 //   node tools/release.mjs --minor --notes "..."           # minor bump
 //   node tools/release.mjs --set 2.0.0 --notes "..."       # explicit version
@@ -15,6 +16,7 @@
 import { readFileSync, writeFileSync, rmSync, cpSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { join } from 'node:path';
+import { syncReferences } from './reference-sync.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const args = process.argv.slice(2);
@@ -24,6 +26,7 @@ const val = (f) => {
     return i >= 0 ? args[i + 1] : undefined;
 };
 const DRY = has('--dry-run');
+const SYNC_ONLY = has('--sync-only');
 const NOTES = val('--notes') || '(describe changes)';
 
 const CLAUDE_MANIFEST = 'plugins/claude/metrifi/.claude-plugin/plugin.json';
@@ -33,14 +36,29 @@ const CODEX_SKILLS = 'plugins/codex/metrifi/skills';
 const rd = (p) => readFileSync(join(ROOT, p), 'utf8');
 const wj = (p, o) => writeFileSync(join(ROOT, p), JSON.stringify(o, null, 2) + '\n');
 
-// 1. Regenerate Codex skills from Claude skills (Claude is the single source).
+// 1. Sync single-sourced reference docs into each consuming skill's references/
+//    folder. Must run BEFORE the Codex mirror so the mirror carries fresh copies.
+console.log('• syncing reference docs into consuming skills');
+syncReferences(ROOT, { dryRun: DRY, log: (m) => console.log(m) });
+
+// 2. Regenerate Codex skills from Claude skills (Claude is the single source).
 console.log('• syncing Codex skills from Claude skills');
 if (!DRY) {
     rmSync(join(ROOT, CODEX_SKILLS), { recursive: true, force: true });
     cpSync(join(ROOT, CLAUDE_SKILLS), join(ROOT, CODEX_SKILLS), { recursive: true });
 }
 
-// 2. Compute the next version.
+// --sync-only stops here. Both steps above are deterministic file copies, so they are
+// safe to run any time, on any branch. Everything below bumps the version and
+// publishes to two marketplaces, which is a one-way door and is Ryan-gated.
+if (SYNC_ONLY) {
+    console.log('• validating');
+    execSync(`node ${join(ROOT, 'tools/validate.mjs')}`, { stdio: 'inherit' });
+    console.log('\n✔ synced (no version bump, nothing committed).');
+    process.exit(0);
+}
+
+// 3. Compute the next version.
 const cur = JSON.parse(rd(CLAUDE_MANIFEST)).version;
 let next = val('--set');
 if (!next) {
@@ -55,7 +73,7 @@ if (!/^\d+\.\d+\.\d+$/.test(next)) {
 }
 console.log(`• version ${cur} -> ${next}`);
 
-// 3. Write the version into both manifests.
+// 4. Write the version into both manifests.
 if (!DRY) {
     for (const m of [CLAUDE_MANIFEST, CODEX_MANIFEST]) {
         const o = JSON.parse(rd(m));
@@ -64,7 +82,7 @@ if (!DRY) {
     }
 }
 
-// 4. Prepend a CHANGELOG entry (date passed via env for reproducibility; else today).
+// 5. Prepend a CHANGELOG entry (date passed via env for reproducibility; else today).
 const date = process.env.RELEASE_DATE || new Date().toISOString().slice(0, 10);
 const entry = `## ${next} — ${date}\n\n${NOTES.split('\n').map((l) => (l.startsWith('-') ? l : `- ${l}`)).join('\n')}\n\n`;
 if (!DRY && existsSync(join(ROOT, 'CHANGELOG.md'))) {
@@ -76,7 +94,7 @@ if (!DRY && existsSync(join(ROOT, 'CHANGELOG.md'))) {
     );
 }
 
-// 5. Validate the artifact.
+// 6. Validate the artifact.
 console.log('• validating');
 execSync(`node ${join(ROOT, 'tools/validate.mjs')}`, { stdio: 'inherit' });
 
@@ -85,7 +103,7 @@ if (DRY) {
     process.exit(0);
 }
 
-// 6. Commit, tag, push.
+// 7. Commit, tag, push.
 const sh = (c) => execSync(c, { cwd: ROOT, stdio: 'inherit' });
 sh('git add -A');
 sh(`git commit -m "Release v${next}: ${NOTES.split('\n')[0]}"`);
