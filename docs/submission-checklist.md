@@ -79,8 +79,7 @@ Checked against the live repo and the live server on **2026-07-23**, not assumed
   [AN-AUTH] publishes Anthropic's egress range and warns the failure is silent: "Discovery
   requests to the authorization server come from the same IP range as requests to your MCP
   server, so a WAF in front of your identity provider can break the flow even when your MCP
-  server is reachable." **Action: allowlist `160.79.104.0/21` in Cloudflare and confirm no rate
-  limiting or bot-fight rule applies to it.** `[AN-AUTH]` `[LOCAL]`
+  server is reachable." **Addressed 2026-07-23 by the two WAF rules above.** `[AN-AUTH]` `[LOCAL]`
 - `[!]` **We use DCR, and Anthropic recommends against it at directory scale.** Our metadata
   advertises a `registration_endpoint` and `"token_endpoint_auth_methods_supported":["none"]`.
   [AN-AUTH]: "For servers expecting high traffic from the directory, prefer **CIMD or
@@ -331,8 +330,11 @@ source given; **do not repeat that number, it is unsourced.**
   - **Silent drop.** [C-GH623] gunter1020, 2026-07-15, with request logging at sample rate 1.0
     across seven days: "**Zero requests from Anthropic's published outbound range
     `160.79.104.0/21`**" despite Anthropic's proxy reporting 502.
-  **Action: allowlist the range in Cloudflare AND exempt it from per-IP rate limiting and bot
-  fight mode. A shared-IP rate limit will look fine in testing and throttle every real user.**
+  **Done 2026-07-23.** Two WAF custom rules deployed; see the Cloudflare entry in
+  [section 0](#0-verified-findings) for the exact expressions and why rule 1 is scoped to paths
+  rather than to Anthropic's IP range. A shared-IP rate limit looks fine in single-machine testing
+  and throttles every real user, which is why rule 2 exempts the range from rate limiting
+  specifically. `[LOCAL]`
 - `[ ]` **Do not stage or submit from a tunnel hostname.** [C-GH699] daltonch, 2026-07-25, and
   [C-GH700] FabSchn0815, same date, both report failures on `ts.net` and `trycloudflare.com`
   hosts, with the hypothesis that it is "a policy applied to tunnel-provider hostnames (`ts.net`
