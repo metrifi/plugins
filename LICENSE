@@ -1,0 +1,39 @@
+MetriFi Plugin License
+
+Copyright (c) 2026 MetriFi. All rights reserved.
+
+This repository is published so that MetriFi customers and their AI tools can
+install and run the MetriFi plugin. The source is public so that anyone can
+review exactly what the plugin does before installing it.
+
+GRANT OF USE
+
+You may install, run, and use the MetriFi plugin, including its skills and its
+configuration for the MetriFi MCP server, to work with MetriFi's services under
+your own MetriFi account. You may inspect the contents of this repository for
+any purpose, including security review.
+
+RESERVED RIGHTS
+
+The contents of this repository, including the skill definitions and workflow
+descriptions, are proprietary to MetriFi and are not open source. Except as
+granted above, no license is given to copy, modify, adapt, sublicense, or
+redistribute this material, or to create derivative works from it.
+
+NO CREDENTIALS
+
+The plugin carries no credentials and grants no access by itself. Every tool
+call is authenticated and authorized server-side against your MetriFi account.
+
+NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
+METRIFI BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Use of MetriFi's services through this plugin is additionally governed by the
+MetriFi Terms of Service (https://metrifi.com/legal/terms-of-service/) and
+Privacy Policy (https://metrifi.com/legal/privacy-policy/).

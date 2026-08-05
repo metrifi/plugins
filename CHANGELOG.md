@@ -273,6 +273,21 @@ First slice of the GEO experiment workflow (platform plan `m14-plugin-experiment
 
 ## Unreleased (docs only, no version bump)
 
+- Directory-submission prep. Adds `docs/submission-checklist.md`, the verified
+  gate list for the three public directories (Claude plugin directory, Claude
+  Connectors Directory, OpenAI Plugins Directory). Fixes what that audit found
+  in this repo:
+  - All four skill descriptions trimmed under OpenAI's 1,024-character limit
+    (`skill_description_too_long` is a hard reject). Was 1431 / 1273 / 1131 for
+    `client-report`, `generate-claude-design-system`, `generate-claude-design-page`.
+    Trigger phrases and stage-routing signals are preserved; only redundancy was cut.
+  - Adds a `LICENSE` file stating the existing proprietary terms, so reviewers
+    find a license where they look for one. Terms are unchanged from `NOTICE.md`.
+  - Claude `plugin.json` gains `repository`, `license`, and `keywords`.
+  - Codex `plugin.json` gains the top-level `description` OpenAI requires
+    (`plugin_description_missing`).
+  - README gains a Legal section linking the terms, privacy, and cookie policies
+    plus a support contact.
 - `install-prompt.md`: both prompts now instruct the installing agent to close
   with a distinct "## What you need to do" checklist instead of burying the
   required next steps in a wrap-up paragraph, and to put the "Who am I on

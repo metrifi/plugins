@@ -107,6 +107,19 @@ hand-edited copy fails the build), and the cross-host body rules: no skill may n
 local runtime, a shell call, a host-specific variable, or a specific browser tool as a
 requirement.
 
+## Legal
+
+- [Terms of Service](https://metrifi.com/legal/terms-of-service/)
+- [Privacy Policy](https://metrifi.com/legal/privacy-policy/)
+- [Cookie Policy](https://metrifi.com/legal/cookie-policy/)
+- [License](LICENSE) — the source is public so you can review what the plugin
+  does before installing; the contents remain proprietary to MetriFi.
+- [Security policy](SECURITY.md) — how to report a vulnerability, what's in
+  scope, and our safe harbor for good-faith research.
+
+Support: [help@metrifi.com](mailto:help@metrifi.com) · Security reports:
+[help@metrifi.com](mailto:help@metrifi.com) with `SECURITY` in the subject.
+
 ---
 See [NOTICE.md](NOTICE.md). Proprietary release artifact; not an open-source project
 and not accepting external contributions. Authored content lives under
