@@ -31,11 +31,11 @@ You are setting up the MetriFi plugin on my computer for me. I am not technical 
 
 4. Activate it: run /reload-plugins now, but the reliable way is a new conversation — MetriFi's tools and skills show up once I start a fresh chat with you. If they're still missing after a new conversation, fully quit and reopen the Claude app.
 
-5. Tell me the one thing only I can do: open Settings -> Connectors, find "MetriFi", click Connect, and sign in with my MetriFi account. The plugin's skills load right away, but nothing works until I do this sign-in. If I don't have a MetriFi account yet: when the sign-in window opens I can create a new MetriFi team right there if my organization doesn't have one yet — otherwise ask an admin on my existing MetriFi team to invite me first.
+5. Tell me the one thing only I can do: find the "metrifi" connector and sign in with my MetriFi account. Where it lives depends on my app: in Cowork it's the Connectors tab on the MetriFi plugin's own page under Customize -> Plugins, where I click Install next to "metrifi", confirm Add in the dialog, then click Connect; in the Claude desktop and web apps it's Settings -> Connectors, find "MetriFi", click Connect. Tell me both places so I can find whichever one I have. The plugin's skills load right away, but the MetriFi tools do nothing until I do this sign-in. If I don't have a MetriFi account yet: when the sign-in window opens I can create a new MetriFi team right there if my organization doesn't have one yet — otherwise ask an admin on my existing MetriFi team to invite me first.
 
 6. Wrap up with a one-line status (installed, enabled, auto-update on), then a section that makes everything I still need to do impossible to miss — use a header like "## What you need to do" followed by a numbered checklist, not a paragraph:
    1. Start a new conversation with me — that's what activates MetriFi's tools. Still missing after a new conversation? Fully quit and reopen Claude.
-   2. Go to Settings -> Connectors, find "MetriFi", click Connect, and sign in with your MetriFi account.
+   2. Sign in to the MetriFi connector. In Cowork: Customize -> Plugins -> MetriFi -> Connectors tab -> Install next to "metrifi" -> Add -> Connect. In the Claude desktop or web app: Settings -> Connectors -> MetriFi -> Connect.
    3. Test the connection: send me the exact phrase "Who am I on MetriFi?" in a new message, formatted as its own fenced code block so I can copy it in one click — that works even before any sites are set up.
 ```
 

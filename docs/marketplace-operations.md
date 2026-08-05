@@ -186,6 +186,14 @@ repo-structure rules that the CLI does not.
 Plugins run in Cowork as well as Claude Code, and the submission form covers both.
 
 - Skills and connectors work in Cowork, chat on the web, and the Chat tab in Claude Desktop.
+- **Installing the plugin does not install its connector.** Verified in Cowork on
+  2026-08-05: installing MetriFi lands all 12 skills and shows "1 connector", but the
+  connector is inert until the user opens the **Connectors** tab on the plugin's own page,
+  clicks **Install** next to `metrifi`, confirms **Add** in the dialog showing
+  `https://platform.metrifi.com/mcp`, and then clicks **Connect** to sign in. There is no
+  Connect button anywhere earlier in the flow. `[LOCAL]` This is the most likely support
+  ticket from a Cowork user: "I installed it and the MetriFi tools aren't there." The
+  README and `install-prompt.md` both spell out the six steps.
 - Hooks and sub-agents run **only** in Cowork and grey out in chat
   ([Use plugins in Claude](https://support.claude.com/en/articles/13837440-use-plugins-in-claude)).
   We ship neither, so we have no surface-specific gaps.

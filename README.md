@@ -9,11 +9,22 @@ instructions are right here.
 > **Not technical? The easiest way to install is to paste a prompt** into your AI
 > agent and let it install itself, no terminal. See [`install-prompt.md`](install-prompt.md).
 
-## Claude (claude.ai / Claude Desktop) — no terminal
+## Claude (Cowork / claude.ai / Claude Desktop) — no terminal
 
-Customize → **Plugins** → **Add from a repository** → paste
-`metrifi/plugins` → Install **metrifi** → click **Connect** and sign in
-with your MetriFi account.
+Installing the plugin and connecting it to your MetriFi account are two separate
+steps. The skills work after step 4; the MetriFi tools need step 6.
+
+1. **Customize** → **Plugins** → **Add** → **Add marketplace** → **Add from a
+   repository**
+2. Paste `metrifi/plugins` and click **Sync**
+3. Click **MetriFi** in the list
+4. Click **Install**. You should see 12 skills and 1 connector.
+5. On the MetriFi plugin page, open the **Connectors** tab, click **Install**
+   next to `metrifi`, and confirm **Add** in the dialog that shows
+   `https://platform.metrifi.com/mcp`
+6. Click **Connect**, sign in with your MetriFi account, and authorize Claude
+
+Then start a new chat and ask **"Who am I on MetriFi?"** to confirm it worked.
 
 ## Claude Code
 

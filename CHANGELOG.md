@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.3 — 2026-08-05
+
+- Correct the Claude install instructions: installing the plugin does not install its connector. Verified in Cowork that the plugin lands 12 skills but the MetriFi tools stay inert until the user opens the Connectors tab on the plugin page, installs the metrifi connector, confirms the dialog, and clicks Connect. There is no Connect button earlier in the flow, so the previous README steps left users installed but not connected. README now gives the six real steps, install-prompt.md names both the Cowork and desktop/web connector locations, and docs/marketplace-operations.md records the finding.
+
 ## 1.4.2 — 2026-08-05
 
 - Marketplace listing metadata and operations doc: the marketplace entries gain displayName, author, homepage, repository and license so the public listing card is complete, and both plugin/marketplace descriptions now name the GEO experiment skills; adds docs/marketplace-operations.md covering how an update reaches a user, the nightly catalog sync, SHA pinning, the git-subdir source check and customer triage; corrects the submission checklist, which had submission A landing in claude-plugins-official rather than claude-community.
