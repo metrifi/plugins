@@ -149,6 +149,32 @@ Checked against the live repo and the live server on **2026-07-23**, not assumed
 
 ## A. Claude plugin directory
 
+> **`[x]` SUBMITTED 2026-08-05.** Status: "Submitted", pending review. Submitted from the
+> Console form at `platform.claude.com/plugins/submit` by an admin of the MetriFi Console
+> organization. Repo was at `v1.4.3` (`b7aa19d`).
+>
+> Exact values submitted, so a resubmission or a dispute can reproduce them:
+>
+> | Field | Value |
+> |-------|-------|
+> | Link to plugin | `https://github.com/metrifi/plugins` |
+> | Path within repository | `plugins/claude/metrifi` |
+> | Plugin homepage | `https://metrifi.com` |
+> | Plugin name | `metrifi` (free as of 2026-08-05: 0 matches in a 2,298-entry catalog) |
+> | Supported platforms | Claude Code **and** Claude Cowork |
+> | License type | `LicenseRef-Proprietary` (blank would have defaulted to Apache 2.0) |
+> | Privacy policy URL | `https://metrifi.com/legal/privacy-policy/` |
+> | Contact email | `help@metrifi.com` |
+>
+> Cowork was tested before checking its box: plugin installs, 12 skills load, the connector
+> authorizes, and `whoami` returns live account data. That test is what surfaced the
+> two-step connector install now documented in
+> [marketplace-operations.md](marketplace-operations.md#7-cowork).
+>
+> **What happens next is in [marketplace-operations.md](marketplace-operations.md), not
+> here.** Approval is not listing; the post-listing checks (`git-subdir` source shape, a
+> clean-machine install, SHA pin freshness) live there.
+
 Automated screening of the repo. [AN-PLUG]: "Anthropic performs basic automated review on
 submissions before adding them to the directory." No functional test of the MCP server, so
 **A is not blocked on the tool annotation work**.
