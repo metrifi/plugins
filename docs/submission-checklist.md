@@ -54,7 +54,28 @@ Checked against the live repo and the live server on **2026-07-23**, not assumed
   the plugin's `.mcp.json` uses the identical URL. [AN-AUTH]: "The protected resource metadata
   document's `resource` field must match your MCP server URL exactly as the user enters it in
   Claude, including any path component." `[LOCAL]`
-- `[!]` **The server sits behind Cloudflare** (`server: cloudflare` on every response, verified).
+- `[x]` **Cloudflare hardened for directory traffic, 2026-07-23.** Two WAF custom rules deployed
+  on the `metrifi.com` zone, in this order:
+  1. `MCP and OAuth are non-browser` — skips Browser Integrity Check, managed rules, Super Bot
+     Fight Mode, Security Level, User Agent Blocking, and Zone Lockdown for
+     `/.well-known/*`, `/mcp*`, `/oauth/token`, and `/oauth/register`. Rate limiting deliberately
+     left enabled.
+  2. `Anthropic directory egress` — skips everything including rate limiting for `160.79.104.0/21`.
+  **Why rule 1 is scoped to paths rather than Anthropic's IPs:** Browser Integrity Check is on by
+  default and was verified blocking a POST to `/mcp` from `216.60.31.33` (AT&T Enterprises, a
+  consumer ISP) with user agent `Python-urllib/3.12`. Claude Code, Codex CLI, and MCP Inspector
+  all connect from the **end user's machine** with non-browser HTTP clients, so an IP-scoped rule
+  would have protected claude.ai while leaving every CLI user exposed. Verified after deploy:
+  the same `Python-urllib` user agent now reaches the application with no `cf-mitigated` header.
+  `[LOCAL]` `[AN-AUTH]`
+- `[!]` **`/mcp` can return 302 instead of 401.** Verified: with
+  `Accept: application/json, text/event-stream` it correctly returns `401` plus
+  `WWW-Authenticate`, but with no `Accept` header Laravel's auth middleware treats the request as
+  a browser and redirects to `https://platform.metrifi.com/id/login`. Real MCP clients send the
+  Accept header so this does not break today, but [AN-AUTH] is explicit that "The `401` status is
+  required", and an API route that can redirect to a login page is a latent discovery failure.
+  **Platform ticket: make `/mcp` return 401 JSON unconditionally.** `[LOCAL]` `[AN-AUTH]`
+- `[x]` **The server sits behind Cloudflare** (`server: cloudflare` on every response, verified).
   [AN-AUTH] publishes Anthropic's egress range and warns the failure is silent: "Discovery
   requests to the authorization server come from the same IP range as requests to your MCP
   server, so a WAF in front of your identity provider can break the flow even when your MCP
