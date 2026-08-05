@@ -35,6 +35,44 @@ public marketplaces for Claude Code:
 If Anthropic ever does pick us up for the official marketplace, that unlocks CLI install
 prompts. See [Recommend your plugin from your CLI](https://code.claude.com/docs/en/plugin-hints).
 
+### How a listed plugin is actually discovered and installed
+
+Three paths, and they are not equally good. Know which one a given user is on before
+troubleshooting their install.
+
+**1. [claude.com/plugins](https://claude.com/plugins), the public web directory.** Searchable
+and filterable by "Works with" (Cowork, Claude Code), with one-click install. This is the
+discovery surface the listing actually buys us: someone searching "credit union" or
+"AI search visibility" can find MetriFi without having heard of MetriFi.
+
+**2. Cowork's browse flow.** Customize → Plugins → **Add** → **Add marketplace** →
+**Browse Anthropic sources**, which surfaces listed plugins without the user typing a repo
+name. Install from there, then the connector still needs the separate steps in §7.
+
+**3. Claude Code, which is worse than it sounds.** The community marketplace is **not**
+registered automatically; only `claude-plugins-official` is. Per
+[Discover and install plugins](https://code.claude.com/docs/en/discover-plugins#community-marketplace):
+"Unlike the official marketplace, you add it manually." So a Claude Code user needs:
+
+```
+/plugin marketplace add anthropics/claude-plugins-community
+/plugin install metrifi@claude-community
+```
+
+**Keep pointing Claude Code users at our own repo instead.** Installing from the community
+marketplace is *more* typing than installing from us directly
+(`/plugin marketplace add metrifi/plugins` then `/plugin install metrifi@metrifi`), and we
+are invisible in a user's `/plugin` Discover tab until they have added the community
+marketplace. The listing's value on Claude Code is credibility, not discovery.
+
+**`[?]` Open question: does a listed install auto-update?** Auto-update is on by default for
+"Official Anthropic marketplaces" and off by default for third-party ones
+([Discover and install plugins](https://code.claude.com/docs/en/discover-plugins#configure-auto-updates)).
+Whether `anthropics/claude-plugins-community` counts as official is not documented. If it
+does, users who install from the listing get updates automatically and the manual
+`autoUpdate` step in [`install-prompt.md`](../install-prompt.md) is unnecessary for them.
+Test this once we are listed and update this section either way.
+
 ---
 
 ## 2. How an update actually reaches a user
