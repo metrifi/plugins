@@ -84,8 +84,11 @@ CI (`tools/validate.mjs`) guards structure and Claude/Codex parity on every push
 - [Cookie Policy](https://metrifi.com/legal/cookie-policy/)
 - [License](LICENSE) — the source is public so you can review what the plugin
   does before installing; the contents remain proprietary to MetriFi.
+- [Security policy](SECURITY.md) — how to report a vulnerability, what's in
+  scope, and our safe harbor for good-faith research.
 
-Support: [ryan.harmon@metrifi.com](mailto:ryan.harmon@metrifi.com)
+Support: [help@metrifi.com](mailto:help@metrifi.com) · Security reports:
+[help@metrifi.com](mailto:help@metrifi.com) with `SECURITY` in the subject.
 
 ---
 See [NOTICE.md](NOTICE.md). Proprietary release artifact; not an open-source project

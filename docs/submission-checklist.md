@@ -141,8 +141,10 @@ submissions before adding them to the directory." No functional test of the MCP 
 
 ### Content quality
 - `[x]` README documents install for Claude, Claude Code, and Codex `[LOCAL]`
-- `[x]` README links privacy policy, terms, cookie policy, and a support contact.
+- `[x]` README links privacy policy, terms, cookie policy, `SECURITY.md`, and a support contact.
   [AN-POL] requires "verified contact information and support channels." `[LOCAL]`
+- `[x]` `SECURITY.md` published, satisfying [AN-TERMS]'s vulnerability-reporting requirement,
+  which binds plugins as well as connectors. `[LOCAL]`
 - `[x]` Skill descriptions say when to use the skill and carry no instructions to call other
   tools and no promotional language `[AN-POL]` `[LOCAL]`
 - `[x]` Plugin bundles a coherent job. [AN-PLUG]: "The best plugins bundle related capabilities
@@ -420,11 +422,14 @@ source given; **do not repeat that number, it is unsourced.**
 From [AN-TERMS], which binds plugins as well as connectors: "By submitting your MCP server, Skill
 folder, plugin, app, or other software... for inclusion in any Anthropic directory".
 
-- `[!]` **A security vulnerability reporting channel is required, and we do not have one
-  documented.** [AN-TERMS]: "You further agree to implement and maintain a mechanism for
-  receiving reports of security vulnerabilities from Anthropic and from third parties and to
-  investigate such reports with a reasonable standard of care." **Action: publish a
-  `security@metrifi.com` address or a SECURITY.md, and reference it in the listing.**
+- `[x]` **Security vulnerability reporting channel published 2026-07-23.** [AN-TERMS]: "You
+  further agree to implement and maintain a mechanism for receiving reports of security
+  vulnerabilities from Anthropic and from third parties and to investigate such reports with a
+  reasonable standard of care." `SECURITY.md` at the repo root covers reporting address, scope
+  and out-of-scope, testing rules, safe harbor, a 90-day disclosure window, and acknowledgement
+  within 3 business days. Linked from the README. Reports go to `help@metrifi.com`, the address
+  published in the Termly-hosted Terms of Service. **This requirement binds plugins, not just
+  connectors**, so it applies to submission A as well. `[LOCAL]`
 - `[ ]` Listing metadata kept current. [AN-TERMS] warrants "any information you give us will be
   accurate and up-to-date." Stale listing copy is a terms violation, not just untidy.
 - `[ ]` Privacy policy covers third parties too. [AN-TERMS]: "provide all applicable third-party
