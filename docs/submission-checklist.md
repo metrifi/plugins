@@ -68,13 +68,14 @@ Checked against the live repo and the live server on **2026-07-23**, not assumed
   would have protected claude.ai while leaving every CLI user exposed. Verified after deploy:
   the same `Python-urllib` user agent now reaches the application with no `cf-mitigated` header.
   `[LOCAL]` `[AN-AUTH]`
-- `[!]` **`/mcp` can return 302 instead of 401.** Verified: with
-  `Accept: application/json, text/event-stream` it correctly returns `401` plus
-  `WWW-Authenticate`, but with no `Accept` header Laravel's auth middleware treats the request as
-  a browser and redirects to `https://platform.metrifi.com/id/login`. Real MCP clients send the
-  Accept header so this does not break today, but [AN-AUTH] is explicit that "The `401` status is
-  required", and an API route that can redirect to a login page is a latent discovery failure.
-  **Platform ticket: make `/mcp` return 401 JSON unconditionally.** `[LOCAL]` `[AN-AUTH]`
+- `[x]` **`/mcp` returns 401 unconditionally.** Fixed in `metrifi-platform` and verified live on
+  production 2026-08-05: `POST /mcp` returns `401` with `{"message":"Unauthenticated."}` both with
+  and without an `Accept` header, carrying
+  `WWW-Authenticate: Bearer realm="mcp", resource_metadata=".../.well-known/oauth-protected-resource/mcp"`.
+  `GET /mcp` still redirects browsers (now to `/connect`), which is intended. Previously the
+  no-`Accept` case redirected `302` to the login page, which [AN-AUTH] would have failed: "The
+  `401` status is required — Claude does not honor a `WWW-Authenticate` header on a `200`
+  response." `[LOCAL]` `[AN-AUTH]`
 - `[x]` **The server sits behind Cloudflare** (`server: cloudflare` on every response, verified).
   [AN-AUTH] publishes Anthropic's egress range and warns the failure is silent: "Discovery
   requests to the authorization server come from the same IP range as requests to your MCP
@@ -82,6 +83,27 @@ Checked against the live repo and the live server on **2026-07-23**, not assumed
   server is reachable." **Addressed 2026-07-23 by the two WAF rules above.** `[AN-AUTH]` `[LOCAL]`
 - `[!]` **We use DCR, and Anthropic recommends against it at directory scale.** Our metadata
   advertises a `registration_endpoint` and `"token_endpoint_auth_methods_supported":["none"]`.
+  **Correction 2026-08-05: this is not a one-line change, and doing it as one would cause an
+  outage.** The authorization server is Laravel Passport, where `client_id` is a UUID row in
+  `oauth_clients`. CIMD makes `client_id` a **URL** that the authorization server must fetch,
+  validate, and treat as the registration. Advertising
+  `client_id_metadata_document_supported: true` without implementing that would make Claude
+  choose CIMD, send a URL as `client_id`, and Passport would reject it as an unknown client,
+  breaking sign-in for every user. Real scope: intercept `/oauth/authorize` and `/oauth/token`
+  for URL-shaped client ids, fetch and cache the document with SSRF protection, validate
+  `redirect_uris` against it, and bridge it into Passport's client lookup. **Half a day to two
+  days, not a boolean.** `[LOCAL]`
+  **Cheaper alternatives, in order:**
+  1. **Do nothing before launch.** DCR is supported out of the box and passes review. The only
+     cost is row accumulation.
+  2. **Prune unused registered clients on a schedule.** Solves the actual problem (junk rows)
+     for a fraction of the effort.
+  3. **`oauth_anthropic_creds`** — [AN-AUTH] describes handing Anthropic a `client_id` and
+     `client_secret` they hold: "This gives you a stable, registered OAuth client without
+     requiring DCR or CIMD on your end, while keeping the user-consent step." Requires emailing
+     `mcp-review@anthropic.com`, which [C-RD4] and [C-RD1] both report going unanswered, so treat
+     the timeline as unknown.
+  4. Full CIMD, as scoped above.
   [AN-AUTH]: "For servers expecting high traffic from the directory, prefer **CIMD or
   `oauth_anthropic_creds` over DCR**. DCR causes Claude to register a new client on every fresh
   connection, which can result in very large numbers of registered clients on your authorization
