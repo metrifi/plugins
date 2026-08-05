@@ -4,13 +4,22 @@
     "name": "MetriFi",
     "email": "ryan.harmon@metrifi.com"
   },
-  "description": "MetriFi for Claude: one sign-in to the MetriFi platform plus the MetriFi site-design skills, for credit unions and banks.",
+  "description": "MetriFi for Claude: one sign-in to the MetriFi platform plus the MetriFi site-design and GEO experiment skills, for credit unions and banks.",
   "plugins": [
     {
       "name": "metrifi",
+      "displayName": "MetriFi",
       "source": "./plugins/claude/metrifi",
-      "description": "The MetriFi plugin: the MetriFi platform connection (Site Builder, GEO, and CRO tools), the client-report skill for auditing an institution's existing website, and the three-stage site-design skills. Self-contained — this is the only plugin you need.",
+      "description": "The MetriFi plugin: one sign-in connects Claude to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) and adds the MetriFi skills. client-report audits an institution's existing site; generate-claude-design-system, generate-claude-design-page and page-design-process design and build a new one; and the GEO experiment skills run a campaign from research through to a reviewed client deliverable. Self-contained: this is the only plugin you need.",
       "category": "integration",
+      "author": {
+        "name": "MetriFi",
+        "email": "ryan.harmon@metrifi.com",
+        "url": "https://metrifi.com"
+      },
+      "homepage": "https://platform.metrifi.com",
+      "repository": "https://github.com/metrifi/plugins",
+      "license": "LicenseRef-Proprietary",
       "keywords": [
         "metrifi",
         "mcp",
@@ -18,6 +27,8 @@
         "credit-union",
         "bank",
         "skills",
+        "geo",
+        "cro",
         "client-report",
         "audit",
         "report"

@@ -14,13 +14,26 @@ There are **three separate submissions**, each with its own gate:
 
 | # | Directory | What is listed | Where to submit | Source |
 |---|-----------|----------------|-----------------|--------|
-| A | Claude plugin directory (surfaced in Claude Code as `claude-plugins-official`, plus Cowork and Desktop) | this GitHub repo | [platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit) | [AN-PLUG] |
+| A | Claude plugin directory (lands in the `claude-community` marketplace, used by Claude Code, Cowork and Desktop) | this GitHub repo | [platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit) | [AN-PLUG] [CC-PLUG] |
 | B | Claude Connectors Directory (claude.ai + Desktop) | `https://platform.metrifi.com/mcp` | [claude.ai/admin-settings/directory/submissions/new](https://claude.ai/admin-settings/directory/submissions/new) | [AN-SUB] |
 | C | OpenAI Plugins Directory (ChatGPT **and** Codex, one listing) | plugin = MCP app + skills | [platform.openai.com/plugins](https://platform.openai.com/plugins) | [OA-SUBP] |
 
 Submissions A and B are genuinely separate systems. [AN-PLUG] states the plugin directory
 "is a separate and complementary directory from the Connectors Directory, which is specific
 to MCP connectors."
+
+**Submission A cannot put us in `claude-plugins-official`.** Anthropic runs two public
+marketplaces and only one of them takes submissions. [CC-PLUG]: "The official marketplace,
+`claude-plugins-official`, is curated separately. Anthropic decides which plugins to include
+at its discretion. There is no application process, and the submission form does not add
+plugins to the official marketplace." Third-party submissions land in `claude-community`
+([`anthropics/claude-plugins-community`](https://github.com/anthropics/claude-plugins-community)),
+which users add with `/plugin marketplace add anthropics/claude-plugins-community` and install
+from as `@claude-community`. An earlier revision of this document had this backwards.
+
+Once we are listed, the day-to-day facts about living in that catalog (sync cadence, SHA
+pinning, what to tell a user whose new feature has not arrived) are in
+[marketplace-operations.md](marketplace-operations.md).
 
 Status legend: `[ ]` not done · `[x]` verified done · `[!]` verified broken · `[?]` open question
 

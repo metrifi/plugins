@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.2 — 2026-08-05
+
+- Marketplace listing metadata and operations doc: the marketplace entries gain displayName, author, homepage, repository and license so the public listing card is complete, and both plugin/marketplace descriptions now name the GEO experiment skills; adds docs/marketplace-operations.md covering how an update reaches a user, the nightly catalog sync, SHA pinning, the git-subdir source check and customer triage; corrects the submission checklist, which had submission A landing in claude-plugins-official rather than claude-community.
+
 ## 1.4.1 — 2026-08-05
 
 - Directory submission readiness: all twelve skill descriptions trimmed under OpenAI's 1,024-character limit (skill_description_too_long is a hard reject); adds LICENSE and SECURITY.md, the latter satisfying Anthropic's Software Directory Terms requirement for a vulnerability reporting channel; fills in repository, license and keywords on the Claude manifest and description on the Codex manifest; adds docs/submission-checklist.md.

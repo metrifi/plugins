@@ -107,6 +107,14 @@ hand-edited copy fails the build), and the cross-host body rules: no skill may n
 local runtime, a shell call, a host-specific variable, or a specific browser tool as a
 requirement.
 
+### Distribution and directory listings
+
+[`docs/marketplace-operations.md`](docs/marketplace-operations.md) is the operational
+reference: how an update actually reaches a user, why a shipped change can take a day or
+more to arrive, and how to triage "this isn't working for me."
+[`docs/submission-checklist.md`](docs/submission-checklist.md) is the one-time gate for
+getting listed in the Claude and OpenAI directories.
+
 ## Legal
 
 - [Terms of Service](https://metrifi.com/legal/terms-of-service/)
