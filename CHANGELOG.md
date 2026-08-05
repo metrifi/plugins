@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.1 — 2026-08-05
+
+- Directory submission readiness: all twelve skill descriptions trimmed under OpenAI's 1,024-character limit (skill_description_too_long is a hard reject); adds LICENSE and SECURITY.md, the latter satisfying Anthropic's Software Directory Terms requirement for a vulnerability reporting channel; fills in repository, license and keywords on the Claude manifest and description on the Codex manifest; adds docs/submission-checklist.md.
+
 ## 1.4.0 — 2026-08-03
 
 - **New skill `exp-sweep`**, the daily cross-client sweep over every top-customer team. Every other experiment skill takes a single team_id, so nothing ever looked across clients. It reads the cohort in one `list-all-teams(top_customer: true)` call, classifies each team into one of six lanes, and hands the team to the phase skill that owns the work. Dispatched teams run their chain as far as it goes rather than stopping at a phase boundary, stopping only at four real gates: baseline responses not populated, ready to send, waiting on a client, or a halt. It never re-implements a phase, never sends to a client, and never crosses a human gate.
