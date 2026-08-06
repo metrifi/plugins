@@ -653,6 +653,12 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
   verification in the OpenAI Platform Dashboard for the name you plan to publish under in the
   directory... This is enforced during review. Publishing under an unverified individual or
   business name will result in rejection."
+  **Exact path**, from [OA-SUB]: sign in to `platform.openai.com`, select the publishing
+  organization, open
+  [organization settings](https://platform.openai.com/settings/organization/general), complete
+  **business verification** (not individual, since we publish under a company name), then
+  "Return to the plugin submission form and select the verified identity in the **Developer
+  Identity** field."
 - `[ ]` `api.apps.write` permission. [OA-REV]: "To create plugin drafts with MCP and submit them
   for review, you need the `api.apps.write` permission."
 - `[!]` **Developer name must match the verified legal name character for character**, and the
@@ -673,6 +679,12 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
 - `[!]` **Check the OpenAI project's data residency.** [OA-REV]: "For now, projects with EU data
   residency cannot submit plugins with MCP servers for review. Use a project with global data
   residency." **Verify before doing any other OpenAI work; this is a hard block.**
+  **Where to look:** `https://platform.openai.com/settings/organization/projects`, open the
+  project you will publish from, then **General**. Residency is per-project, chosen from a
+  region dropdown **at project creation only**, and is gated behind approved advanced data
+  controls, so a project nobody deliberately regionalised is global. [OA-RESID] It cannot be
+  changed afterwards: "existing Projects cannot be updated to have European data residency
+  after creation." If a project is regionalised, the only fix is publishing from a new one.
 - `[ ]` Server is publicly reachable. [OA-REV]: "Your MCP server is hosted on a publicly
   accessible domain" and "You are not using a local or testing endpoint."
 - `[ ]` Only one version in flight. [OA-REV]: "For each MCP server integration, only one version
@@ -715,11 +727,30 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
 All limits from [OA-ERR], the official error catalogue. Where a field has two limits, the
 smaller applies at final submission and the larger at draft validation.
 
-- `[x]` Top-level `description`, ≤1,024 chars (`plugin_description_missing`, `_too_long`) `[LOCAL]`
-- `[ ]` `interface.shortDescription` ≤30 final / 240 validation (`plugin_short_description_too_long`) **`[!]` 156 today**
+Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manifest. `[LOCAL]`
+
+- `[x]` Top-level `description`, ≤1,024 chars (`plugin_description_missing`, `_too_long`) — 427 `[LOCAL]`
+- `[x]` Top-level `name` ≤64 (7), `version` ≤64 (5), `author.name` ≤120 (7) `[LOCAL]`
+- `[x]` `interface.shortDescription` ≤30 final / 240 validation (`plugin_short_description_too_long`)
+  — now `"Credit union & bank websites"`, 28 chars. Was 156, which passes draft validation but
+  fails final submission. Cut on 2026-08-05: a 156-character "short" description was poor UX in
+  the Codex plugin list anyway, so there was no reason to carry the bad value until submission
+  day. `[LOCAL]`
 - `[x]` `interface.displayName` ≤30 final / 80 validation (`plugin_display_name_too_long`) — `MetriFi` is 7 `[LOCAL]`
-- `[ ]` `interface.longDescription` ≤4,000 (`plugin_long_description_too_long`)
-- `[ ]` `interface.developerName` ≤80 final / 120 validation (`plugin_developer_name_too_long`)
+- `[x]` `interface.longDescription` ≤4,000 (`plugin_long_description_too_long`) — 1,146 chars,
+  mirrors the copy submitted to Anthropic for submission A so the two listings agree `[LOCAL]`
+- `[?]` `interface.developerName` ≤80 final / 120 validation (`plugin_developer_name_too_long`).
+  **Blocked on the identity-verification outcome, deliberately left unset.** This is the
+  publisher line ("MetriFi **by ...**"), separate from `displayName`, so the plugin is called
+  MetriFi either way. It must match the verified identity character for character. Our entity is
+  **BloomCU LLC doing business as MetriFi**, and OpenAI support names this exact case as a
+  rejection trigger: "Even small differences like abbreviations or branding vs legal name can
+  trigger that rejection." [C-OA-REJ4] Preference order: (1) verify with the Utah MetriFi DBA
+  certificate, (2) accept `BloomCU LLC`, which is also what metrifi.com's terms say so reviewers
+  cross-checking the listing against the site find no mismatch, (3) rename the entity, which is
+  weeks and legal cost. Set this field only after verification returns a name.
+- `[ ]` `interface.brandColor` / `brandColorDark` — six-digit hex (`plugin_brand_color_format`).
+  No brand hex values exist anywhere in this repo. `[LOCAL]`
 - `[ ]` `interface.logo` — required, square (`plugin_logo_path_missing`) **`[!]` missing**
 - `[ ]` `interface.composerIcon` — required, square (`plugin_composer_icon_path_missing`) **`[!]` missing**
 - `[ ]` Image rules: ≥48×48 (`raster_image_dimensions_too_small`), ≤4096×4096
@@ -1198,6 +1229,7 @@ docs." Last modified 2026-05-07. It contains no timeline, update, or removal con
 | `[OA-SKILL]` | https://learn.chatgpt.com/docs/skills-and-plugins | full (skill vs plugin definitions) |
 | `[OA-BSKILL]` | https://learn.chatgpt.com/docs/build-skills | full (loading model, context budget, surfaces) |
 | `[OA-REV]` | https://developers.openai.com/plugins/deploy/app-review | full — **densest rejection-risk page on either vendor's site** |
+| `[OA-RESID]` | https://help.openai.com/en/articles/10503543-data-residency-for-the-openai-api | per-project region set at creation only; located via search summary 2026-08-05, article itself returns 403 to unauthenticated fetch |
 | `[OA-REF]` | https://developers.openai.com/plugins/reference | annotations table, CSP/frame domains |
 | `[OA-SEC]` | https://developers.openai.com/plugins/guides/security-privacy | prompt injection, iframe CSP |
 | `[OA-MCP]` | https://developers.openai.com/plugins/build/mcp-server | tool definition checklist, MCP skill import limits |
