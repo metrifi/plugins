@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.4 — 2026-08-06
+
+- Codex listing copy for the OpenAI plugin directory: interface.shortDescription cut from 156 to 28 characters to clear OpenAI's 30-character final limit, and interface.longDescription added, mirroring the description submitted to Anthropic so both directory listings say the same thing. interface.developerName is deliberately still unset pending OpenAI business verification.
+
 ## 1.4.3 — 2026-08-05
 
 - Correct the Claude install instructions: installing the plugin does not install its connector. Verified in Cowork that the plugin lands 12 skills but the MetriFi tools stay inert until the user opens the Connectors tab on the plugin page, installs the metrifi connector, confirms the dialog, and clicks Connect. There is no Connect button earlier in the flow, so the previous README steps left users installed but not connected. README now gives the six real steps, install-prompt.md names both the Cowork and desktop/web connector locations, and docs/marketplace-operations.md records the finding.
