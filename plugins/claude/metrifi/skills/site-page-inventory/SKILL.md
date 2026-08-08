@@ -19,8 +19,16 @@ metadata:
 Crawl an institution's existing site once, then turn the raw page list into a scoping decision.
 
 The crawl is commodity. The value is the categorization and the junk it exposes, so do not stop at a
-page count. A bare number ("117 pages") is almost useless for scoping. The useful sentence is always
-some version of: *"only ~38 of these actually need copywriting, the other ~79 just move."*
+page count. A bare number ("232 pages") is almost useless for scoping, and worse than useless when a
+big blog archive is inflating it.
+
+**The headline is the non-blog page total, split into copywriting vs setup-only.** In that order,
+in the first two sentences, before any junk findings or duplicate analysis:
+
+> *"126 non-blog pages. Of those, 76 deserve copywriting attention and 47 are setup-only."*
+
+The total live page count is context, not the headline. The blog is bulk migration and does not scale
+the quote, so a total that folds it in overstates the job.
 
 ## When to use this
 
@@ -121,6 +129,12 @@ the split (techcu.org had 40 of 117 pages in blog alone; fvsbank.com had 75 of 2
 migration with a prune pass, never per-page copywriting. Folding a blog archive into "setup-only"
 hides the real shape.
 
+**Split the delete bucket across the blog line, not alongside it.** Deleted pages that are blog
+infrastructure — category, tag, and author archives, their pagination children, no-slug and duplicate
+posts — belong on the blog side of the report. The handful of non-blog deletes stay inside the
+non-blog total. Otherwise the non-blog number quietly absorbs 30 taxonomy pages and stops meaning what
+it should.
+
 State your judgment calls explicitly rather than burying them. Insurance, investment planning, and
 education savings are the usual genuinely ambiguous ones: product pages at some institutions,
 secondary content at others. Ask, or flag the assumption.
@@ -176,7 +190,8 @@ keep. On hondafcu.org it caught 12 pages that would otherwise have been migrated
 Match the deliverable to why the inventory was run. Do not default to a spreadsheet.
 
 - **Sales or scoping conversation** → the headline split in prose, plus the bucket lists grouped by
-  product family. Lead with the copywriting count, because that is the number that sizes the quote.
+  product family. Lead with the non-blog total and its copywriting/setup-only breakdown, because
+  together those are what size the quote.
 - **Build handoff** → a spreadsheet via the `xlsx` skill. Two tabs (Summary, Page Inventory),
   color-coded by category, sorted, filterable.
 - **CRM record** → a note on the deal with headline counts, the categorized inventory, and a method
@@ -186,8 +201,8 @@ Always include the caveat that the copywriting count reflects distinct pages, no
 Several product pages usually collapse into shared layouts at build time, which only strengthens the
 efficiency argument.
 
-Report two numbers, not one: the raw live page count and the count after duplicate collapsing. The gap
-between them is the argument for the rebuild.
+Give the copywriting count both ways — raw, and after duplicate collapsing. The gap between them is
+the argument for the rebuild.
 
 ## Where this fits
 
