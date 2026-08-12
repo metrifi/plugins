@@ -1,6 +1,6 @@
 {
   "name": "metrifi",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "One MetriFi sign-in connects Codex to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) and adds the MetriFi skills: client-report for auditing an institution's existing site, generate-claude-design-system, generate-claude-design-page and page-design-process for designing and building one, and the GEO experiment skills that run a campaign from research through to a reviewed client deliverable.",
   "author": {
     "name": "MetriFi",
