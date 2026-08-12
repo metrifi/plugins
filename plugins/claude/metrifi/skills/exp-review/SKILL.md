@@ -81,8 +81,31 @@ For each battery, in order, three steps:
    that reads as a dossier section label, because that is what the client sees.
 3. **Record the verdict** with `record-deliverable-check`: `type` (`hygiene`, `ncua-compliance`,
    `accessibility`, `fact-verification`), `result` (`pass`, `fail`, `n/a`), a one-line `summary` for
-   the checks tab, the `findings` array with a `severity` on each, `document_kind` pointing at the
-   report you just wrote, and `recorder` naming yourself as the agent.
+   the checks tab, the `findings` array with a `severity` on each, the `verifications` array (below),
+   `document_kind` pointing at the report you just wrote, and `recorder` naming yourself as the
+   agent.
+
+## `verifications`: what you actually walked
+
+`findings` carries problems only. On a clean battery that is an empty array, so a day of review
+reads to the client as one green badge. `verifications` is the other half: one row per criterion you
+actually walked or claim you actually checked, each with `item`, `status` (`pass`, `fail`, or `n/a`),
+`source` naming what you checked it against, a URL you read or the battery step, and an optional
+one-line `note`. The client's page shows the total and the rows, with `source` and `note` printed
+under the item, so an `n/a` row without a `note` reads to the client as an unexplained blank: always
+give the reason there.
+
+Each battery's reference file says what its rows are. Record them in the order you walked them.
+
+**An item you did not actually perform is never recorded.** Not as `n/a`, not as `pass`, not to make
+the number look better. The client is being told these checks happened, under our name, so a padded
+row is a false statement about work nobody did. A battery you itemized honestly and thinly beats an
+impressive list you cannot defend line by line. If you did not itemize a battery at all, omit
+`verifications` and the page falls back to the verdict badge, which is the truth.
+
+`n/a` is a real and useful row: `item` "1.1.1 non-text content", `status` `n/a`, `note` "the article
+has no images" is something you checked. `deferred` is not a status here. An item deferred to a human belongs in the
+report and in `findings` as a note, not in a list that says we verified it.
 
 Finish each battery completely, report and record, before starting the next one. Do not batch the
 recording to the end: a run that dies after three batteries should leave three recorded results, not

@@ -121,8 +121,14 @@ Write the full report as an experiment document, then record the verdict.
    - **Sign-off:** the human reviewer line. This battery is assistive; a person signs off.
 
 2. `record-deliverable-check` with `type: "hygiene"`, the `result`, a one-line `summary` for the
-   checks tab, the `findings` array, `document_kind: "review-hygiene"` so the tab links to the full
-   report, and `recorder` naming yourself as the agent.
+   checks tab, the `findings` array, the `verifications` array, `document_kind: "review-hygiene"` so
+   the tab links to the full report, and `recorder` naming yourself as the agent.
+
+   **This battery's verification rows are the H1 to H6 sub-checks you performed**, one row each:
+   H1 AI tells, H2 typography and dashes, H3 spelling and proper nouns, H4 markdown and structure,
+   H5 links and tables and images, H6 whitespace. `source` is the battery step ("battery H2") or the
+   part of the article you swept. A sub-check with nothing to check is `n/a` with the reason in
+   `note`. Record only the sub-checks you actually walked.
 
 The check is pinned to the article it ran against. If the article changes afterward the check goes
 stale and has to be re-run, which is the point: a revision cannot ride a green check from an older

@@ -127,8 +127,17 @@ of art are the content.
    - **Reviewer sign-off:** including the rendered-page audit reminder.
 
 2. `record-deliverable-check` with `type: "accessibility"`, the `result`, a one-line `summary`, the
-   `findings` array with the criterion number inside each `issue`, `document_kind: "review-ada"`,
-   and `recorder` naming yourself.
+   `findings` array with the criterion number inside each `issue`, the `verifications` array,
+   `document_kind: "review-ada"`, and `recorder` naming yourself.
+
+   **This battery's verification rows are the WCAG criteria you actually evaluated against the
+   article content**, one row each, `item` carrying the number and name ("1.3.1 info and
+   relationships") and `source` naming what you read. A criterion the content cannot violate is
+   `n/a` with the reason in `note`.
+
+   **The deferred page-level items are not verification rows.** They stay where they are, in the
+   report and as a `note` finding, because nobody has evaluated them yet and a row here says we did.
+   Recording a deferred criterion as verified is exactly the failure this list exists to prevent.
 
 ## How to walk the report with a human
 
