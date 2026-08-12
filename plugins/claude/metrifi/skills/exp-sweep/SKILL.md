@@ -152,10 +152,10 @@ built and one nudge unblocks it. `exp-revise` owns the decision of whether a giv
 simply patience.
 
 **Check lane 2 rows for an unrecorded manual share, because it is often the real reason nothing has
-been chased.** A deliverable whose client link reads "withheld until first send" while the client has
-been viewing or answering it is one somebody shared by hand, outside the platform. It has no captured
-client contact, so it cannot be nudged at all, and it will sit at zero followups forever no matter how
-many times the sweep looks at it. Flag those explicitly in the report; `exp-revise` records the share
+been chased.** A deliverable still marked "not yet" sent while the client has been viewing or
+answering it is one somebody shared by hand, outside the platform. It has no captured client
+contact, so it cannot be nudged at all, and it will sit at zero followups forever no matter how many
+times the sweep looks at it. Flag those explicitly in the report; `exp-revise` records the share
 and unfreezes the cadence.
 
 **Lane 6a is the one to get right.** A team whose only experiment is a shell (prompts attached, no
@@ -337,5 +337,5 @@ of decisions for a person, and that is the design working rather than the design
   of either being answered.
 - **A team missing from the cohort is not a team without work.** It is a team nobody flagged as a
   top customer. Say the cohort size so that stays visible instead of becoming assumed coverage.
-- **When a phase skill refuses, follow the refusal rather than working around it.** A send gate
-  naming a stale check wants the check re-run, not the status lowered.
+- **When a tool refuses or warns, follow it rather than working around it.** A send warning
+  naming a stale check wants the check re-run, not the warning ignored or the status lowered.

@@ -42,23 +42,22 @@ A deliverable listed only for an **outstanding blocking item, with no new activi
 revision. The client has not answered yet. That is a nudge candidate (one personal followup, capped
 at three, then escalate to a human), or it is simply patience. Say which and move on.
 
-Some of those have **never been sent at all**: a blocking item is enough to list a deliverable. The
-platform withholds the client link until the first send, so a row whose link is withheld is a
-deliverable nobody has ever received. Read that as the useful signal it is, check the send state
-before assuming the client has seen anything, and never try to reconstruct the link for a deliverable
-whose first send has not gone out.
+Some of those have **never been sent at all**: a blocking item is enough to list a deliverable. A
+row whose `sent` reads "not yet" is a deliverable no delivery has ever been recorded for. Read that
+as the useful signal it is, and check the send state before assuming the client has seen anything.
 
-**One important exception, and it is common.** "Withheld" means the platform never sent it, not that
-the client has never seen it: operators frequently paste the client link into Slack, a call recap, or
-their own email instead of sending from the platform. The tell is client activity on a deliverable
-whose link reads withheld: views, answers, or comments mean somebody has the link, whatever `sent_at`
-says. When you see that, say so and record it with
-`record-deliverable-shared(team_id, deliverable_id, client_email, client_name, shared_at)`, back-dated
-to when it actually went out if you can establish that from the first view. It sends nothing and
-writes a `shared` activity rather than a `sent` one, so the ledger never claims an email that never
-left. Do it because of what it unblocks: without a captured client contact, that deliverable can
-**never** be nudged, which is how a deliverable ends up waiting weeks on a client with zero followups.
-Never record a share you cannot evidence; absent activity, a withheld link means exactly what it says.
+**One important exception, and it is common.** "Not yet sent" means no delivery is on the record,
+not that the client has never seen it: operators frequently paste the client link (always printed
+on every deliverable read) into Slack, a call recap, or their own email instead of sending from the
+platform. The tell is client activity on a deliverable still marked unsent: views, answers, or
+comments mean somebody has the link, whatever `sent_at` says. When you see that, say so and record
+it with `record-deliverable-shared(team_id, deliverable_id, client_email, client_name, shared_at)`,
+back-dated to when it actually went out if you can establish that from the first view. It sends
+nothing; it stamps `sent_at` and records the delivery as manual, so the ledger never claims an
+email that never left. Do it because of what it unblocks: without a captured client contact
+(`client_email`), that deliverable can **never** be nudged, which is how a deliverable ends up
+waiting weeks on a client with zero followups. Never record a share you cannot evidence; absent
+activity, an unsent deliverable means exactly what it says.
 
 ## 2. The unprocessed window
 
@@ -187,13 +186,12 @@ Same gate as any other send, and it applies in full here. A later send announces
 than re-introducing the deliverable, but it is still an email to a real person and still a one-way
 door.
 
-1. **The checks first.** `send-deliverable` refuses any real send whose manifest carries the article,
-   whatever the status, when a conventional check is missing, failing, or recorded against different
-   article prose, and it refuses on the same blockers when the status is ready, scheduled, or
-   published. A revision is exactly the case this catches: the edit you just made staled the checks
-   pinned to it. The refusal names each one. Follow it: re-run the check. Lowering the status does
-   not open a door, because the trigger is the article, and recording a result nobody earned leaves
-   an audit row saying you did.
+1. **The checks first.** `send-deliverable` never refuses, but any real send whose manifest carries
+   the article comes back warning about each conventional check that is missing, failing, or
+   recorded against different article prose. A revision is exactly the case this catches: the edit
+   you just made staled the checks pinned to it. Re-run and re-record the staled checks before the
+   send, so the revision goes out clean instead of warned, and never record a result nobody earned,
+   which leaves an audit row saying you did.
 2. **Preview to yourself.** `send-deliverable(..., preview: true)` delivers every email to you, the
    signed-in operator, and records nothing. Read it in your inbox: what changed, what it asks for,
    and whether it reads like a revision to someone who already replied once.
@@ -201,10 +199,9 @@ door.
    wait for your human operator's explicit OK in this conversation. An OK on the first send is not an
    OK on this one. Pass `client_email` with `client_name` if the client contact is not already
    captured; without one the deliverable can never be followed up on.
-4. **The platform withholds the link until the send; never try to reconstruct it.** On a deliverable
-   already sent the link reads back as it always did, because the client holds it. On one that has
-   not been sent, the tools print a withheld line in its place, and that line is the answer, not a
-   gap to fill.
+4. **The client link is always printed; the record is what you keep honest.** If your operator asks
+   for the URL, give it immediately, then offer to record the delivery: `send-deliverable` when the
+   platform should email it, `record-deliverable-shared` when they handed it over themselves.
 
 If your operator would rather run the send as its own step, say so and let them start the deliver
 skill themselves. Never start another skill on their behalf.

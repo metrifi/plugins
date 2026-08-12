@@ -243,11 +243,10 @@ rather than shipping a broken page.
 An anchor that will not resolve means the article moved under it. Then build for real with a
 `changelog` line describing what changed.
 
-**The platform withholds the client link until the send; never try to reconstruct it.** Every tool
-that would otherwise print the client URL prints a line saying it is withheld until the first send,
-because the link is a live credential for the client's review page and sending is a later phase
-behind a human gate. Read that line as deliberate, not as a missing field, and never assemble the
-URL from a slug, a token, or a pattern you saw elsewhere.
+**The client link is always available.** Every deliverable read prints `client_url` from the first
+draft call on; if your operator asks for it, give it to them immediately. Sending is still a later
+phase behind a human gate: building never emails anyone, and when a link actually goes out, the
+deliver phase records it (`send-deliverable` or `record-deliverable-shared`).
 
 ## 9. Hand off
 

@@ -1,6 +1,6 @@
 ---
 name: exp-review
-description: "Run the four pre-publish checks on a MetriFi GEO deliverable's draft article and record each verdict, which is what lets the deliverable be sent: hygiene (AI tells, spelling, markdown), NCUA and lending compliance, accessibility (WCAG 2.1 AA), and fact verification against the institution's live site. Use when a draft is ready for its pre-publish pass, or when someone doubts one: 'review the draft', 'run the review battery', 'is this ready to ship', 'is this compliant', 'compliance check', 'NCUA review', 'fact-check the article', 'accessibility check', 'ADA check', 'proofread this', 'check it for AI tells', 'why is the send refusing', 'the checks went stale', 're-run the checks'. Writes each report as an experiment document and records each verdict. Assistive, never authoritative: a compliance officer at the institution signs off, and it proposes fixes rather than rewriting. NOT the send step, NOT for reviewing a page design (Site Builder skills), NOT a substitute for the institution's own review."
+description: "Run the four pre-publish checks on a MetriFi GEO deliverable's draft article and record each verdict, which a send warns about and publish is gated on: hygiene (AI tells, spelling, markdown), NCUA and lending compliance, accessibility (WCAG 2.1 AA), and fact verification against the institution's live site. Use when a draft is ready for its pre-publish pass, or when someone doubts one: 'review the draft', 'run the review battery', 'is this ready to ship', 'is this compliant', 'compliance check', 'NCUA review', 'fact-check the article', 'accessibility check', 'ADA check', 'proofread this', 'check it for AI tells', 'why is the send warning about checks', 'the checks went stale', 're-run the checks'. Writes each report as an experiment document. Assistive, never authoritative: a compliance officer at the institution signs off, and it proposes fixes rather than rewriting. NOT the send step, NOT for reviewing a page design (Site Builder skills), NOT a substitute for the institution's own review."
 ---
 
 # exp-review: the four pre-publish checks
@@ -16,18 +16,19 @@ it: `references/review-hygiene.md`, `references/review-ncua.md`, `references/rev
 
 ## Why recording matters
 
-`send-deliverable` refuses any non-preview send whose manifest carries a non-empty article, whatever
-the deliverable's status, when any of the four conventional checks (`hygiene`, `ncua-compliance`,
-`accessibility`, `fact-verification`) has no recorded result, has a failing one, or was recorded
-against different article prose. It refuses on the same blockers when the status is ready, scheduled,
-or published, article or no article. Only a send that carries no article and is not in that ready
-family goes ungated, which is the collaboration loop: asking the client questions before an article
-exists, where a hygiene or an accessibility check has nothing to have read.
+`send-deliverable` warns on any non-preview send whose manifest carries a non-empty article,
+whatever the deliverable's status, when any of the four conventional checks (`hygiene`,
+`ncua-compliance`, `accessibility`, `fact-verification`) has no recorded result, has a failing one,
+or was recorded against different article prose. It warns on the same blockers when the status is
+in the ready family, article or no article; publish (`set-deliverable-status published`) still
+refuses outright. Only a send that carries no article and is not in that ready family passes
+silently, which is the collaboration loop: asking the client questions before an article exists,
+where a hygiene or an accessibility check has nothing to have read.
 
 So a skipped check is not a quiet omission, and there is no status that lets an unchecked article
-reach a client. The send that first puts prose in front of the institution is gated on exactly the
-four checks, and every send after it has to carry current ones. Lowering the status does not open a
-door, because the article is the trigger. The only way through is recording a real result, which
+reach a client unremarked. The send that first puts prose in front of the institution names exactly
+the four checks, and every send after it is expected to carry current ones. The way to clear a
+warning is recording a real result, which
 leaves an audit row, so recording a verdict you did not earn is not a shortcut but a false statement
 with your name on it.
 
@@ -147,7 +148,7 @@ human, and apply the agreed edits through `update-deliverable-draft` (patch only
 
 Then re-run and re-record every check the edit staled. `list-deliverable-checks` tells you which. In
 practice a prose edit stales all four, and a fix confined to one section still stales the fact check
-if it touched a quoted claim. Re-running is cheaper than a send that refuses.
+if it touched a quoted claim. Re-running is cheaper than a send that goes out warned.
 
 ## Web access
 

@@ -12,10 +12,10 @@ on any machine, in any supported agent, can pick up any experiment. That is what
 multi-operator, and it is why "where am I" is a question with one answer instead of a folder listing.
 
 **The platform owns state, structure, and completeness. You own judgment and web access.** The
-server never re-judges your content. It enforces three things: that a required check has a recorded
-result before a deliverable can go out, that the assembled page is structurally valid, and that a
-check recorded against an older article counts as stale. Everything that requires reading, thinking,
-or browsing is yours.
+server never re-judges your content. It enforces three things: that a send with an incomplete
+required check says so loudly (a warning on send, a refusal only at publish), that the assembled
+page is structurally valid, and that a check recorded against an older article counts as stale.
+Everything that requires reading, thinking, or browsing is yours.
 
 ## The one orientation call
 
@@ -91,15 +91,16 @@ performed by the agent, not by a script, using the reference battery that ships 
 skill. Each produces a full report as an experiment document (`review-hygiene`, `review-ncua`,
 `review-ada`, `review-fact`) and a recorded verdict through `record-deliverable-check`.
 
-Recording is what makes skipping visible, and there is no status that gets an unchecked article past
-it. `send-deliverable` refuses any non-preview send whose manifest carries a non-empty article,
-whatever the status, when any of the four conventional checks has no recorded result, has a failing
-one, or was recorded against different article prose. It also refuses on those same blockers when
-the status is ready, scheduled, or published, whether or not there is an article. A send carrying no
-article is ungated unless its status puts it in that ready family, which is the collaboration loop:
-asking the client questions before an article exists. The refusal names each blocking check with its
-own reason and names `record-deliverable-check` as the way through. Fix the finding, record the
-result, send again.
+Recording is what makes skipping visible, and no status gets an unchecked article past it silently.
+The server never refuses a send: any non-preview send whose manifest carries a non-empty article
+(or whose status is in the ready family) goes out and, when any of the four conventional checks has
+no recorded result, has a failing one, or was recorded against different article prose, the
+response appends a warning naming each incomplete check with its own reason and
+`record-deliverable-check` as the way to clear it. A send carrying no article warns about nothing
+unless its status is in that ready family, which is the collaboration loop: asking the client
+questions before an article exists. Treat a warning as work to do now: run the check, record the
+result, revise if it fails. Publish (`set-deliverable-status published`) still refuses on the same
+blockers.
 
 Checks are pinned to the article they ran against, so editing the article stales them by design. A
 revision cannot ride a green check from an older draft.
@@ -110,16 +111,17 @@ Skill: **exp-deliver**.
 
 `build-deliverable` saves the version. `send-deliverable` with `preview: true` delivers every email
 to you, the signed-in operator, recording nothing: no send timestamp, no participant, no activity
-entry, and the check gate does not apply. Use it to read the email in your own inbox.
+entry, and no check warning. Use it to read the email in your own inbox.
 
 The real send happens only after your human operator says so in conversation, in this session, after
 you have told them exactly who it goes to. Do not treat an earlier approval on a different
 deliverable as approval for this one.
 
-The client link is not yours to hand out early: the platform withholds it until the first send. Every
-tool that would otherwise print it says so in place of the URL until `sent_at` is set, and the raw
-token appears nowhere at any time. Never try to reconstruct the link, and read the withheld line as
-deliberate rather than as a missing field.
+The client link (`client_url`) is always disclosed: every deliverable read prints it, sent or not.
+When your operator asks for it, give it immediately, then offer the record as a follow-up: they say
+"send" and you email it from the platform (`send-deliverable`), or they say "shared" because they
+handed it over themselves and you record it (`record-deliverable-shared`, which stamps `sent_at`
+and emails nobody; `client_email` is optional). Only the raw token never prints as its own line.
 
 ### 5. Revise: apply what the client said
 

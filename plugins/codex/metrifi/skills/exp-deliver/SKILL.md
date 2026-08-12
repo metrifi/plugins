@@ -1,6 +1,6 @@
 ---
 name: exp-deliver
-description: "Build a MetriFi GEO client deliverable and get it in front of the institution's contact, behind the send gate: assemble and validate the client page, read every warning it returns, preview the notification email to your own inbox first, and send for real only after your human operator says so explicitly in the conversation. Use when a reviewed draft is ready to go out: 'ship it', 'send the deliverable', 'send it to the client', 'build the deliverable', 'rebuild the client page', 'get this in front of the client', 'is it ready to send', 'send the revision', 'nudge the client', 'they never responded', 'why is the send refusing', 'what is the client link'. The real send emails real people and is a one-way door, so it never happens on an implied yes, on an earlier approval, or without naming the recipient first. When the server refuses a send, follow the refusal rather than recording a check nobody ran. NOT the check step (exp-review), NOT the client's sign-off."
+description: "Build a MetriFi GEO client deliverable and get it in front of the institution's contact, behind the send gate: assemble and validate the client page, read every warning it returns, preview the notification email to your own inbox first, and send for real only after your human operator says so explicitly in the conversation. Use when a reviewed draft is ready to go out: 'ship it', 'send the deliverable', 'send it to the client', 'build the deliverable', 'rebuild the client page', 'get this in front of the client', 'is it ready to send', 'send the revision', 'nudge the client', 'they never responded', 'what is the client link', 'give me the deliverable URL'. The client URL is always available: when the operator asks for it, hand it over immediately from get-deliverable, then offer to record the delivery (send-deliverable to email it, record-deliverable-shared if they shared it themselves). The real send emails real people and is a one-way door, so it never happens on an implied yes, on an earlier approval, or without naming the recipient first; incomplete pre-publish checks come back as a warning on the send, which is work to do now, not a refusal. NOT the check step (exp-review), NOT the client's sign-off."
 ---
 
 # exp-deliver: build it, preview it, then ask
@@ -29,14 +29,15 @@ Everything else in this skill runs without pausing.
 1. `get-experiment-workflow(team_id, experiment_id)` for where things stand, the deliverable, its
    open blocking items, and the latest check results.
 2. `list-deliverable-checks(team_id, deliverable_id)` when any check looks missing or stale. All four
-   conventional checks (`hygiene`, `ncua-compliance`, `accessibility`, `fact-verification`) need a
-   recorded, non-failing result against the current article before any real send that carries the
-   article will go, whatever the status, and before any ready, scheduled, or published send at all.
+   conventional checks (`hygiene`, `ncua-compliance`, `accessibility`, `fact-verification`) should
+   have a recorded, non-failing result against the current article before prose reaches a client;
+   the server will not refuse a send over them, but it appends a warning naming each incomplete one.
 3. `get-deliverable(team_id, deliverable_id)` for the article, the checklist, the action items with
-   their statuses, and the participants already on the record.
+   their statuses, the participants already on the record, and the `client_url`.
 
-If a check is missing, failing, or stale, that is review work, not send work. Say which checks and
-stop. Do not send around it.
+If a check is missing, failing, or stale, say which checks plainly before asking for the send OK.
+The decision to send anyway is the operator's to make, not yours to block and not yours to make
+silently.
 
 ## 1. Build
 
@@ -59,13 +60,12 @@ the dossier sections, the checklist, the action items, the version. Warnings are
 exactly why they get skipped and then turn up as the thing the client noticed. Report the counts and
 every warning to your human in plain language before going near the send.
 
-**The status is not a way past the gate.** The trigger is the article, not the label: the platform
-refuses any real send whose manifest carries an article until the four checks are current, whatever
-the status says, and it refuses a ready, scheduled, or published send on the same blockers whether or
-not there is an article. A `needs-input` send is ungated only when it carries no article, which is
-the collaboration loop asking the client questions before there is prose to check. So set the status
-because it is the honest description of where the deliverable stands, and when a check is stale,
-re-run the check.
+**The checks warn on send; publish still refuses.** The trigger is the article, not the label: any
+real send whose manifest carries an article (or whose status is in the ready family) comes back
+with a warning naming each check that is missing, failing, or stale against the current article. A
+`needs-input` send with no article warns about nothing, which is the collaboration loop asking the
+client questions before there is prose to check. Set the status because it is the honest
+description of where the deliverable stands, and when a check is stale, re-run the check.
 
 ## 2. Preview to yourself
 
@@ -105,14 +105,14 @@ captures the institution's contact as the client participant, and it is what mak
 followable up on later. Without it, the deliverable can never be nudged and the quiet-client path
 below is closed for good. Get the address right the first time and read it back before sending.
 
-**The platform withholds the client link until the send; never try to reconstruct it.** Before the
-first send, every tool that would print the client URL prints a line saying it is withheld until then
-instead, and the raw token appears nowhere at any time. That is deliberate output hygiene, not a
-missing field: the link is a live credential for the review page, and an operator who has it early
-tends to paste it into their own email, which skips the participant record, the activity ledger, and
-every followup after. Do not assemble the URL from a slug or a token or a pattern you saw somewhere
-else. After the send, `get-deliverable` returns it as it always did, and it is fine to share with
-your own operator.
+**The client link is always available; hand it over on request, then record the delivery.** Every
+deliverable read prints `client_url`, sent or not. When your operator asks for the link, give it
+immediately, no conditions, then follow up with one line offering the record: say "send" to email
+it from the platform, or "shared" if you handed it to the customer yourself and I'll record it.
+`record-deliverable-shared` stamps `sent_at` and emails nobody; pass `client_email` when they name
+the contact (that is what opens followup nudges), or omit it to record the share with no contact
+captured. Recording matters because it is what keeps the worklist and the followup cadence honest;
+it is bookkeeping, never a precondition for the URL.
 
 ### When there is no client contact
 
@@ -128,8 +128,9 @@ and it has its own shape:
   it goes only to the participants already on the record, which in practice means whoever the action
   items are assigned to. Name them. If that set is only you, say that too, plainly, so nobody
   believes a client was contacted.
-- **The gate still applies.** A send with no client contact is still a real send: it still needs the
-  explicit OK, and if it carries the article it still needs the four checks current.
+- **The human gate still applies.** A send with no client contact is still a real send: it still
+  needs the explicit OK, and if it carries the article with incomplete checks, the warning that
+  comes back is still work to report and do.
 
 ## 5. Report, then hand back
 
@@ -144,23 +145,24 @@ and it has its own shape:
 Then stop. The next move is the client's, and their answers come back as activity on the deliverable
 for the revise phase to pick up.
 
-## When the server refuses
+## Warnings and refusals
 
-The refusal message names the way through. Take it literally.
+The send never refuses. What can come back, and what to do with it:
 
-- **A missing, failing, or stale check** on any send that carries the article, and on any ready,
-  scheduled, or published send. It names each check with its own reason (no result recorded, latest
-  result is fail, recorded against an older article) and names `record-deliverable-check` as the way
-  through. When the trigger was the article rather than the status, the refusal says so in its first
-  sentence, so read that line before deciding the status is the problem. The way through is to re-run
-  that check and record the result. Not lowering the status, not recording a result nobody earned,
-  not calling the preview a send. There is no force flag and no operator override.
-- **A build contract failure**: an anchor quote that no longer resolves, an illegal enum, an em dash
-  in client copy. The way through is the article or the manifest, and the message says which.
-- **`published` refused.** That status needs the client's approval plus a genuinely publish-ready
-  deliverable: no outstanding blocking items, pre-publish checks cleared. Approval alone is not
-  enough, because a client can approve while a requested change is still pending. Apply the
-  outstanding corrections first. Never fabricate an approval or a sign-off, ever, for any reason.
+- **A check warning on the send** names each check that was missing, failing, or stale at the
+  moment the client got the article, with its own reason (no result recorded, latest result is
+  fail, recorded against an older article) and `record-deliverable-check` as the way to clear it.
+  The send already happened, so treat the list as immediate work: run each check, record the
+  result, and if one now fails, the fix goes to the client as a revision. Never clear a warning by
+  recording a result nobody earned.
+- **A build contract failure** still refuses: an anchor quote that no longer resolves, an illegal
+  enum, an em dash in client copy. The way through is the article or the manifest, and the message
+  says which.
+- **`published` still refuses.** That status needs the client's approval plus a genuinely
+  publish-ready deliverable: no outstanding blocking items, pre-publish checks cleared. Approval
+  alone is not enough, because a client can approve while a requested change is still pending.
+  Apply the outstanding corrections first. Never fabricate an approval or a sign-off, ever, for any
+  reason.
 
 ## When the client goes quiet
 

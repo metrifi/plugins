@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.5 — 2026-08-12
+
+- **The client URL is always disclosed, and the send gate is a warning** (matches metrifi-platform#186). The platform no longer withholds `client_url` until the first send, and `send-deliverable` no longer refuses on incomplete pre-publish checks: the send goes out and the response names each missing, failing, or stale check as a warning (publish still refuses). Every skill that taught the old behavior is updated, descriptions included: routing metadata an agent reads before it opens a skill is the version that reaches the decision, so exp-deliver's and exp-review's descriptions moved with their bodies. exp-deliver now hands the URL over the moment the operator asks, then offers the record as a follow-up: "send" emails it from the platform, "shared" records a manual share with `record-deliverable-shared`, whose `client_email` is now optional. The manual-share tell in exp-revise and exp-sweep moves from "link reads withheld" to `sent: not yet`, and exp-revise's activity note is corrected: a manual share records `sent` with `method: manual`, not a `shared` kind. Found live: asked for the link to Honda FCU deliverable 274, the agent followed the skill text and said no link could exist before a send.
+
 ## 1.4.4 — 2026-08-06
 
 - Codex listing copy for the OpenAI plugin directory: interface.shortDescription cut from 156 to 28 characters to clear OpenAI's 30-character final limit, and interface.longDescription added, mirroring the description submitted to Anthropic so both directory listings say the same thing. interface.developerName is deliberately still unset pending OpenAI business verification.
