@@ -285,8 +285,8 @@ already verified it. Most of them dissolve at one of those three steps.
 
    **This battery's verification rows are one per extracted claim**, the whole set, not only the
    clean ones: `item` is the claim in short form, `status` is `pass` for a verified claim, `fail` for
-   a contradicted one, and `n/a` for a claim the site cannot settle, and `source` is the source URL
-   you actually read. This is the battery where the row count is the work: 24 claims checked reads
+   a contradicted one, and `n/a` for a claim the site cannot settle with the reason in `note`, and
+   `source` is the source URL you actually read. This is the battery where the row count is the work: 24 claims checked reads
    as 24 rows. A claim you did not check has no row, however confident you are in it.
 
 ## What this battery does not do

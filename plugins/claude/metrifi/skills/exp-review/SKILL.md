@@ -90,8 +90,10 @@ For each battery, in order, three steps:
 `findings` carries problems only. On a clean battery that is an empty array, so a day of review
 reads to the client as one green badge. `verifications` is the other half: one row per criterion you
 actually walked or claim you actually checked, each with `item`, `status` (`pass`, `fail`, or `n/a`),
-and `source` naming what you checked it against, a URL you read or the battery step. The client's
-page shows the total and the rows.
+`source` naming what you checked it against, a URL you read or the battery step, and an optional
+one-line `note`. The client's page shows the total and the rows, with `source` and `note` printed
+under the item, so an `n/a` row without a `note` reads to the client as an unexplained blank: always
+give the reason there.
 
 Each battery's reference file says what its rows are. Record them in the order you walked them.
 
@@ -101,8 +103,8 @@ row is a false statement about work nobody did. A battery you itemized honestly 
 impressive list you cannot defend line by line. If you did not itemize a battery at all, omit
 `verifications` and the page falls back to the verdict badge, which is the truth.
 
-`n/a` is a real and useful row: "1.1.1 non-text content: n/a, the article has no images" is
-something you checked. `deferred` is not a status here. An item deferred to a human belongs in the
+`n/a` is a real and useful row: `item` "1.1.1 non-text content", `status` `n/a`, `note` "the article
+has no images" is something you checked. `deferred` is not a status here. An item deferred to a human belongs in the
 report and in `findings` as a note, not in a list that says we verified it.
 
 Finish each battery completely, report and record, before starting the next one. Do not batch the
