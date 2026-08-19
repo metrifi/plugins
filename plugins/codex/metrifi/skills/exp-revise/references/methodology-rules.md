@@ -218,8 +218,10 @@ the campaign for monitoring; they simply do not get the article's structural att
 pivot adds prompts, attach them with `prompt_ids_mode: "add"` so the originals are not detached.
 A consumer question the article answers that no campaign prompt covers may become a new prompt
 only through the demand gate (rules 1 to 3) and only before the article goes live, so it accrues
-a baseline — a prompt created at publish time has no baseline and can never be measured. The
-article never justifies a prompt; demand does.
+a baseline — a prompt created at publish time has no baseline and can never be measured. A new
+prompt must then be attached (`prompt_ids_mode: "add"`) and its responses confirmed populated
+before publish; created-but-unattached is still invisible. The article never justifies a prompt;
+demand does.
 
 ---
 

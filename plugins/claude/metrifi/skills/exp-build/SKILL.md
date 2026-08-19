@@ -105,9 +105,12 @@ If the sweep surfaces a consumer question the article plausibly answers that no 
 covers, that is a demand-grounding candidate, not an automatic create: run it through rules 1 to
 3 (`research-keywords`, drop anything without measurable volume, `record-keyword-research`), and
 only a survivor gets `create-prompt` plus `run-prompt` at the same samples per prompt as the
-baseline, within budget (rule 21). Do this before the article goes live or not at all — a prompt
-created at publish time has no baseline and can never be measured. The article never justifies a
-prompt; demand does.
+baseline, within budget (rule 21). Then attach it with `update-experiment(..., prompt_ids: [the
+new id], prompt_ids_mode: "add")` — a created prompt left unattached is still invisible to the
+experiment — and confirm via `get-campaign-readiness` that its responses have populated (read the
+fact, do not poll; stop if they have not) before the article goes live. Do all of this
+pre-publish or not at all: a prompt created at publish time has no baseline and can never be
+measured. The article never justifies a prompt; demand does.
 
 **WEAK or AVOID: pivot. Never ship a weak target.** Pivots run in tiers, cheapest first:
 
