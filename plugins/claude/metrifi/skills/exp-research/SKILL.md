@@ -47,13 +47,22 @@ does (keyword research is not metered).
 
 **The target is 10 to 15 tracked prompts at 5 samples each** (rule 21). That is the size a campaign
 has to reach before its numbers are worth putting in front of a client, and it is what you compute
-the budget against first. For 12 prompts at 5 samples the baseline costs 60 responses, and with the
-build-phase reserve the plan needs about 90.
+the budget against first.
+
+**The reserve is a third of the whole budget, not a third added on top of the baseline.** The
+baseline is therefore two thirds of it, so the budget the target needs is the baseline cost times
+1.5:
+
+| Tracked prompts | Baseline at 5 samples | Reserve (a third of the budget) | Budget the target needs |
+|---|---|---|---|
+| 10 | 50 | 25 | **75** |
+| 12 | 60 | 30 | **90** |
+| 15 | 75 | 38 | **113** |
 
 Size the experiment to what is left (rule 21):
 
-1. **Compute the target first, then compare.** 10 to 15 prompts times 5 samples, plus about a third
-   again reserved for the build phase, which pivots and re-runs out of the same pool.
+1. **Compute the target first, then compare.** Prompts times 5 samples for the baseline, then
+   multiply by 1.5 for the build-phase reserve, which pivots and re-runs out of the same pool.
 2. **If the plan cannot buy the target, say so before you build anything smaller.** Name the number
    the target needs, the number remaining, the shortfall, and the fact that the plan is what is
    capping the quality. Then let the operator choose: upgrade, spend what is there now and finish

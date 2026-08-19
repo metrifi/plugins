@@ -110,7 +110,9 @@ current period, and size the experiment to that number.
 prompts at 5 samples each.** Below 10 prompts a campaign does not cover the space the build phase
 picks from, and below 5 samples the per-prompt visibility figures are noise. On a real campaign a
 prompt read 67% visibility at 3 responses and 25% at 8; nothing changed but the sample. Compute what
-the target costs (12 prompts at 5 samples is 60 responses, about 90 with the build reserve), then
+the target costs (the baseline is prompts times samples, then times 1.5, because the reserve below
+is a third of the whole budget rather than a third added on top: 12 prompts at 5 samples is a
+60-response baseline and a 90-response budget), then
 compare it to what the plan has.
 
 - **When the plan cannot buy the target, tell the operator before you build something smaller.**
