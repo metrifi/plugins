@@ -103,6 +103,16 @@ because the demand research and the keep-drop verdicts are both recorded against
 campaign is a container, not a commitment: no prompt exists inside it until the triage in step 4
 says so.
 
+**Campaign shape is a convention, not a preference.** A team's FIRST campaign must be broad: the
+whole institution, every geography it serves, and its core products together, so the team gets one
+high-level visibility score that stays comparable over time. Every campaign after that goes narrow:
+one product or service, with granular consumer prompts ("best auto loan rate near me", "best used
+car loan", "fast auto loan preapproval"), and those granular prompts are what experiments attach,
+never the broad flagship's institution-level ones. So when `list-campaigns` comes back empty, say
+so before creating anything: the team is missing its broad flagship campaign, and standing up a
+product campaign as their first breaks the convention. Propose building the flagship first (or get
+an explicit go-ahead to skip it), then open the product campaign for this experiment.
+
 **Then check that the client's organization is registered on this campaign.**
 `get-org-visibility(team_id, campaign_id, limit: 0)` lists the organizations the campaign measures
 mentions against. If the institution is not in that list, nothing is tracking it: the visibility

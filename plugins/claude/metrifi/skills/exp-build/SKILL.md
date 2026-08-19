@@ -91,7 +91,11 @@ any prompt is VIABLE or STRONG, the campaign is at least VIABLE.
 
 **STRONG or VIABLE:** lock the target, typically six to ten prompts, and attach them with
 `update-experiment(team_id, experiment_id, prompt_ids, prompt_ids_mode: "replace")`. Non-target
-prompts stay in the campaign and keep tracking (rule 8).
+prompts stay in the campaign and keep tracking (rule 8). Targets are always the granular product
+prompts from the product campaign; never attach the team's broad flagship-campaign prompts to an
+experiment, because an institution-wide prompt dilutes the measurement of what this article did.
+Attach every granular prompt the article could plausibly move: an effect that lands on a sibling
+prompt is invisible to a single-prompt experiment.
 
 **WEAK or AVOID: pivot. Never ship a weak target.** Pivots run in tiers, cheapest first:
 
