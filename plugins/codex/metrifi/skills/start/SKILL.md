@@ -1,6 +1,6 @@
 ---
 name: start
-description: "Orientation and router for MetriFi GEO experiment work: figure out who you are on MetriFi, which team you are working for, what is already in flight, and which experiment skill fits what the person wants. Answers 'what can this do', 'how do I run a GEO experiment', 'get me started', 'set up this client', and asks like 'run an experiment for this team on HELOCs', 'check in on an experiment', 'the client answered', 'ship the deliverable'. Read-only. Establishes what every later skill assumes: you work for MetriFi's customer and are never the sign-off authority, workflow state lives on the platform and nothing is written to disk, and there are three human gates (client sign-off, the send gate, the halt gates). Use it at the start of a GEO session, when someone is unsure which skill they want, or when an ask spans several phases. NOT for building or editing a website (Site Builder skills), NOT for auditing an existing live site (client-report), NOT a substitute for the phase skill itself."
+description: "Orientation and router for MetriFi GEO experiment work: figure out who you are on MetriFi, which team you are working for, what is already in flight, and which experiment skill fits what the person wants. Answers 'what can this do', 'how do I run a GEO experiment', 'get me started', 'set up this client', and asks like 'set up this new team', 'run an experiment for this team on HELOCs', 'check in on an experiment', 'the client answered', 'ship the deliverable'. Read-only. Establishes what every later skill assumes: you work for MetriFi's customer and are never the sign-off authority, workflow state lives on the platform and nothing is written to disk, and there are three human gates (client sign-off, the send gate, the halt gates). Use it at the start of a GEO session, when someone is unsure which skill they want, or when an ask spans several phases. NOT for building or editing a website (Site Builder skills), NOT for auditing an existing live site (client-report), NOT a substitute for the phase skill itself."
 ---
 
 # Start here: MetriFi GEO experiments
@@ -59,7 +59,8 @@ say what it will do, and let them choose. Do not try to start another skill your
 | When the ask sounds like | The skill that fits | Say why |
 |---|---|---|
 | "What can this do", "get me started", first message of a session | stay here | orient, then route |
-| "Start an experiment for this team on this topic", "research this topic", "stand up a campaign" | `exp-research` | it grounds candidate prompts in real search demand before anything is created |
+| "Set up this new team", "onboard this client", "create a campaign", "get a baseline", "everything reads zero" | `campaign-setup` | it picks the market, checks the institution is registered at all, and builds a wide first campaign across the products |
+| "Start an experiment for this team on this topic", "research this topic" | `exp-research` | it grounds candidate prompts in real search demand before anything is created |
 | "The responses are in", "analyze the baseline", "write the article", "what should we target" | `exp-build` | it scores the opportunity, locks a target, and drafts against the evidence |
 | "Review the draft", "is this compliant", "fact-check this", "accessibility check", "is this ready to ship" | `exp-review` | it runs all four checks and records each verdict, which is what unlocks sending |
 | "Ship it", "send it to the client", "publish the deliverable" | `exp-deliver` | it previews to you first, then sends only on an explicit OK |
@@ -81,7 +82,10 @@ Ask these before anything is created, in this order, because the research phase 
 order:
 
 1. **Existing surface.** Does this team already have a campaign covering adjacent topics, or is this
-   their first experiment? Check `list-campaigns` for the team rather than only asking.
+   their first experiment? Check `list-campaigns` for the team rather than only asking. **A team
+   with no campaign, or with only deep single-topic campaigns and no broad baseline, goes to
+   `campaign-setup` first** (methodology rule 23): a topic campaign built before a baseline exists
+   is a guess about where the opportunity is.
 2. **Topic and audience.** Be specific: the geography, the buyer profile, the intent angle. "HELOCs"
    is not a topic; "homeowners in these counties comparing a HELOC against a cash-out refinance" is.
 3. **Point of contact and compliance relationship.** Who at the institution is the contact, and how
@@ -121,6 +125,9 @@ Everything else runs without pausing.
 - **The methodology rules are not optional.** They exist because each one cost a real experiment.
   The research, build, and review skills carry them.
 - **Prompts never contain a brand name.** They are written the way a consumer asks an AI assistant.
+- **Prompts DO contain the geography.** A campaign's location is used to buy keyword demand and is
+  never sent to the LLM providers, so the prompt text is the only thing that scopes an answer to
+  the client's market. "in Sonoma County", never "locally" (methodology rule 22).
 - **Web access is whatever your host gives you.** A real browser tool beats a plain fetch on
   client-rendered sites, and where there is no browsing at all, a claim is marked as needing human
   verification rather than assumed true.

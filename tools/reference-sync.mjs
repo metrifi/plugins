@@ -24,8 +24,8 @@ export const CLAUDE_SKILLS = 'plugins/claude/metrifi/skills';
 // Entries whose consuming skill does not exist yet are a hard error, not a skip:
 // add the mapping in the same change that adds the skill.
 export const REFERENCE_MAP = {
-    'workflow-overview.md': ['start', 'exp-status', 'exp-sweep', 'exp-research', 'exp-build', 'exp-review', 'exp-deliver', 'exp-revise'],
-    'methodology-rules.md': ['exp-research', 'exp-build', 'exp-review', 'exp-revise'],
+    'workflow-overview.md': ['start', 'campaign-setup', 'exp-status', 'exp-sweep', 'exp-research', 'exp-build', 'exp-review', 'exp-deliver', 'exp-revise'],
+    'methodology-rules.md': ['campaign-setup', 'exp-research', 'exp-build', 'exp-review', 'exp-revise'],
     // exp-revise gets the rules and all four batteries because it re-runs and re-records every
     // check its own article edit staled, and no skill may invoke another to do that for it.
     'review-hygiene.md': ['exp-review', 'exp-revise'],

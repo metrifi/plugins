@@ -49,6 +49,12 @@ Set the campaign's geography with `set-campaign-location` and measure the umbrel
 instead. Side by side in Sonoma County on 2026-08-19: "business loans santa rosa" returned 0/mo and
 no national figure, while "small business loan" measured 140/mo in that same county.
 
+**This clause is about KEYWORDS ONLY. It says nothing about prompt text, which points the opposite
+way.** A prompt must name the place (rule 22): the campaign's location is never sent to the LLM
+providers, so the prompt text is the only thing that scopes the answer to the client's market.
+Stripping the geography out of a prompt because of this rule is a misreading that has produced
+campaigns full of prompts measuring a national market.
+
 **Where it came from:** the same campaign dropped `first time home buyer wisconsin` because four
 prompt-literal phrasings all returned zero. The next batch caught the identical intent with the
 umbrella form at 1,300 a month. The lesson had to be relearned twice more in a later
@@ -150,6 +156,68 @@ compare it to what the plan has.
 assumes a fixed sampling volume", it "sizes the experiment to it", and the skill "always does the
 best experiment the plan allows rather than refusing or blowing the cap". The QA team was on
 Starter, 50 responses a month, which put the old absolute gates out of reach from the first call.
+
+### Rule 22: the prompt text carries the geography, because nothing else does
+
+**The trap:** the campaign has a location set, so the prompt reads as scoped. It is not. A
+campaign's location is a demand-measurement setting: it tells `research-keywords` which market to
+buy volume in. **It is never sent to the LLM providers when a prompt runs.** The only thing the
+model sees is the prompt text. So "who offers them locally", "do local banks offer this", and "near
+me" all get answered nationally, and a community institution is not in a national answer. The
+prompt then measures a zero it was never going to escape, and that zero reads as a finding.
+
+**The rule:** every prompt on a campaign with a geography names that place in its own words. "in
+Sonoma County", not "locally". The place can be the county, the city, or the metro, and the state
+is a weak substitute rather than a scoped prompt. `create-prompt` warns when the place is missing;
+treat the warning as a defect to fix, not a note to acknowledge.
+
+**Do not confuse this with rule 2, which points the other way for a different artifact.** A
+geo-anchored KEYWORD is wrong, because it measures how many people type the county into a search
+box. A geo-anchored PROMPT is required, because it is the only thing that tells the model which
+market to answer for. Same place name, opposite verdicts, because a keyword is measured by a search
+endpoint and a prompt is answered by a model. Reading rule 2 as a general instruction to keep
+geography out is exactly the mistake this rule exists to stop.
+
+**Where it came from:** Exchange Bank's Sonoma County consumer-lending campaign, read 2026-08-19.
+Three prompts were written without a place name ("who offers them locally", "do local banks offer
+consolidation loans") or scoped to all of California. All three read 0% visibility across five
+samples each. The three that named Sonoma County or Santa Rosa in their text read 100%, 100% and
+60%. Geography in the text is necessary and not sufficient: one prompt that did name the county
+still read 0%, which is a real visibility gap rather than a defective prompt.
+
+### Rule 23: a team's first campaign is a broad baseline, not a deep topic
+
+**The trap:** the first campaign gets scoped to whatever topic the pitch conversation landed on.
+It measures that topic well and says nothing about anything else, so there is no answer to "how
+visible is this institution", only "how visible is it for HELOCs". Every later campaign is then
+compared against a baseline that never existed.
+
+**The rule:** the first campaign for a new team is **one geography wide across the products**, not
+one product deep. It covers the top 80 percent of what the institution actually offers, at roughly
+one prompt per product line: auto loans, home loans, checking, savings, CDs, retirement, personal
+loans, plus anything else that is genuinely core for that institution. That set is what gives a
+baseline visibility figure across the topics that matter, and what the client's progress is read
+against later.
+
+Two constraints on the geography that go with it:
+
+- **The geography is the most populated area the institution actually serves**, not its
+  headquarters town and not its whole charter footprint. Determine it from the branch footprint,
+  the field of membership or charter language, and the population of each area, then say which one
+  you picked and why. A first campaign scoped to a small home town measures a market too thin to
+  move.
+- **One campaign, one geography.** A campaign spanning three counties cannot buy demand for any of
+  them, and its prompts cannot all name the place. Additional markets are additional campaigns.
+
+Depth comes second: once the baseline is running, a topic campaign built by `exp-research` goes
+deep on whichever product the baseline shows is both weak and in demand. That ordering is the
+point. A first campaign chosen for depth is a guess about where the opportunity is; a baseline
+measures it.
+
+**Where it came from:** Ryan, 2026-08-19, reviewing new-team setup. Exchange Bank had three
+campaigns, all deep single-topic ones (consumer lending, deposits, business banking) and no broad
+baseline, so there was no single number for the institution's visibility and no way to say whether
+it was improving.
 
 ---
 
