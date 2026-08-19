@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.7 — 2026-08-19
+
+- (describe changes)
+
 ## 1.4.6 — 2026-08-12
 
 - **exp-review records what it actually verified, not only what it found** (implements Phase 3 of metrifi-platform `plans/m16-deliverable-verification-transparency.md`). `findings` carries problems only, so a battery that walked 24 fact checks and found two issues recorded as "two findings" and the client's page showed a day of work as one green badge. Each battery's record step now also passes `verifications`, one row per criterion actually walked with the source it was checked against and a `note` carrying the reason on an `n/a` row (the client page prints both under the item, so an `n/a` with no note reads as a blank), and each reference file defines its own rows: hygiene is the H1 to H6 sub-checks, NCUA is each regulation area walked (740.2/.4/.5, 707.8, Reg Z triggers, Reg E, Reg B, field of membership), ADA is each WCAG criterion evaluated against the article content, and fact is one row per extracted claim with the URL it was checked against. The guardrail sits where the recording happens: an item you did not perform is never recorded, not as `n/a` and not as `pass`, because the client is told these checks happened under our name. ADA's deferred page-level items stay `note` findings and are explicitly not verification rows: nobody has evaluated them, and a row here would say we did. Needs the platform column (geo_0053) deployed; on an older platform the argument is simply ignored.
