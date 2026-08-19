@@ -43,24 +43,42 @@ form. Geo-anchored variants go second. Stacked-modifier prompt-literal forms go 
 out. When a candidate comes back all zeros in a batch, re-run it with umbrella forms before
 believing the zero.
 
+**A geo-anchored keyword is not a measurement of local demand, and never was.** Writing the county
+into the phrase measures how many people type the county into a search box, which is almost nobody.
+Set the campaign's geography with `set-campaign-location` and measure the umbrella form there
+instead. Side by side in Sonoma County on 2026-08-19: "business loans santa rosa" returned 0/mo and
+no national figure, while "small business loan" measured 140/mo in that same county.
+
 **Where it came from:** the same campaign dropped `first time home buyer wisconsin` because four
 prompt-literal phrasings all returned zero. The next batch caught the identical intent with the
 umbrella form at 1,300 a month. The lesson had to be relearned twice more in a later
 lender-decision campaign.
 
-### Rule 3: triage threshold is 50 a month, or 10 a month plus a foothold
+### Rule 3: triage threshold is 50 a month, or 10 a month plus a foothold, and the market it is measured in decides which
 
 Apply this to the volumes `research-keywords` returns, then write the verdict into
 `record-keyword-research` with a reason. Record the drops too: that is what stops a later pivot
 from re-proposing something already rejected.
 
-- **KEEP, clear demand:** 50 or more monthly searches on at least one translated phrase.
+**Judge on the campaign's own market.** Where a geography is set, that means
+`local_monthly_volume`, not the national figure.
+
+- **KEEP, clear demand:** 50 or more monthly searches on at least one translated phrase. Where the
+  campaign has a geography, 20 or more local also qualifies when that phrase carries 5,000 or more
+  nationally, which shows the topic is real and the county is simply small.
 - **KEEP, foothold defense:** 10 or more monthly searches and the owned organization is already
   cited in AI answers for that prompt.
 - **RESCUE:** anything else worth tracking despite missing the threshold (a metro-cluster phrasing
-  variation, a national-overflow probe). Requires an explicit rationale in `verdict_reason` and a
-  re-check date.
+  variation, a national-overflow probe, a product the institution is actively advertising). Requires
+  an explicit rationale in `verdict_reason` and a re-check date.
 - **DROP, the default:** zero volume, or below threshold with no rescue rationale.
+
+**The local thresholds are provisional.** The 50/mo bar was calibrated when every volume this
+platform could buy was a United States national figure. County-level buying arrived on 2026-08-18
+and the bar did not move with it, which makes it far harsher than it was designed to be: applied to
+a 480,000-person county, only 3 of 11 already-tracked phrases cleared 50 locally, several of them
+prompts the institution was already winning in AI answers. Recalibrate as more campaigns run
+locally. A bar that rejects a prompt whose baseline visibility is strong is a broken bar.
 
 ### Rule 4: the kept set is an auditable artifact, not a mental note
 
@@ -88,6 +106,20 @@ the build phase may need.
 `get-team-usage(team_id)` before proposing a candidate set, take the GEO responses remaining in the
 current period, and size the experiment to that number.
 
+**There is a target, and the plan is measured against it rather than replacing it: 10 to 15 tracked
+prompts at 5 samples each.** Below 10 prompts a campaign does not cover the space the build phase
+picks from, and below 5 samples the per-prompt visibility figures are noise. On a real campaign a
+prompt read 67% visibility at 3 responses and 25% at 8; nothing changed but the sample. Compute what
+the target costs (12 prompts at 5 samples is 60 responses, about 90 with the build reserve), then
+compare it to what the plan has.
+
+- **When the plan cannot buy the target, tell the operator before you build something smaller.**
+  Name the number needed, the number remaining, the shortfall, and the fact that the plan is what is
+  capping the quality, then let them choose to upgrade, to spend now and finish after the reset, or
+  to wait. Sizing down quietly inside the budget is the failure this clause exists to stop: it
+  produces a campaign that looks finished, and nobody learns otherwise until a client is shown a
+  visibility score computed on three responses. Absorbing the constraint is not thrift, it is a
+  decision taken on someone else's behalf.
 - **Reserve about a third** of what remains for the pivot, the re-runs, and the second look the
   build phase legitimately asks for. Size the baseline inside the rest.
 - **The arithmetic is prompts times samples per prompt.** Providers are a pool, not a multiplier:
@@ -103,6 +135,14 @@ current period, and size the experiment to that number.
   as 0 percent forever.
 - **Always run the best experiment the plan allows.** Never refuse the experiment over the budget,
   and never quietly exceed it. On a generous plan none of this changes anything.
+- **Cover the product space, not just the brief.** The candidate set walks deposits, consumer
+  lending, business banking, wealth and trust, digital and servicing, and local discovery, and
+  includes at least one candidate in each category the institution actually offers. A campaign built
+  only around the angle in the brief measures the angle in the brief: on a real engagement two
+  campaigns were both scoped to the pitch story and consumer lending went unmeasured, which later
+  turned out to carry more local demand than either of them and the best demand-to-difficulty phrase
+  in the account. A category that does not fit the campaign's scope gets its own campaign, proposed
+  out loud, rather than being crammed into one whose name then stops describing its contents.
 
 **Where it came from:** Ryan's decision, 2026-07-27, after the M14 QA run: "the methodology never
 assumes a fixed sampling volume", it "sizes the experiment to it", and the skill "always does the

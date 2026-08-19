@@ -45,24 +45,40 @@ before a campaign exists. It reports the GEO responses used, the limit, the resp
 the billing period they reset in. Running a prompt spends that budget; nothing else in this phase
 does (keyword research is not metered).
 
+**The target is 10 to 15 tracked prompts at 5 samples each** (rule 21). That is the size a campaign
+has to reach before its numbers are worth putting in front of a client, and it is what you compute
+the budget against first. For 12 prompts at 5 samples the baseline costs 60 responses, and with the
+build-phase reserve the plan needs about 90.
+
 Size the experiment to what is left (rule 21):
 
-1. **Reserve about a third** of the remaining responses for the build phase, which pivots and
-   re-runs out of the same pool.
-2. **Split the rest** into tracked prompts times samples per prompt. Providers are a pool, not a
-   multiplier: the run tools spread the requested count across the providers they can run, so
-   naming more providers costs nothing extra and buys no extra sample.
-3. **Cut prompt count before samples per prompt**, with two samples as the floor. The next phase
-   reads body text for institution mentions (rule 5), and a single response cannot tell a closed
-   slot from an unlucky draw.
-4. **Say the tradeoff in one plain sentence** before you create anything: what the budget bought,
-   and what got thinner because of it. For example, "this plan has 44 GEO responses left this
-   period, so I am tracking 10 prompts at 3 samples each instead of the usual 15 to 20, and holding
-   about 14 back for the build phase."
+1. **Compute the target first, then compare.** 10 to 15 prompts times 5 samples, plus about a third
+   again reserved for the build phase, which pivots and re-runs out of the same pool.
+2. **If the plan cannot buy the target, say so before you build anything smaller.** Name the number
+   the target needs, the number remaining, the shortfall, and the fact that the plan is what is
+   capping the quality. Then let the operator choose: upgrade, spend what is there now and finish
+   after the reset, or wait. **This is a decision the operator makes, not one you absorb quietly.**
+   Sizing down inside the budget without telling anyone produces a campaign that looks finished and
+   is not, and nobody finds out until a client reads a visibility score computed on three responses.
+3. **Only then size down, and only to what they chose.** Cut prompt count before samples per prompt,
+   with two samples as the hard floor. The next phase reads body text for institution mentions
+   (rule 5), and a single response cannot tell a closed slot from an unlucky draw.
+4. **Say the tradeoff in one plain sentence.** For example, "this plan has 44 GEO responses left this
+   period against the 90 a full campaign needs, so unless you want to upgrade I will track 10
+   prompts at 3 samples each instead of 12 at 5, and hold about 14 back for the build phase."
+
+Splitting note: providers are a pool, not a multiplier. The run tools spread the requested count
+across the providers they can run, so naming more providers costs nothing extra and buys no extra
+sample.
+
+**Three samples is noise, and it is worth knowing how much.** On a real campaign the kids-savings
+prompt read 67% visibility at 3 responses and 25% at 8. Nothing changed except the sample. Any
+figure computed on 3 responses is provisional and should be labelled that way until it is re-read.
 
 On a generous plan this is a read that changes nothing. On a small one it is the difference between
 a smaller honest experiment and either a refusal or a blown cap, and neither of those is an option:
-run the best experiment the plan allows.
+run the best experiment the plan allows, and make sure the operator knows what the plan is costing
+them.
 
 Carry the two numbers you chose (tracked prompts, samples per prompt) through the rest of this
 skill. They set the size of the kept set in step 4, the `count` in step 6, and `min_responses` in
@@ -83,7 +99,17 @@ says so.
 mentions against. If the institution is not in that list, nothing is tracking it: the visibility
 percentages every later phase reads come from matching an organization's terms against response
 text, so an unregistered institution reads as zero visibility forever, which looks like a finding
-and is actually an empty measurement. There is no tool in this plugin that creates one, so say so
+and is actually an empty measurement.
+
+**Competitors are a different matter: the platform extracts them from the responses on its own.**
+Do not tell an operator to register a competitor set by hand, and do not report "no competitive
+ranking is available" without calling `get-org-visibility` first. A real campaign's handoff note
+carried that claim for a day while the platform had already extracted 30 competitors and ranked the
+client first among them. Read the tool, then say what it says. Two things to watch when you do:
+extraction also picks up generic nouns as if they were institutions ("Bank", "Credit Union",
+"Online Lender", "Mortgage Broker"), which can outrank every real competitor, and it picks up
+regulators and program bodies (FDIC, NCUA, CFP Board, NAPFA). Exclude both from any ranking you
+report, and say that you did. There is no tool in this plugin that creates one, so say so
 plainly and once: a person adds the institution as an organization on this campaign, with its name
 and website and its common name variants as terms, in the MetriFi GEO app. Do it before the run
 where you can. A registration added later is not lost work, because the platform rescans past
@@ -94,9 +120,24 @@ Then generate a **wide** candidate set, 24 to 36 prompts, spread across:
 
 - **Intent angles:** informational, comparative, transactional, locational.
 - **The segments and geography variants** you scoped above.
+- **The product and service space, not just the angle you were briefed on.** Walk the categories
+  deliberately and write at least one candidate in each that the institution actually offers:
+  deposits and rates; consumer lending (mortgage, refinance, home equity and HELOC, auto, personal,
+  debt consolidation); business banking and commercial lending; wealth, trust and retirement;
+  digital and servicing (online and mobile banking, fees, opening an account); and local discovery
+  ("banks near me", "best local banks in X", bank versus credit union).
 
-Breadth is deliberate. The build phase picks the biggest opportunity out of this set and pivots
-among these prompts, so cover the space rather than writing six phrasings of one question.
+Breadth is deliberate, and the category sweep is the part that gets skipped. A campaign built only
+around the angle in the brief measures the angle in the brief. On a real engagement both campaigns
+were scoped to the pitch story, deposits and business banking, and consumer lending went unmeasured
+until a later pass found it carried more local demand than either, including the best
+demand-to-difficulty phrase in the whole account. The build phase picks the biggest opportunity out
+of this set and pivots among these prompts, so cover the space rather than writing six phrasings of
+one question.
+
+**A category that does not fit the campaign's scope belongs in its own campaign, not crammed into
+this one.** Say so and propose it rather than diluting a campaign whose name then stops describing
+its contents.
 
 Two hard rules on the prompt text itself:
 
@@ -123,29 +164,60 @@ it records facts only: it never writes a keep or drop verdict, so it cannot over
 What a model's answer looks like today is competitive intelligence, not demand. Note who gets cited
 if it is useful later, and keep it out of the verdict entirely (rule 1).
 
-**These volumes are national United States numbers, not local ones.** The platform buys demand at
-the country level, so "best mortgage lender" comes back as the whole country's monthly searches, not
-the client's counties. Two consequences, and both of them show up the moment a client reads the
-number:
+**Set the campaign's geography before you measure anything.**
+`set-campaign-location(team_id, campaign_id, query)` resolves a plain place name ("Sonoma County")
+and stores it on the campaign. With it set, `research-keywords` buys the demand twice and stores
+both numbers: `monthly_volume` is the United States national figure and `local_monthly_volume` is
+the same phrase measured in the campaign's own market. Without it you get the national number only,
+which is a number no community institution should ever be handed as its market.
 
-- **The geo-anchored phrase is the honest local-demand signal.** "mortgage lender wisconsin" or
-  "heloc huntsville al" is the closest measurable proxy for demand in the campaign's geography, so
-  lead the client-facing table with those and treat the umbrella form as the ceiling, not the market.
-- **Label every national number as national**, in the triage table, in the `tracked-prompts`
-  document, and out loud whenever you quote one. An unlabeled national volume presented to a credit
-  union reads as its own market, which overstates the opportunity by orders of magnitude and is the
-  kind of number a client repeats to their board.
+An ambiguous query writes nothing and returns the candidates. Pick the row whose `type` matches what
+you meant, usually `County` or `City`, and call again with its `location_code`. `get-campaign` prints
+a "Demand measured in:" line so you can confirm what you set.
+
+- **Lead every client-facing table with the local number**, and present the national one as the
+  ceiling on the topic rather than the size of the market. An unlabeled national volume shown to a
+  community bank overstates its market by two or three orders of magnitude and is the kind of number
+  a client repeats to their board.
+- **Do not use geo-anchored keyword phrasing as a local-demand proxy. That workaround is obsolete
+  and it was always wrong.** Writing the county into the keyword ("business loans santa rosa") does
+  not measure local demand, it measures how many people type the county into the search box, which
+  is almost nobody. Measured side by side in Sonoma County on 2026-08-19: "business loans santa
+  rosa" returned 0/mo and no national figure at all, while the umbrella phrase "small business loan"
+  measured 140/mo in that same county. Measure the umbrella form (rule 2) at the campaign's
+  geography instead.
+- **Difficulty and search intent are national-only.** The endpoint that reports them cannot go below
+  a country, and the endpoint that reports local volume returns neither. So a row can carry a real
+  local volume and no difficulty. That is expected, not a failure.
+- **A row measured at a different geography is re-bought automatically**, but a row measured with no
+  geography at all still reads as cache-fresh. When you set a location on a campaign that already
+  has keyword rows, pass `refresh: true` on the next `research-keywords` call or the old national
+  numbers stay.
 
 ## 4. Triage
 
-Apply rule 3 to the measured volumes:
+Apply rule 3 to the measured volumes. **Which number you judge on depends on whether the campaign
+has a geography**, and the thresholds are not the same, because a county is a small fraction of a
+country and the original bar was set against national figures.
+
+**Campaign with a geography set** (judge on `local_monthly_volume`):
 
 | Verdict | When |
 |---|---|
-| **KEEP, clear demand** | 50 or more monthly searches on at least one translated phrase |
-| **KEEP, foothold defense** | 10 or more monthly searches and the owned organization is already cited in AI answers for that prompt |
+| **KEEP, clear demand** | 50 or more local monthly searches on at least one translated phrase, **or** 20 or more local with 5,000 or more national on that same phrase, which shows the topic is real and the county is simply small |
+| **KEEP, foothold defense** | 10 or more local monthly searches and the owned organization is already cited in AI answers for that prompt |
 | **RESCUE** | worth tracking despite missing the threshold, with an explicit rationale and a re-check date |
-| **DROP** | the default: zero volume, or below threshold with no rescue rationale |
+| **DROP** | the default: zero local volume, or below threshold with no rescue rationale |
+
+**Campaign with no geography** (national figures only, the original bar): 50 or more monthly
+searches for clear demand, 10 or more plus an existing citation for foothold defense.
+
+**The local thresholds above are provisional and should be recalibrated as more campaigns run
+locally.** They exist because the 50/mo bar was calibrated on national volumes and applying it
+unchanged to county volumes rejects almost everything: on a 480,000-person county, only 3 of 11
+already-tracked phrases cleared 50 locally, including several the institution was already winning
+in AI answers. If you find the bar rejecting prompts whose baseline visibility is strong, that is
+evidence the bar is wrong, not evidence the prompt is.
 
 Then **de-duplicate**. The candidate set was generated wide on purpose, so several prompts are
 near-paraphrases mapping to the same umbrella phrase and the same intent. Collapse each cluster to
