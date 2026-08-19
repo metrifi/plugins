@@ -185,39 +185,51 @@ samples each. The three that named Sonoma County or Santa Rosa in their text rea
 60%. Geography in the text is necessary and not sufficient: one prompt that did name the county
 still read 0%, which is a real visibility gap rather than a defective prompt.
 
-### Rule 23: a team's first campaign is a broad baseline, not a deep topic
+### Rule 23: a team's first campaign is the broad flagship; every one after it goes narrow
 
 **The trap:** the first campaign gets scoped to whatever topic the pitch conversation landed on.
 It measures that topic well and says nothing about anything else, so there is no answer to "how
 visible is this institution", only "how visible is it for HELOCs". Every later campaign is then
 compared against a baseline that never existed.
 
-**The rule:** the first campaign for a new team is **one geography wide across the products**, not
-one product deep. It covers the top 80 percent of what the institution actually offers, at roughly
-one prompt per product line: auto loans, home loans, checking, savings, CDs, retirement, personal
+**The rule:** the first campaign for a new team is the **flagship**: wide across the products, in
+one market. It covers the top 80 percent of what the institution actually offers, at roughly one
+prompt per product line: auto loans, home loans, checking, savings, CDs, retirement, personal
 loans, plus anything else that is genuinely core for that institution. That set is what gives a
-baseline visibility figure across the topics that matter, and what the client's progress is read
+high-level visibility figure across the topics that matter, and what the client's progress is read
 against later.
 
-Two constraints on the geography that go with it:
+**Broad means broad across PRODUCTS. It does not mean every geography the institution serves.**
+That reading is the one to watch, because it sounds like the same idea and breaks the campaign:
 
 - **The geography is the most populated area the institution actually serves**, not its
   headquarters town and not its whole charter footprint. Determine it from the branch footprint,
   the field of membership or charter language, and the population of each area, then say which one
   you picked and why. A first campaign scoped to a small home town measures a market too thin to
   move.
-- **One campaign, one geography.** A campaign spanning three counties cannot buy demand for any of
-  them, and its prompts cannot all name the place. Additional markets are additional campaigns.
+- **One campaign, one geography.** A campaign carries a single `set-campaign-location` value, so
+  one spanning three counties cannot buy local demand for any of them, and its prompts cannot all
+  name the place (rule 22). Additional markets are additional campaigns.
 
-Depth comes second: once the baseline is running, a topic campaign built by `exp-research` goes
-deep on whichever product the baseline shows is both weak and in demand. That ordering is the
-point. A first campaign chosen for depth is a guess about where the opportunity is; a baseline
-measures it.
+**Every campaign after the flagship goes narrow:** one product or service, with granular consumer
+prompts, built by `exp-research` on whichever product the flagship shows is both weak and in
+demand. That ordering is the point. A first campaign chosen for depth is a guess about where the
+opportunity is; the flagship measures it.
+
+**Granular is not the same as unscoped.** A narrow campaign's prompts still name the place, exactly
+as the flagship's do: "best used car loan in Sonoma County", not "best auto loan rate near me".
+
+**Experiments attach the narrow campaign's granular prompts, never the flagship's.** An
+institution-level prompt dilutes the measurement of what one article did, and the flagship's job is
+to stay comparable over time rather than to move. Attach every granular prompt the article could
+plausibly move: an effect that lands on a sibling prompt is invisible to a single-prompt
+experiment.
 
 **Where it came from:** Ryan, 2026-08-19, reviewing new-team setup. Exchange Bank had three
-campaigns, all deep single-topic ones (consumer lending, deposits, business banking) and no broad
-baseline, so there was no single number for the institution's visibility and no way to say whether
-it was improving.
+campaigns, all narrow single-topic ones (consumer lending, deposits, business banking) and no
+flagship, so there was no single number for the institution's visibility and no way to say whether
+it was improving. The "every geography it serves" reading was written into the skills the same day
+and corrected here: it cannot be satisfied by a campaign, which holds one geography.
 
 ---
 

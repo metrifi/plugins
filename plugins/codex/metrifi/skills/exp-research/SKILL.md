@@ -104,7 +104,28 @@ step 7.
 
 Decide new or existing first: `list-campaigns(team_id)`, and reuse a campaign that already covers
 this topic rather than standing up a near-duplicate. `get-campaign(team_id, campaign_id)` shows its
-location and keywords when the name alone is ambiguous. Create the new one now, with
+location and keywords when the name alone is ambiguous.
+
+**Campaign shape is a convention, not a preference, and it gates creation.** A team's FIRST
+campaign is the broad flagship: the institution's core products together, so the team gets one
+high-level visibility score that stays comparable over time. Every campaign after that goes narrow,
+one product or service, with granular consumer prompts, and those granular prompts are what
+experiments attach, never the flagship's institution-level ones. So if `list-campaigns` came back
+empty, stop here: the team is missing its flagship, and standing up a product campaign as their
+first breaks the convention. `campaign-setup` is the skill that builds it. Propose that, or get an
+explicit go-ahead to skip it, before any campaign for this experiment exists.
+
+**Broad means broad across PRODUCTS, in ONE market. It does not mean every geography the
+institution serves.** A campaign carries a single geography (`set-campaign-location`), so one
+spanning three counties cannot buy local demand for any of them, and its prompts cannot all name
+the place. The flagship is scoped to the single most populated market the institution actually
+serves; additional markets are additional campaigns (rule 23).
+
+**Granular does not mean unscoped.** A narrow campaign's prompts still name the place, exactly as
+the flagship's do (rule 22): "best used car loan in Sonoma County", not "best auto loan rate near
+me". "Near me" scopes nothing, because the campaign's location is never sent to the providers.
+
+Only then create the new one, with
 `create-campaign(team_id, name, description, location, keywords)` and the geography in `location`,
 because the demand research and the keep-drop verdicts are both recorded against a campaign. The
 campaign is a container, not a commitment: no prompt exists inside it until the triage in step 4

@@ -1,6 +1,6 @@
 ---
 name: campaign-setup
-description: "Stand up a MetriFi GEO team's campaigns and the prompts inside them, before any experiment exists. Owns new-team onboarding: pick the most populated market the institution actually serves, confirm the client's own organization is registered so its responses get scored at all, and build the first campaign as a WIDE baseline across the products that matter (auto, home, checking, savings, CDs, retirement, personal) rather than deep on one topic. Every prompt names the geography in its own text, because the campaign's location is only used to buy keyword demand and is never sent to the LLM providers. Use when a team is new or a campaign is being created or added to: 'set up this new team', 'onboard this client in GEO', 'create a campaign', 'add prompts to this campaign', 'get a baseline for this institution', 'which market should we track', 'their prompts are not scoped to a location', 'why is everything reading zero'. NOT for scoring an experiment's opportunity (exp-build), NOT for the demand triage and experiment record on a topic campaign (exp-research), NOT website work."
+description: "Stand up a MetriFi GEO team's campaigns and the prompts inside them, before any experiment exists. Owns new-team onboarding: pick the most populated market the institution actually serves, confirm the client's own organization is registered so its responses get scored at all, and build the team's FLAGSHIP campaign: wide across the products that matter (auto, home, checking, savings, CDs, retirement, personal) in one market, rather than narrow on one topic. Every campaign after the flagship goes narrow, one product each, and experiments attach those granular prompts rather than the flagship's. Every prompt names the geography in its own text, because the campaign's location is only used to buy keyword demand and is never sent to the LLM providers. Use when a team is new or a campaign is being created or added to: 'set up this new team', 'onboard this client in GEO', 'create a campaign', 'add prompts to this campaign', 'get a baseline for this institution', 'which market should we track', 'their prompts are not scoped to a location', 'why is everything reading zero'. NOT for scoring an experiment's opportunity (exp-build), NOT for the demand triage and experiment record on a topic campaign (exp-research), NOT website work."
 ---
 
 # campaign-setup: the campaign layer, before any experiment
@@ -17,15 +17,15 @@ exists to enforce, and both were bought by live campaigns that measured nothing.
 
 | The ask | Here or elsewhere |
 |---|---|
-| "Set up this new team", "onboard this client", "get me a baseline" | here, all of it |
+| "Set up this new team", "onboard this client", "build the flagship", "get me a baseline" | here, all of it |
 | "Create a campaign", "add prompts to this campaign" | here |
 | "Their prompts are not scoped to a city", "everything reads zero" | here, start at step 3 |
 | "Start an experiment on HELOCs", "is this topic worth doing", "keyword research for a campaign" | `exp-research` |
 | "The responses are in", "what should we target", "write the article" | `exp-build` |
 
 The dividing line: **this skill measures the institution, `exp-research` measures a topic.** A team
-whose first campaign does not exist yet is always this skill, even when the ask names a topic,
-because a topic campaign built before a baseline is a guess about where the opportunity is.
+whose flagship does not exist yet is always this skill, even when the ask names a topic, because a
+narrow campaign built before the flagship is a guess about where the opportunity is.
 
 ## 1. Read the team before you write anything
 
@@ -81,7 +81,7 @@ available" without calling `get-org-visibility` first.
 
 ## 3. Pick the geography, and pick one
 
-**The first campaign is scoped to the single most populated area the institution actually serves**
+**The flagship is scoped to the single most populated area the institution actually serves**
 (rule 23). Not its headquarters town, and not its whole charter footprint.
 
 Work it out rather than guessing:
@@ -104,10 +104,16 @@ Set it on the campaign as soon as the campaign exists:
 ambiguous query writes nothing and returns candidates; pick the row whose `type` matches what you
 meant, usually `County` or `City`, and call again with its `location_code`.
 
-## 4. The first campaign is wide, not deep
+## 4. The flagship is wide across products, not deep on one
 
-The first campaign is **one geography across the products**, not one product deep (rule 23). It is
-the baseline every later number is read against.
+The flagship is **wide across the products, in one market** (rule 23). It is what every later
+number is read against, and it is the one campaign whose job is to stay comparable over time
+rather than to move.
+
+**Wide means wide across products. It does not mean every geography the institution serves.** A
+campaign holds one `set-campaign-location` value, so a campaign spanning three counties cannot buy
+local demand for any of them and its prompts cannot all name the place. Additional markets are
+additional campaigns.
 
 Cover the top 80 percent of what this institution actually offers, at roughly one prompt per
 product line. For a consumer bank or credit union that is:
@@ -136,9 +142,12 @@ it can run. If the institution is not in that list, say so before the run in ste
 after it: the run spends budget either way, and unscored responses are the one cost that buys
 nothing.
 
-**Depth comes second, and it comes from this baseline.** Once the baseline has responses, the
-product that is both weak and in demand is the one that earns a deep topic campaign, and that is
-`exp-research`. Say that out loud when you hand off, so the ordering is visible.
+**Narrow comes second, and it comes from this flagship.** Once the flagship has responses, the
+product that is both weak and in demand is the one that earns a narrow single-product campaign,
+built by `exp-research`. Its prompts are granular ("best used car loan in Sonoma County") and still
+name the place; granular never means unscoped. Experiments attach those granular prompts, never the
+flagship's institution-level ones, because a broad prompt dilutes the measurement of what one
+article did. Say that out loud when you hand off, so the ordering is visible.
 
 ## 5. Write prompts that name the place
 
@@ -247,5 +256,5 @@ competitor, and do not report a ranking position computed with one in it.
   evidence that anyone asked.
 - **A category that does not fit this campaign's scope gets its own campaign**, proposed out loud,
   rather than diluting one whose name then stops describing its contents.
-- **If the operator wants a deep topic campaign first**, say once what the baseline would have
+- **If the operator wants a narrow product campaign first**, say once what the flagship would have
   given them and then build what they asked for. The ordering is a recommendation, not a gate.
