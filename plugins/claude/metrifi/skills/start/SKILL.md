@@ -81,7 +81,10 @@ Ask these before anything is created, in this order, because the research phase 
 order:
 
 1. **Existing surface.** Does this team already have a campaign covering adjacent topics, or is this
-   their first experiment? Check `list-campaigns` for the team rather than only asking.
+   their first experiment? Check `list-campaigns` for the team rather than only asking. If the team
+   has no campaigns at all, the first one to stand up is the broad flagship (the whole institution,
+   every geography it serves, its core products) so the team gets a high-level visibility score;
+   the narrow product campaign for this experiment comes after it. exp-research carries the detail.
 2. **Topic and audience.** Be specific: the geography, the buyer profile, the intent angle. "HELOCs"
    is not a topic; "homeowners in these counties comparing a HELOC against a cash-out refinance" is.
 3. **Point of contact and compliance relationship.** Who at the institution is the contact, and how
