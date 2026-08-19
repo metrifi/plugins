@@ -97,21 +97,23 @@ step 7.
 
 Decide new or existing first: `list-campaigns(team_id)`, and reuse a campaign that already covers
 this topic rather than standing up a near-duplicate. `get-campaign(team_id, campaign_id)` shows its
-location and keywords when the name alone is ambiguous. Create the new one now, with
+location and keywords when the name alone is ambiguous.
+
+**Campaign shape is a convention, not a preference, and it gates creation.** A team's FIRST
+campaign must be broad: the whole institution, every geography it serves, and its core products
+together, so the team gets one high-level visibility score that stays comparable over time. Every
+campaign after that goes narrow: one product or service, with granular consumer prompts ("best
+auto loan rate near me", "best used car loan", "fast auto loan preapproval"), and those granular
+prompts are what experiments attach, never the broad flagship's institution-level ones. So if
+`list-campaigns` came back empty, stop here: the team is missing its broad flagship campaign, and
+standing up a product campaign as their first breaks the convention. Propose building the flagship
+first, or get an explicit go-ahead to skip it, before any campaign for this experiment exists.
+
+Only then create the new one, with
 `create-campaign(team_id, name, description, location, keywords)` and the geography in `location`,
 because the demand research and the keep-drop verdicts are both recorded against a campaign. The
 campaign is a container, not a commitment: no prompt exists inside it until the triage in step 4
 says so.
-
-**Campaign shape is a convention, not a preference.** A team's FIRST campaign must be broad: the
-whole institution, every geography it serves, and its core products together, so the team gets one
-high-level visibility score that stays comparable over time. Every campaign after that goes narrow:
-one product or service, with granular consumer prompts ("best auto loan rate near me", "best used
-car loan", "fast auto loan preapproval"), and those granular prompts are what experiments attach,
-never the broad flagship's institution-level ones. So when `list-campaigns` comes back empty, say
-so before creating anything: the team is missing its broad flagship campaign, and standing up a
-product campaign as their first breaks the convention. Propose building the flagship first (or get
-an explicit go-ahead to skip it), then open the product campaign for this experiment.
 
 **Then check that the client's organization is registered on this campaign.**
 `get-org-visibility(team_id, campaign_id, limit: 0)` lists the organizations the campaign measures
