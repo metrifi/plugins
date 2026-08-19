@@ -6,10 +6,6 @@ updates off this field — same version, no update.
 
 ## 1.4.8 — 2026-08-19
 
-- (describe changes)
-
-## 1.4.7 — 2026-08-19
-
 - **The campaign-shape convention is written down where campaigns and experiments get created.** A team's FIRST GEO campaign must be broad (the whole institution, every geography it serves, its core products) so the team gets one high-level visibility score that stays comparable over time; every later campaign goes narrow, one product with granular consumer prompts, and experiments attach those granular prompts, never the flagship's institution-level ones. The convention existed only in conversation, so agents kept standing up product campaigns as a team's first and judging experiments on broad prompts. Now exp-research flags a campaign-less team before creating anything and proposes the flagship first, exp-build's target-lock step forbids attaching flagship prompts and says to attach every granular prompt the article could plausibly move (single-prompt experiments miss effects on sibling prompts), and start's scoping questions catch it at intake. The platform's MCP tool descriptions (create-campaign, create-prompt, create-experiment, the build-campaign and build-experiment prompt templates, and the GEO server instructions) carry the same rule in a matching metrifi-platform PR, so the guidance reaches agents on both surfaces.
 
 ## 1.4.6 — 2026-08-12
