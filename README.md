@@ -51,7 +51,9 @@ codex mcp login metrifi
   methodology is fetched from MetriFi at runtime, behind your sign-in)
 - GEO experiment skills: `start` (orient, then point you at the right skill),
   `exp-status` (a read-only rollup of where every experiment and deliverable
-  stands), `exp-research` (a topic to a demand-grounded campaign with baseline
+  stands), `campaign-setup` (a new institution to a baseline campaign: its
+  market, its registered organization, and a first campaign wide across the
+  products), `exp-research` (a topic to a demand-grounded campaign with baseline
   runs going), `exp-build` (a populated campaign to a scored opportunity and a
   drafted client deliverable), `exp-review` (the four pre-publish checks:
   hygiene, NCUA compliance, accessibility, fact verification), `exp-deliver`

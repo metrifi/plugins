@@ -34,8 +34,32 @@ To find experiments in the first place: `whoami` tells you who you are and which
 
 ## The phase map
 
-Six phases. Each names the skill that carries it, so you can tell your operator which one fits next.
-No phase reads or writes a file.
+Six phases plus the setup that precedes them. Each names the skill that carries it, so you can tell
+your operator which one fits next. No phase reads or writes a file.
+
+### 0. Setup: from an institution to a baseline campaign
+
+Skill: **campaign-setup**.
+
+Campaigns and prompts exist before any experiment does, and a new team starts here. This phase
+picks the geography (the most populated market the institution actually serves, one campaign per
+market), confirms the institution is registered as an organization at all, and builds the first
+campaign **wide across the products** rather than deep on one topic: auto, home, checking, savings,
+CDs, retirement, personal, plus whatever else is core (methodology rule 23). That set is the
+baseline every later number is read against, and it is what tells you which product is worth an
+experiment.
+
+Two facts about scoping live here and hold everywhere downstream:
+
+- **A campaign's location is a demand-measurement setting.** It tells `research-keywords` which
+  market to buy volume in, and it is **never sent to the LLM providers**. So every prompt names the
+  place in its own text (rule 22); "locally" and "near me" scope nothing, and `create-prompt` warns
+  when the place is missing.
+- **An unregistered institution reads as zero visibility forever**, which looks like a finding and
+  is an empty measurement. No tool in this plugin creates an organization; a person does it in the
+  MetriFi GEO app.
+
+Setup ends the same way research does: prompts running, and a readiness number.
 
 ### 1. Research: from a topic to a demand-grounded campaign
 

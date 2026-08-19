@@ -1,6 +1,6 @@
 ---
 name: exp-research
-description: "Phase one of a MetriFi GEO experiment: turn a topic into a demand-grounded campaign and get baseline LLM responses running. Sizes the experiment to the GEO responses the team's plan has left this period rather than refusing or overspending. Proposes prompts the way a real consumer asks an AI assistant (never with a brand name in them), measures actual search demand, triages keep or drop on measured volume alone, records every verdict including the drops, then creates and runs only the prompts that survived. Use when someone wants to start an experiment or size a topic: 'start an experiment for this team on HELOCs', 'research this topic', 'stand up a campaign', 'what prompts should we track', 'is this topic worth an experiment', 'do people actually search for this', 'keyword research for a campaign'. Offers a dry run when the topic is unvalidated. NOT for scoring responses or writing the article (exp-build), NOT for where an experiment stands (exp-status), NOT website work."
+description: "Phase one of a MetriFi GEO experiment: turn a topic into a demand-grounded campaign and get baseline LLM responses running. Sizes the experiment to the GEO responses the team's plan has left this period rather than refusing or overspending. Proposes prompts the way a real consumer asks an AI assistant (never with a brand name in them), measures actual search demand, triages keep or drop on measured volume alone, records every verdict including the drops, then creates and runs only the prompts that survived. Use when someone wants to start an experiment or size a topic: 'start an experiment for this team on HELOCs', 'research this topic', 'stand up a campaign', 'what prompts should we track', 'is this topic worth an experiment', 'do people actually search for this', 'keyword research for a campaign'. Offers a dry run when the topic is unvalidated. NOT for standing up a brand-new team or its first broad baseline campaign (campaign-setup), NOT for scoring responses or writing the article (exp-build), NOT for where an experiment stands (exp-status), NOT website work."
 ---
 
 # exp-research: from a topic to a demand-grounded campaign
@@ -8,7 +8,14 @@ description: "Phase one of a MetriFi GEO experiment: turn a topic into a demand-
 The first phase of an experiment. It ends with prompts running against the LLM providers and a
 readiness number, not with an analysis.
 
-Read `references/methodology-rules.md` (rules 1 to 4, 6, 7, 8, 21) and
+**This skill measures a topic. `campaign-setup` measures an institution.** If the team is new, or
+has no campaign yet, or has only deep single-topic campaigns and no broad baseline, that skill runs
+first: it picks the market, confirms the institution is registered so anything gets scored at all,
+and builds a wide first campaign across the products (rule 23). A topic campaign built before a
+baseline exists is a guess about where the opportunity is. Say so once, name the skill, and let the
+operator choose.
+
+Read `references/methodology-rules.md` (rules 1 to 4, 6, 7, 8, 21, 22, 23) and
 `references/workflow-overview.md` before the first write. Rules 1 to 3 are the whole triage;
 skipping them is how a campaign ends up tracking prompts nobody searches. Rule 21 decides how big
 the experiment gets to be, and it is the first call you make.
@@ -100,14 +107,23 @@ this topic rather than standing up a near-duplicate. `get-campaign(team_id, camp
 location and keywords when the name alone is ambiguous.
 
 **Campaign shape is a convention, not a preference, and it gates creation.** A team's FIRST
-campaign must be broad: the whole institution, every geography it serves, and its core products
-together, so the team gets one high-level visibility score that stays comparable over time. Every
-campaign after that goes narrow: one product or service, with granular consumer prompts ("best
-auto loan rate near me", "best used car loan", "fast auto loan preapproval"), and those granular
-prompts are what experiments attach, never the broad flagship's institution-level ones. So if
-`list-campaigns` came back empty, stop here: the team is missing its broad flagship campaign, and
-standing up a product campaign as their first breaks the convention. Propose building the flagship
-first, or get an explicit go-ahead to skip it, before any campaign for this experiment exists.
+campaign is the broad flagship: the institution's core products together, so the team gets one
+high-level visibility score that stays comparable over time. Every campaign after that goes narrow,
+one product or service, with granular consumer prompts, and those granular prompts are what
+experiments attach, never the flagship's institution-level ones. So if `list-campaigns` came back
+empty, stop here: the team is missing its flagship, and standing up a product campaign as their
+first breaks the convention. `campaign-setup` is the skill that builds it. Propose that, or get an
+explicit go-ahead to skip it, before any campaign for this experiment exists.
+
+**Broad means broad across PRODUCTS, in ONE market. It does not mean every geography the
+institution serves.** A campaign carries a single geography (`set-campaign-location`), so one
+spanning three counties cannot buy local demand for any of them, and its prompts cannot all name
+the place. The flagship is scoped to the single most populated market the institution actually
+serves; additional markets are additional campaigns (rule 23).
+
+**Granular does not mean unscoped.** A narrow campaign's prompts still name the place, exactly as
+the flagship's do (rule 22): "best used car loan in Sonoma County", not "best auto loan rate near
+me". "Near me" scopes nothing, because the campaign's location is never sent to the providers.
 
 Only then create the new one, with
 `create-campaign(team_id, name, description, location, keywords)` and the geography in `location`,
@@ -127,10 +143,11 @@ Do not tell an operator to register a competitor set by hand, and do not report 
 ranking is available" without calling `get-org-visibility` first. A real campaign's handoff note
 carried that claim for a day while the platform had already extracted 30 competitors and ranked the
 client first among them. Read the tool, then say what it says. Two things to watch when you do:
-extraction also picks up generic nouns as if they were institutions ("Bank", "Credit Union",
-"Online Lender", "Mortgage Broker"), which can outrank every real competitor, and it picks up
-regulators and program bodies (FDIC, NCUA, CFP Board, NAPFA). Exclude both from any ranking you
-report, and say that you did. There is no tool in this plugin that creates one, so say so
+generic nouns ("Bank", "Credit Union", "Online Lender") and non-competitors (FDIC, NCUA,
+NerdWallet, Visa) are filtered on the way in now, but campaigns created before that filter existed
+still carry them, and one of them can outrank every real competitor. If one appears in a ranking
+you are about to report, exclude it, say that you did, and tell the operator the campaign has stale
+entries so a person can clear them. There is no tool in this plugin that creates one, so say so
 plainly and once: a person adds the institution as an organization on this campaign, with its name
 and website and its common name variants as terms, in the MetriFi GEO app. Do it before the run
 where you can. A registration added later is not lost work, because the platform rescans past
@@ -160,8 +177,15 @@ one question.
 this one.** Say so and propose it rather than diluting a campaign whose name then stops describing
 its contents.
 
-Two hard rules on the prompt text itself:
+Three hard rules on the prompt text itself:
 
+- **Name the campaign's geography in the prompt text** (rule 22). "in Sonoma County", never
+  "locally" or "near me". The campaign's location is a demand-measurement setting and is **never
+  sent to the LLM providers**, so the prompt text is the only thing that scopes the answer to the
+  client's market. An unscoped prompt gets a national answer that a community institution is not
+  in, and measures a zero it could never have escaped. `create-prompt` warns when the place is
+  missing; that is a defect to fix, not a note to acknowledge. Do not read rule 2's anti-geo
+  keyword clause as applying here: it is about keywords, and it points the other way.
 - **Write it the way a consumer asks an AI assistant**, in their words, not in marketing language.
 - **Never put a brand name in a prompt**, the client's or a competitor's. The entire measurement is
   which brands a model names on its own. A prompt naming the institution measures nothing.
@@ -170,7 +194,9 @@ Two hard rules on the prompt text itself:
 
 Translate every candidate into keyword phrases **ordered by rule 2**: the shortest bare-noun
 umbrella form first ("best mortgage lender"), the geo-anchored form second ("mortgage lender
-wisconsin"), the stacked-modifier prompt-literal form last or not at all. Stacked modifiers return
+wisconsin"), the stacked-modifier prompt-literal form last or not at all. **This ordering governs
+keywords only. The prompt itself still names the place** (rule 22); the two artifacts are measured
+by different endpoints and the rules genuinely point in opposite directions. Stacked modifiers return
 zero volume for topics that plainly have demand, and that zero has cost real experiments twice.
 
 Then `research-keywords(team_id, campaign_id, keywords, experiment_id?)` with the whole translated
@@ -349,6 +375,8 @@ Read it once, report it plainly, and stop. Then:
   baseline (rule 6). Do not call a single-provider baseline multi-model coverage.
 - **An ask that sounds like a new campaign is often a resumption.** Check `list-campaigns` and
   `list-experiments` for the team and topic before creating anything.
+- **A team with no campaign at all is an onboarding, not an experiment.** Hand it to
+  `campaign-setup` and say why: the baseline is what tells you which topic is worth an experiment.
 - **Web access is whatever your host gives you.** A real browser tool reads client-rendered pages
   that a plain fetch cannot, and where there is no browsing at all, say a claim is unverified rather
   than assuming it. Nothing in this phase depends on browsing.

@@ -10,7 +10,7 @@
       "name": "metrifi",
       "displayName": "MetriFi",
       "source": "./plugins/claude/metrifi",
-      "description": "The MetriFi plugin: one sign-in connects Claude to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) and adds the MetriFi skills. client-report audits an institution's existing site; generate-claude-design-system, generate-claude-design-page and page-design-process design and build a new one; and the GEO experiment skills run a campaign from research through to a reviewed client deliverable. Self-contained: this is the only plugin you need.",
+      "description": "The MetriFi plugin: one sign-in connects Claude to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) and adds the MetriFi skills. client-report audits an institution's existing site; generate-claude-design-system, generate-claude-design-page and page-design-process design and build a new one; campaign-setup stands up a new institution's first baseline campaign, and the GEO experiment skills run a campaign from research through to a reviewed client deliverable. Self-contained: this is the only plugin you need.",
       "category": "integration",
       "author": {
         "name": "MetriFi",
