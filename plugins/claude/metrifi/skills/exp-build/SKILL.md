@@ -89,13 +89,28 @@ Backed by the four pillars: the institution slot (open or closed, with the count
 competitor presence, and answer shape. The campaign verdict reflects the best available target: if
 any prompt is VIABLE or STRONG, the campaign is at least VIABLE.
 
-**STRONG or VIABLE:** lock the target, typically six to ten prompts, and attach them with
-`update-experiment(team_id, experiment_id, prompt_ids, prompt_ids_mode: "replace")`. Non-target
-prompts stay in the campaign and keep tracking (rule 8). Targets are always the granular product
-prompts from the product campaign; never attach the team's broad flagship-campaign prompts to an
-experiment, because an institution-wide prompt dilutes the measurement of what this article did.
-Attach every granular prompt the article could plausibly move: an effect that lands on a sibling
-prompt is invisible to a single-prompt experiment.
+**STRONG or VIABLE:** lock the target, then set the attach list by coverage, not by the target
+alone. `list-prompts` on the campaign and attach every prompt the planned article could plausibly
+move — the locked targets plus any sibling prompt the same page would answer for — with
+`update-experiment(team_id, experiment_id, prompt_ids, prompt_ids_mode: "replace")`. There is no
+required count: the number falls out of the sweep. What matters is that at measurement time no
+prompt the article lifted was left off the experiment, so name the campaign prompts you excluded
+and why before moving on. Non-target prompts stay in the campaign and keep tracking (rule 8).
+Targets are always the granular product prompts from the product campaign; never attach the
+team's broad flagship-campaign prompts to an experiment, because an institution-wide prompt
+dilutes the measurement of what this article did. An effect that lands on a sibling prompt is
+invisible to a single-prompt experiment.
+
+If the sweep surfaces a consumer question the article plausibly answers that no campaign prompt
+covers, that is a demand-grounding candidate, not an automatic create: run it through rules 1 to
+3 (`research-keywords`, drop anything without measurable volume, `record-keyword-research`), and
+only a survivor gets `create-prompt` plus `run-prompt` at the same samples per prompt as the
+baseline, within budget (rule 21). Then attach it with `update-experiment(..., prompt_ids: [the
+new id], prompt_ids_mode: "add")` — a created prompt left unattached is still invisible to the
+experiment — and confirm via `get-campaign-readiness` that its responses have populated (read the
+fact, do not poll; stop if they have not) before the article goes live. Do all of this
+pre-publish or not at all: a prompt created at publish time has no baseline and can never be
+measured. The article never justifies a prompt; demand does.
 
 **WEAK or AVOID: pivot. Never ship a weak target.** Pivots run in tiers, cheapest first:
 
@@ -142,7 +157,8 @@ you found, the pivot you would recommend next, and stop.
 Create it early, as a draft, so the workflow state has a home before the writing starts:
 `create-experiment(team_id, name, campaign_id, description, status: "draft")`. **Pass no dates**
 (rule 7): `started_at` starts the 28-day measurement clock, and that clock starts when the article
-goes live. Then `update-experiment` to attach the locked target prompt ids.
+goes live. Then `update-experiment` to attach the coverage set locked in step 3: the targets plus
+every sibling prompt the article could plausibly move.
 
 Write the hypothesis into the analysis in this form: if we publish a page that does X, the concrete
 substantiable hook from the evidence, visibility on the target prompts rises from its current level

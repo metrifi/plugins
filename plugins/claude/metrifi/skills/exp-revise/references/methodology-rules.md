@@ -289,10 +289,19 @@ window derives from the pre-publish period.
 away their visibility tracking. A prompt that fails the institution-citation gate today can pass it
 later as model training data moves.
 
-**The rule:** the campaign holds every demand-grounded prompt. Experiment targets are a subset,
-typically six to ten, attached with `update-experiment`. Non-target prompts stay in the campaign
-for monitoring; they simply do not get the article's structural attention. When a pivot adds
-prompts, attach them with `prompt_ids_mode: "add"` so the originals are not detached.
+**The rule:** the campaign holds every demand-grounded prompt. The experiment attaches its
+measurement scope: the locked targets plus every campaign prompt the planned article could
+plausibly move. There is no required count — sweep the campaign with `list-prompts`, attach for
+coverage, and name any campaign prompt you excluded and why. What matters is that at measurement
+time no prompt the article lifted was left off the experiment. Prompts left unattached stay in
+the campaign for monitoring; they simply do not get the article's structural attention. When a
+pivot adds prompts, attach them with `prompt_ids_mode: "add"` so the originals are not detached.
+A consumer question the article answers that no campaign prompt covers may become a new prompt
+only through the demand gate (rules 1 to 3) and only before the article goes live, so it accrues
+a baseline — a prompt created at publish time has no baseline and can never be measured. A new
+prompt must then be attached (`prompt_ids_mode: "add"`) and its responses confirmed populated
+before publish; created-but-unattached is still invisible. The article never justifies a prompt;
+demand does.
 
 ---
 
