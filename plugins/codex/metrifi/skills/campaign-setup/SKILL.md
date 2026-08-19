@@ -39,7 +39,10 @@ Four read-only calls:
 2. **`list-campaigns(team_id)`.** If a campaign already exists, this may be a resumption rather
    than an onboarding. Read it with `get-campaign` before proposing anything new.
 3. **`get-org-visibility(team_id, campaign_id, limit: 0)`** on any campaign that exists. This is
-   how you find out whether the institution itself is registered.
+   how you find out whether the institution itself is registered. **It takes a campaign id, so on a
+   brand-new team with no campaign there is nothing to call it on yet.** That check does not
+   disappear, it moves: run it the moment the campaign exists in step 4, and before the run in
+   step 7.
 4. **Research the institution.** Its products, its branch footprint, its charter or field of
    membership, and the markets it serves. Web access is whatever your host gives you; where there
    is none, ask the operator for the footprint rather than assuming it.
@@ -54,6 +57,17 @@ produces a campaign that looks finished and is not.
 Visibility is computed by matching an organization's terms against response text. **If the
 institution is not registered as an organization on this team, every response scores zero forever**,
 and that zero looks exactly like a finding. Check before you run anything.
+
+**When to check depends on whether a campaign exists.** `get-org-visibility` takes a campaign id:
+
+- **The team already has a campaign:** check now, in step 1, before you plan anything.
+- **The team has none:** create the campaign first (step 4), then call
+  `get-org-visibility(team_id, campaign_id, limit: 0)` on the campaign you just created, before
+  creating prompts and before the run in step 7. A run started while the institution is
+  unregistered spends the team's response budget on responses nothing scores.
+
+Either way this is a gate on the RUN, not on the campaign. Creating the campaign and its prompts
+while registration is pending is fine and loses nothing.
 
 There is no tool in this plugin that creates one. Say so plainly and once: a person adds the
 institution as an organization in the MetriFi GEO app, with its name, its website, and its common
@@ -115,6 +129,12 @@ Then create it: `create-campaign(team_id, name, description, location, keywords)
 market and the scope, not for a topic: "Sonoma County Consumer Banking Baseline" rather than
 "HELOC Campaign". The campaign is a container, not a commitment; no prompt exists inside it until
 step 6.
+
+**On a brand-new team, call `get-org-visibility(team_id, campaign_id, limit: 0)` here**, now that
+there is a campaign to call it on. This is the registration check from step 2, at the first moment
+it can run. If the institution is not in that list, say so before the run in step 7 rather than
+after it: the run spends budget either way, and unscored responses are the one cost that buys
+nothing.
 
 **Depth comes second, and it comes from this baseline.** Once the baseline has responses, the
 product that is both weak and in demand is the one that earns a deep topic campaign, and that is
@@ -181,6 +201,11 @@ read what each call returns. A geography warning means rewrite that prompt and c
 rather than moving on.
 
 ## 7. Run the baseline, read readiness, hand off
+
+**Confirm the institution is registered before you spend anything** (step 2). The run tools warn
+when a team has no owned organization; read that warning rather than running past it, because
+responses collected while it is unregistered consume the same quota and score nothing. Past
+responses are rescanned when the registration lands, so this is a delay and not lost work.
 
 `run-campaign-prompts(team_id, campaign_id, providers, count)` for a campaign with no prior
 baseline, or `run-prompt(team_id, prompt_id, providers, count)` per prompt when the campaign
