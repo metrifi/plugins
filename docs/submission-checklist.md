@@ -733,6 +733,16 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
   in Cloudflare** alongside Anthropic's egress range.
 
 ### Authentication
+- `[x]` **Draft exists, MCP scanned, domain verified, 483 justifications filled.** 2026-08-25/26:
+  OpenAI draft `asdk_app_6a8e607211fc8191b04a36d63dad17cb`, project `MetriFi`. Tool scan passed on
+  the 30,192-token surface. Domain verified against the live challenge route. All 161 × 3
+  justifications filled by Playwright from `openai-tool-justifications.md` and confirmed to persist
+  after reload. **Open:** the eight annotation corrections did not make the #230 squash; they are
+  [metrifi-platform#231](https://github.com/metrifi/metrifi-platform/pull/231). After it merges and
+  deploys, click **Scan Tools** again so the form shows the corrected values for get-team-health,
+  get-master-health, get-site, get-preview-url (read-only → write), build-deliverable,
+  research-keywords, accept-invitation, activate-due-rates (→ destructive). The justification text
+  already describes the corrected values. `[LOCAL]`
 - `[ ]` Register ChatGPT's redirect URI. [OA-AUTH]: "ChatGPT completes the OAuth flow by
   redirecting to `https://chatgpt.com/connector/oauth/{callback_id}` and the URL will be shown in
   the app management page. Add that production redirect URI to your authorization server's
