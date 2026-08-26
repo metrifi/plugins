@@ -649,7 +649,9 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
   exposes 236 tools (large surface compared to most submissions)." We are in the same size class.
 
 ### Prerequisites
-- `[ ]` Verified identity. [OA-REV]: "Before submitting a plugin with MCP, complete identity
+- `[x]` Verified identity. **Business verification completed 2026-08-25 under the name
+  `MetriFi`.** Expect a lag of a few days before submission accepts it [C-OA-VERIF].
+  [OA-REV]: "Before submitting a plugin with MCP, complete identity
   verification in the OpenAI Platform Dashboard for the name you plan to publish under in the
   directory... This is enforced during review. Publishing under an unverified individual or
   business name will result in rejection."
@@ -673,10 +675,13 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
     a few days too early. The actual confirmation seems to take a few days." Corroborated by
     EdgarM the same week. **Do the verification early and expect to wait, do not schedule it as
     the last step.**
-- `[ ]` Give the organization and project real names, not "Default". Buried in the workaround that
+- `[x]` Give the organization and project real names, not "Default". Project is `MetriFi`
+  as of 2026-08-25. `[LOCAL]` Buried in the workaround that
   cleared a multi-week scanner outage, [C-OA-SCANFIX] Walo_Fenton: "Went to
   /settings/organization/general and gave a name to my Organization (had Default)".
-- `[!]` **Check the OpenAI project's data residency.** [OA-REV]: "For now, projects with EU data
+- `[x]` **Check the OpenAI project's data residency.** Done 2026-08-25: created a dedicated
+  project named `MetriFi`, region **global**. Publish from this project, not from a
+  Paraloom project. `[LOCAL]` [OA-REV]: "For now, projects with EU data
   residency cannot submit plugins with MCP servers for review. Use a project with global data
   residency." **Verify before doing any other OpenAI work; this is a hard block.**
   **Where to look:** `https://platform.openai.com/settings/organization/projects`, open the
@@ -739,16 +744,14 @@ Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manife
 - `[x]` `interface.displayName` ≤30 final / 80 validation (`plugin_display_name_too_long`) — `MetriFi` is 7 `[LOCAL]`
 - `[x]` `interface.longDescription` ≤4,000 (`plugin_long_description_too_long`) — 1,146 chars,
   mirrors the copy submitted to Anthropic for submission A so the two listings agree `[LOCAL]`
-- `[?]` `interface.developerName` ≤80 final / 120 validation (`plugin_developer_name_too_long`).
-  **Blocked on the identity-verification outcome, deliberately left unset.** This is the
-  publisher line ("MetriFi **by ...**"), separate from `displayName`, so the plugin is called
-  MetriFi either way. It must match the verified identity character for character. Our entity is
-  **BloomCU LLC doing business as MetriFi**, and OpenAI support names this exact case as a
-  rejection trigger: "Even small differences like abbreviations or branding vs legal name can
-  trigger that rejection." [C-OA-REJ4] Preference order: (1) verify with the Utah MetriFi DBA
-  certificate, (2) accept `BloomCU LLC`, which is also what metrifi.com's terms say so reviewers
-  cross-checking the listing against the site find no mismatch, (3) rename the entity, which is
-  weeks and legal cost. Set this field only after verification returns a name.
+- `[x]` `interface.developerName` ≤80 final / 120 validation (`plugin_developer_name_too_long`)
+  — set to `MetriFi` on 2026-08-25, the exact string entered during OpenAI business
+  verification that day. This is the publisher line ("MetriFi **by ...**"), separate from
+  `displayName`, and it must match the verified identity character for character. Residual
+  risk: our entity is **BloomCU LLC doing business as MetriFi**, and OpenAI support names
+  branding-vs-legal-name as a rejection trigger [C-OA-REJ4]. If review rejects with "The
+  developer name you entered does not match your verified individual or business name"
+  [C-OA-REJ1], change this field to `BloomCU LLC` and resubmit with a version bump. `[LOCAL]`
 - `[ ]` `interface.brandColor` / `brandColorDark` — six-digit hex (`plugin_brand_color_format`).
   No brand hex values exist anywhere in this repo. `[LOCAL]`
 - `[ ]` `interface.logo` — required, square (`plugin_logo_path_missing`) **`[!]` missing**
