@@ -755,11 +755,20 @@ Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manife
 - `[x]` `interface.brandColor` / `brandColorDark` — six-digit hex (`plugin_brand_color_format`).
   `#884DFF` (favicon violet, 4.61:1 on white) and `#A074FF` (`--violet` from
   `bloomcu/metrifi-brand` tokens.css, 4.94:1 on `#212121`). Both clear the 2:1 rule. `[LOCAL]`
-- `[x]` `interface.logo` — `./assets/logo.svg`, the 256×256 favicon from `bloomcu/metrifi-brand`
-  (numeric square viewBox, two fills). The wordmark `logo.svg` in that repo is 207×32 and cannot
-  be used: OpenAI requires square. `[LOCAL]`
-- `[x]` `interface.composerIcon` — `./assets/composer-icon.svg`, same favicon. No monochrome rule
-  is published; revisit if review asks. `[LOCAL]`
+- `[x]` `interface.logo` — `./assets/logo.png`, 1024×1024 8-bit RGBA, rasterised from the favicon
+  SVG in `bloomcu/metrifi-brand` (`magick -density 400`). The portal's upload fields ask for PNG
+  (directory icon ≥256², composer icon ≥48²), so PNG is used in the manifest too. The wordmark
+  `logo.svg` in the brand repo is 207×32 and cannot be used: OpenAI requires square. `[LOCAL]`
+- `[x]` `interface.composerIcon` — `./assets/composer-icon.png`, 256×256, same mark. No monochrome
+  rule is published; revisit if review asks. `[LOCAL]`
+- `[ ]` **Demo recording URL.** The portal's first screen asks for a video "demonstrating your
+  plugin's functionality using Developer Mode. We use this video to validate your plugin's test
+  cases and functionality. It will not be shared externally, and screen recordings are
+  acceptable." Not in any doc we fetched; surfaced only by opening the form (2026-08-25). Record
+  after the tool-surface PR lands so the video shows the final tool set. Roughly 30 minutes:
+  install the plugin in ChatGPT Developer Mode, sign in, then run the three starter prompts.
+  Host it somewhere that returns 200 to a non-browser (not behind the Cloudflare challenge on
+  `support.metrifi.com`). `[LOCAL]`
 - `[x]` Image rules: ≥48×48 (`raster_image_dimensions_too_small`), ≤4096×4096
   (`_too_large`), ≤5 MiB (`image_file_too_large`), format `.png/.jpg/.jpeg/.webp/.svg`
   (`image_file_format_unsupported`), extension must match real format
