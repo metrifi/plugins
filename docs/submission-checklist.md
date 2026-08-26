@@ -743,6 +743,19 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
   get-master-health, get-site, get-preview-url (read-only → write), build-deliverable,
   research-keywords, accept-invitation, activate-due-rates (→ destructive). The justification text
   already describes the corrected values. `[LOCAL]`
+- `[x]` **Prompts, Testing, Skills sections filled 2026-08-26 (overnight, via Playwright).** Three
+  starter prompts; five positive test cases (account lookup, site and rates, scheduled rate change,
+  GEO campaign visibility, CRO funnel report) and three negative ones (unrelated question, no
+  implicit publish, foreign team is refused); all 13 skills uploaded as one ZIP of
+  `plugins/codex/metrifi/skills` and accepted into scanning ("may take up to 2 hours"). All of it
+  confirmed to persist after reload. `[LOCAL]`
+- `[ ]` **Left for Ryan, in order:** (1) Testing → *Test credentials*: `reviewer@metrifi.com` plus
+  its password, in the `username: / password:` format the field shows; OpenAI requires no 2FA and
+  immediate access. (2) Merge platform #231, wait for deploy, then MCP → **Scan Tools** so the eight
+  corrected annotations show. (3) Global: confirm "Allow all countries". (4) Submit: release notes
+  (suggested: "Initial release: MetriFi platform connector with Site Builder, GEO and CRO tools, and
+  13 MetriFi skills."), the seven policy checkboxes, "No" on mature content. (5) Skills must show
+  scanned, not Scanning. Then **Submit for Review**.
 - `[ ]` Register ChatGPT's redirect URI. [OA-AUTH]: "ChatGPT completes the OAuth flow by
   redirecting to `https://chatgpt.com/connector/oauth/{callback_id}` and the URL will be shown in
   the app management page. Add that production redirect URI to your authorization server's
