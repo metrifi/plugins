@@ -777,7 +777,10 @@ Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manife
   (`plugin_default_prompt_mention`)
 - `[x]` `websiteURL`, `privacyPolicyURL`, `termsOfServiceURL`, `supportURL` — HTTPS, ≤1,024 chars.
   All four set under `interface` (where [OA-ERR] places them). `supportURL` is
-  `https://support.metrifi.com`; the contact page is `https://metrifi.com/talk-with-us/`. `[LOCAL]`
+  `https://metrifi.com/talk-with-us/` (200 to any client). **Not** `https://support.metrifi.com`:
+  it redirects to `/hc/en-us`, which sits behind a Cloudflare challenge (`cf-mitigated: challenge`)
+  and returns 403 to anything that is not a real browser, so an automated URL check during review
+  would fail. Verified 2026-08-25. `[LOCAL]`
   (`plugin_*_url_format`, `_too_long`). We have all four URLs. `[LOCAL]`
 - `[x]` `brandColor` `#RRGGBB` with ≥2:1 contrast vs white — 4.61:1 (`plugin_brand_color_contrast`)
 - `[x]` `brandColorDark` `#RRGGBB` with ≥2:1 contrast vs `#212121` — 4.94:1 (`plugin_brand_color_dark_contrast`)
