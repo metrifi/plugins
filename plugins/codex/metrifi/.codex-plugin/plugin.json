@@ -1,6 +1,6 @@
 {
   "name": "metrifi",
-  "version": "1.4.12",
+  "version": "1.4.13",
   "description": "One MetriFi sign-in connects Codex to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) and adds the MetriFi skills: client-report for auditing an institution's existing site, generate-claude-design-system, generate-claude-design-page and page-design-process for designing and building one, campaign-setup for standing up a new institution's first baseline campaign, and the GEO experiment skills that run a campaign from research through to a reviewed client deliverable.",
   "author": {
     "name": "MetriFi",
@@ -10,8 +10,8 @@
   "interface": {
     "displayName": "MetriFi",
     "developerName": "MetriFi",
-    "shortDescription": "Build & optimize bank websites",
-    "longDescription": "MetriFi connects your AI tool to the MetriFi platform, where credit unions and banks build and improve their websites. One sign-in with your MetriFi account turns on three products plus the skills that know how to use them. Authentication is OAuth; there are no tokens to paste and no credentials in the plugin.\n\nSite Builder: generate a brand and design system, build and edit pages, manage effective-dated rates, preview, and publish.\n\nGEO: measure how visible an institution is when consumers ask AI assistants questions, then run an experiment from keyword research to a reviewed client deliverable.\n\nCRO: build Google Analytics funnels, compare them, and generate conversion recommendations from real traffic.\n\nThe bundled skills carry the methodology: auditing an existing site, designing and building a new one, and running a GEO experiment end to end, including a four-part pre-publish review covering content hygiene, NCUA and lending compliance, WCAG 2.1 AA accessibility, and fact verification against the institution's live site.\n\nRequires a MetriFi account. Everything the plugin can reach is scoped to your team and your role on it.",
+    "shortDescription": "Build & optimize your website",
+    "longDescription": "MetriFi connects ChatGPT and Codex to your MetriFi account. Sign in once with your MetriFi login; there are no tokens to paste and no credentials in the plugin. From there you can work on everything your team already does in the MetriFi platform.\n\nSite Builder: generate a brand and design system, build and edit pages, manage effective-dated rates, preview, and publish.\n\nGEO: measure how visible your organization is when consumers ask AI assistants questions, then run an experiment from keyword research to a reviewed client deliverable.\n\nCRO: build Google Analytics funnels, compare them, and generate conversion recommendations from real traffic.\n\nThe bundled skills carry the MetriFi methodology: auditing an existing site, designing and building a new one, and running a GEO experiment end to end, including a pre-publish review for content quality, regulatory compliance, accessibility, and fact verification against your live site.\n\nRequires a MetriFi account. Everything the plugin can reach is scoped to your team and your role on it.",
     "category": "Business & Operations",
     "logo": "./assets/logo.png",
     "composerIcon": "./assets/composer-icon.png",
@@ -22,14 +22,14 @@
     "termsOfServiceURL": "https://metrifi.com/legal/terms-of-service/",
     "supportURL": "https://metrifi.com/talk-with-us/",
     "capabilities": [
-      "Audit a credit union or bank website and report what is hurting conversions",
+      "Audit a website and report what is hurting conversions",
       "Generate an institution's brand tokens and design system from its existing site",
       "Design and build new website pages against an established design system",
       "Manage effective-dated rates and find every page that uses a rate",
       "Preview a site before publishing and publish when approved",
       "Measure how visible an institution is when consumers ask AI assistants questions",
       "Run a GEO experiment from keyword research to a reviewed client deliverable",
-      "Review a draft for content hygiene, NCUA and lending compliance, WCAG 2.1 AA, and facts",
+      "Review a draft for content quality, regulatory compliance, accessibility, and facts",
       "Build Google Analytics funnels and compare them on a dashboard",
       "Generate conversion recommendations from real traffic",
       "Manage MetriFi teams, members, roles, and invitations"

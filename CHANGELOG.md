@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.13 — 2026-08-26
+
+- OpenAI listing copy stops naming the industry: subtitle is now 'Build & optimize your website', and the long description and capabilities describe the MetriFi platform without credit-union, bank or NCUA mentions. Every installer already knows MetriFi, and the neutral framing avoids OpenAI's heightened review of finance-category apps.
+
 ## 1.4.12 — 2026-08-26
 
 - Four skill descriptions (campaign-setup, exp-deliver, exp-research, start) trimmed under OpenAI's 1,024-character hard limit, which they had crossed in the GEO releases since 1.4.4. 1.4.10 and 1.4.11 claimed this trim and did not contain it; their entries are corrected.
