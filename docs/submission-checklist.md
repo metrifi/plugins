@@ -634,7 +634,16 @@ Two caveats on the number: the schema figure counts PHP builder source, not the 
 Schema, which will differ in both directions; and chars÷4 is a rough token ratio. A precise
 figure needs an authenticated `tools/list` counted with a real tokenizer.
 
-- `[ ]` **Confirm with a real tokenizer** against an authenticated `tools/list` before betting on it.
+- `[x]` **Confirm with a real tokenizer** against an authenticated `tools/list` before betting on it.
+  Done 2026-08-25 in [metrifi-platform#229](https://github.com/metrifi/metrifi-platform/pull/229),
+  tiktoken `o200k_base` over the real HTTP `tools/list`: **37,950 tokens before, 30,192 after**
+  the description cut. Largest single tool 1,157 → 939 (`push-deliverable-revision`). `[LOCAL]`
+- `[!]` **16,000 is not reachable without cutting input schemas.** With every description deleted,
+  schema structure, names, titles and the three mandatory annotation keys still cost ~16,400
+  tokens (schema structure alone 9,063). 30,192 sits under the ~32,000 cutoff [C-OA-SCAN] measured
+  empirically, and above the 16,000 support quoted. If the scanner fails, the only lever left is
+  the manifest and review-spec input schemas (a `ref` upload path already exists for the
+  manifest). Arithmetic in the PR body and `docs/mcp-authoring.md` in the platform repo. `[LOCAL]`
 - `[ ]` Bring the surface down. In order of preference:
   1. **Cut description length.** Descriptions are 47k of the 121k characters, and the [D.2]
      rewrite removes behavioral instructions from them anyway. A 50% description cut lands the
@@ -825,7 +834,12 @@ Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manife
   descriptions short beyond the 1,024-character hard limit.
 
 ### Tools
-- `[ ]` Explicit `readOnlyHint`, `openWorldHint`, **and** `destructiveHint` on every tool
+- `[x]` Explicit `readOnlyHint`, `openWorldHint`, **and** `destructiveHint` on every tool — all
+  161 tools, plus a title each, in [metrifi-platform#229](https://github.com/metrifi/metrifi-platform/pull/229)
+  (CI green, awaiting merge). A registry-walking test keeps the next tool compliant. Follow-up
+  named in the PR: `manage-review-item` puts `assign` and `delete` behind one `action` enum, the
+  only catch-all tool; annotated destructive so nothing is understated, splitting it is a
+  behaviour change. `[LOCAL]`
   (`annotations_required`) `[OA-ERR]` `[OA-SUB]`
 - `[ ]` **A written justification for each hint value** (`justification_required`). Required by
   OpenAI, not by Anthropic. `[OA-ERR]` [OA-SUB]: "Explicit readOnlyHint, openWorldHint, and
