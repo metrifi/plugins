@@ -591,6 +591,27 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 
 ## C. OpenAI Plugins Directory
 
+> **`[x]` SUBMITTED 2026-08-26.** Status: "MetriFi submitted for review. We'll notify you when a
+> decision is made." Draft `asdk_app_6a8e607211fc8191b04a36d63dad17cb`, version
+> `asdk_app_v_6a8e6072929481919c7be62e0ca9a266`, project `MetriFi` (global), developer identity
+> `MetriFi`. Plugin at **v1.4.13**; platform at `main` after #229, #230, #231.
+>
+> Final pre-submission review ran as a seven-gate ledger (four runnable checks against the live
+> server, listing URLs, manifest limits and skill descriptions, with a negative control; three
+> manual gates evidenced by a Playwright dump of the draft, Ryan's unattached negative-prompt runs,
+> and the identity/residency facts). 7 met, 0 abandoned.
+>
+> What review will find that we know about: `get-site` and `get-preview-url` are annotated as
+> writes (they assign a Vercel draft domain), so ChatGPT asks for confirmation before calling them;
+> `manage-review-item` bundles `assign` and `delete` behind one `action` enum. Both are noted as
+> follow-ups in platform #229 and #231. If rejected for the developer name, switch
+> `interface.developerName` and the form's Plugin Author to `BloomCU LLC`, bump the version, and
+> resubmit; a resubmission always needs a higher version.
+>
+> Post-approval: the MCP server origin is locked to `https://platform.metrifi.com/mcp`; skills
+> ship to Codex users only when the version bumps; ChatGPT pulls the published bundle.
+
+
 One submission, listed in both ChatGPT and Codex. [OA-SUBP]: approved plugins appear in the
 "Plugins Directory available in both ChatGPT and Codex." [OA-APP] confirms the merge: "Apps are
 now submitted and published as plugins." Most mechanically strict of the three, and the error
