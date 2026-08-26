@@ -11,7 +11,34 @@
     "displayName": "MetriFi",
     "developerName": "MetriFi",
     "shortDescription": "Credit union & bank websites",
-    "longDescription": "MetriFi connects your AI tool to the MetriFi platform, where credit unions and banks build and improve their websites. One sign-in with your MetriFi account turns on three products plus the skills that know how to use them. Authentication is OAuth; there are no tokens to paste and no credentials in the plugin.\n\nSite Builder: generate a brand and design system, build and edit pages, manage effective-dated rates, preview, and publish.\n\nGEO: measure how visible an institution is when consumers ask AI assistants questions, then run an experiment from keyword research to a reviewed client deliverable.\n\nCRO: build Google Analytics funnels, compare them, and generate conversion recommendations from real traffic.\n\nThe bundled skills carry the methodology: auditing an existing site, designing and building a new one, and running a GEO experiment end to end, including a four-part pre-publish review covering content hygiene, NCUA and lending compliance, WCAG 2.1 AA accessibility, and fact verification against the institution's live site.\n\nRequires a MetriFi account. Everything the plugin can reach is scoped to your team and your role on it."
+    "longDescription": "MetriFi connects your AI tool to the MetriFi platform, where credit unions and banks build and improve their websites. One sign-in with your MetriFi account turns on three products plus the skills that know how to use them. Authentication is OAuth; there are no tokens to paste and no credentials in the plugin.\n\nSite Builder: generate a brand and design system, build and edit pages, manage effective-dated rates, preview, and publish.\n\nGEO: measure how visible an institution is when consumers ask AI assistants questions, then run an experiment from keyword research to a reviewed client deliverable.\n\nCRO: build Google Analytics funnels, compare them, and generate conversion recommendations from real traffic.\n\nThe bundled skills carry the methodology: auditing an existing site, designing and building a new one, and running a GEO experiment end to end, including a four-part pre-publish review covering content hygiene, NCUA and lending compliance, WCAG 2.1 AA accessibility, and fact verification against the institution's live site.\n\nRequires a MetriFi account. Everything the plugin can reach is scoped to your team and your role on it.",
+    "category": "Business & Operations",
+    "logo": "./assets/logo.svg",
+    "composerIcon": "./assets/composer-icon.svg",
+    "brandColor": "#884DFF",
+    "brandColorDark": "#A074FF",
+    "websiteURL": "https://metrifi.com",
+    "privacyPolicyURL": "https://metrifi.com/legal/privacy-policy/",
+    "termsOfServiceURL": "https://metrifi.com/legal/terms-of-service/",
+    "supportURL": "https://github.com/metrifi/plugins/blob/main/README.md#legal",
+    "capabilities": [
+      "Audit a credit union or bank website and report what is hurting conversions",
+      "Generate an institution's brand tokens and design system from its existing site",
+      "Design and build new website pages against an established design system",
+      "Manage effective-dated rates and find every page that uses a rate",
+      "Preview a site before publishing and publish when approved",
+      "Measure how visible an institution is when consumers ask AI assistants questions",
+      "Run a GEO experiment from keyword research to a reviewed client deliverable",
+      "Review a draft for content hygiene, NCUA and lending compliance, WCAG 2.1 AA, and facts",
+      "Build Google Analytics funnels and compare them on a dashboard",
+      "Generate conversion recommendations from real traffic",
+      "Manage MetriFi teams, members, roles, and invitations"
+    ],
+    "defaultPrompt": [
+      "Audit https://examplecu.org and tell me what is hurting conversions",
+      "Start a GEO experiment for this team on home equity loans",
+      "Add a first-time homebuyer page to our site"
+    ]
   },
   "mcpServers": "./.mcp.json"
 }

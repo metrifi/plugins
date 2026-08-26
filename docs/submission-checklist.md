@@ -752,26 +752,37 @@ Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manife
   branding-vs-legal-name as a rejection trigger [C-OA-REJ4]. If review rejects with "The
   developer name you entered does not match your verified individual or business name"
   [C-OA-REJ1], change this field to `BloomCU LLC` and resubmit with a version bump. `[LOCAL]`
-- `[ ]` `interface.brandColor` / `brandColorDark` — six-digit hex (`plugin_brand_color_format`).
-  No brand hex values exist anywhere in this repo. `[LOCAL]`
-- `[ ]` `interface.logo` — required, square (`plugin_logo_path_missing`) **`[!]` missing**
-- `[ ]` `interface.composerIcon` — required, square (`plugin_composer_icon_path_missing`) **`[!]` missing**
-- `[ ]` Image rules: ≥48×48 (`raster_image_dimensions_too_small`), ≤4096×4096
+- `[x]` `interface.brandColor` / `brandColorDark` — six-digit hex (`plugin_brand_color_format`).
+  `#884DFF` (favicon violet, 4.61:1 on white) and `#A074FF` (`--violet` from
+  `bloomcu/metrifi-brand` tokens.css, 4.94:1 on `#212121`). Both clear the 2:1 rule. `[LOCAL]`
+- `[x]` `interface.logo` — `./assets/logo.svg`, the 256×256 favicon from `bloomcu/metrifi-brand`
+  (numeric square viewBox, two fills). The wordmark `logo.svg` in that repo is 207×32 and cannot
+  be used: OpenAI requires square. `[LOCAL]`
+- `[x]` `interface.composerIcon` — `./assets/composer-icon.svg`, same favicon. No monochrome rule
+  is published; revisit if review asks. `[LOCAL]`
+- `[x]` Image rules: ≥48×48 (`raster_image_dimensions_too_small`), ≤4096×4096
   (`_too_large`), ≤5 MiB (`image_file_too_large`), format `.png/.jpg/.jpeg/.webp/.svg`
   (`image_file_format_unsupported`), extension must match real format
   (`raster_image_extension_content_mismatch`), path must start `./`
   (`branding_asset_path_missing_root_prefix`). SVGs need a square numeric `viewBox`
   (`svg_dimensions_not_square`, `svg_dimensions_not_numeric`).
-- `[ ]` `interface.category` from the 13 allowed values (`plugin_category_unknown`)
-- `[ ]` `interface.capabilities` ≤20 items, each ≤120 chars, single line
+- `[x]` `interface.category` from the 13 allowed values (`plugin_category_unknown`) — `Business & Operations`.
+  The full list: Productivity, Creativity, Developer Tools, Business & Operations, Data &
+  Analytics, Communication, Education & Research, Security, Finance, Healthcare, Travel,
+  Entertainment, Other. [OA-ERR] `[LOCAL]`
+- `[x]` `interface.capabilities` ≤20 items — 11 items, longest 87 chars `[LOCAL]`, each ≤120 chars, single line
   (`plugin_capabilities_too_many`, `plugin_capability_too_long`)
-- `[ ]` `interface.defaultPrompt` ≤3 prompts (`plugin_default_prompt_too_many`), each ≤128 chars
+- `[x]` `interface.defaultPrompt` ≤3 prompts — 3, longest 67 chars, none names the app [OA-ERR] `[LOCAL]` (`plugin_default_prompt_too_many`), each ≤128 chars
   final (`_too_long`), unique after normalization (`_duplicate`), no app `@mention`
   (`plugin_default_prompt_mention`)
-- `[ ]` `websiteURL`, `privacyPolicyURL`, `termsOfServiceURL`, `supportURL` — HTTPS, ≤1,024 chars
+- `[x]` `websiteURL`, `privacyPolicyURL`, `termsOfServiceURL`, `supportURL` — HTTPS, ≤1,024 chars.
+  All four set under `interface` (where [OA-ERR] places them). `supportURL` points at the
+  README Legal section on GitHub because metrifi.com has no `/support` or `/contact` page
+  (both 404 on 2026-08-25). **A `https://metrifi.com/support` page would read better to a
+  reviewer; swap it in if one gets published.** `[LOCAL]`
   (`plugin_*_url_format`, `_too_long`). We have all four URLs. `[LOCAL]`
-- `[ ]` `brandColor` `#RRGGBB` with ≥2:1 contrast vs white (`plugin_brand_color_contrast`)
-- `[ ]` `brandColorDark` `#RRGGBB` with ≥2:1 contrast vs `#212121` (`plugin_brand_color_dark_contrast`)
+- `[x]` `brandColor` `#RRGGBB` with ≥2:1 contrast vs white — 4.61:1 (`plugin_brand_color_contrast`)
+- `[x]` `brandColorDark` `#RRGGBB` with ≥2:1 contrast vs `#212121` — 4.94:1 (`plugin_brand_color_dark_contrast`)
 - `[x]` `version` valid semver (`plugin_version_not_semver`) and **bumped on every resubmission**
   (`plugin_version_unchanged`) `[LOCAL]`
 - `[x]` `mcpServers` declares `./.mcp.json`. [OA-ERR] warns that an undeclared one is silently
