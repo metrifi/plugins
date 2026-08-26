@@ -1,7 +1,7 @@
 {
   "name": "metrifi",
   "displayName": "MetriFi",
-  "version": "1.4.11",
+  "version": "1.4.12",
   "description": "The MetriFi plugin: one MetriFi sign-in connects Claude to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) and adds the MetriFi skills: client-report for auditing an institution's existing site, generate-claude-design-system, generate-claude-design-page and page-design-process for designing and building one, campaign-setup for standing up a new institution's first baseline campaign, and the GEO experiment skills that run a campaign from research through to a reviewed client deliverable. Self-contained: no other plugins needed. Analyze, design and edit conversion-optimized credit-union and bank websites the MetriFi way.",
   "author": {
     "name": "MetriFi",
