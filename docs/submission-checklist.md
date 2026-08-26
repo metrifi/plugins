@@ -705,7 +705,12 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
   may be published at a time and only one version may be in review at a time."
 
 ### Domain verification
-- `[ ]` Host the challenge token at `https://platform.metrifi.com/.well-known/openai-apps-challenge`
+- `[x]` Host the challenge token at `https://platform.metrifi.com/.well-known/openai-apps-challenge`
+  — [metrifi-platform#230](https://github.com/metrifi/metrifi-platform/pull/230), token in
+  `config/services.php` (public by design). Same PR corrects eight tool annotations the
+  justification pass found understated; the 483 justifications themselves are in
+  [openai-tool-justifications.md](openai-tool-justifications.md) and get filled into the form by
+  Playwright once the corrected annotations are deployed and rescanned. `[LOCAL]`
   `[OA-SUB]` `[OA-ERR: domain_verification_required]`
 - `[ ]` Return **only** the token. [OA-SUB]: "The challenge endpoint must return only that
   plugin's verification token—do not return JSON, a list of tokens, or multiple tokens from the
