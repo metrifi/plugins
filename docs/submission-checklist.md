@@ -749,6 +749,12 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
   implicit publish, foreign team is refused); all 13 skills uploaded as one ZIP of
   `plugins/codex/metrifi/skills` and accepted into scanning ("may take up to 2 hours"). All of it
   confirmed to persist after reload. `[LOCAL]`
+- `[x]` **Skill descriptions re-checked against the 1,024 limit at the moment of upload.** Four had
+  grown past it since 1.4.4 (`campaign-setup` 1242, `exp-deliver` 1226, `exp-research` 1081, `start`
+  1025; the plugin now has 13 skills). Trimmed in **v1.4.12**. Two releases before it, 1.4.10 and
+  1.4.11, went out as version-bump-only because the release script ran after a failed length check;
+  their changelog entries say so. Lesson, now a rule: **measure every skill description right before
+  any OpenAI upload, since `main` moves between sessions.** `[LOCAL]`
 - `[ ]` **Left for Ryan, in order:** (1) Testing → *Test credentials*: `reviewer@metrifi.com` plus
   its password, in the `username: / password:` format the field shows; OpenAI requires no 2FA and
   immediate access. (2) Merge platform #231, wait for deploy, then MCP → **Scan Tools** so the eight
