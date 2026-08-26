@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.11 — 2026-08-26
+
+- Four skill descriptions (campaign-setup, exp-deliver, exp-research, start) trimmed back under OpenAI's 1,024-character hard limit; they had grown past it in the GEO releases since 1.4.4. Also corrects the 1.4.10 entry, which claimed this trim and did not contain it.
+
 ## 1.4.10 — 2026-08-26
 
 - Four skill descriptions (campaign-setup, exp-deliver, exp-research, start) trimmed back under OpenAI's 1,024-character hard limit; they had grown past it in the GEO releases since 1.4.4.
