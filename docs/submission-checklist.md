@@ -608,6 +608,15 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > `interface.developerName` and the form's Plugin Author to `BloomCU LLC`, bump the version, and
 > resubmit; a resubmission always needs a higher version.
 >
+> **Held behind the review decision:** [metrifi-platform#232](https://github.com/metrifi/metrifi-platform/pull/232)
+> moves the side effects out of the four read paths (`assignDraftDomain()` to `createSite()` and
+> a post-commit `ensureDraftHost()` on `write-files`/`delete-files`; health refresh to a 15-minute
+> `geo:health:refresh` schedule plus new `refresh-team-health` / `refresh-master-health` tools) so
+> `get-site`, `get-preview-url`, `get-team-health`, `get-master-health` are read-only again. Merging
+> it before the decision would make the live server contradict the submitted annotations and
+> justifications. After merge, the next OpenAI version needs a re-scan, justifications for the two
+> new tools (163 total), and a re-measured token count.
+>
 > Post-approval: the MCP server origin is locked to `https://platform.metrifi.com/mcp`; skills
 > ship to Codex users only when the version bumps; ChatGPT pulls the published bundle.
 
