@@ -776,10 +776,8 @@ Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manife
   final (`_too_long`), unique after normalization (`_duplicate`), no app `@mention`
   (`plugin_default_prompt_mention`)
 - `[x]` `websiteURL`, `privacyPolicyURL`, `termsOfServiceURL`, `supportURL` — HTTPS, ≤1,024 chars.
-  All four set under `interface` (where [OA-ERR] places them). `supportURL` points at the
-  README Legal section on GitHub because metrifi.com has no `/support` or `/contact` page
-  (both 404 on 2026-08-25). **A `https://metrifi.com/support` page would read better to a
-  reviewer; swap it in if one gets published.** `[LOCAL]`
+  All four set under `interface` (where [OA-ERR] places them). `supportURL` is
+  `https://support.metrifi.com`; the contact page is `https://metrifi.com/talk-with-us/`. `[LOCAL]`
   (`plugin_*_url_format`, `_too_long`). We have all four URLs. `[LOCAL]`
 - `[x]` `brandColor` `#RRGGBB` with ≥2:1 contrast vs white — 4.61:1 (`plugin_brand_color_contrast`)
 - `[x]` `brandColorDark` `#RRGGBB` with ≥2:1 contrast vs `#212121` — 4.94:1 (`plugin_brand_color_dark_contrast`)
