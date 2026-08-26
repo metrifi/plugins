@@ -746,7 +746,7 @@ Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manife
 - `[x]` Top-level `description`, ≤1,024 chars (`plugin_description_missing`, `_too_long`) — 427 `[LOCAL]`
 - `[x]` Top-level `name` ≤64 (7), `version` ≤64 (5), `author.name` ≤120 (7) `[LOCAL]`
 - `[x]` `interface.shortDescription` ≤30 final / 240 validation (`plugin_short_description_too_long`)
-  — now `"Credit union & bank websites"`, 28 chars. Was 156, which passes draft validation but
+  — now `"Build & optimize bank websites"`, 30 chars, verb-led the way OpenAI's examples are ("Find flights and hotels"). Was 156, which passes draft validation but
   fails final submission. Cut on 2026-08-05: a 156-character "short" description was poor UX in
   the Codex plugin list anyway, so there was no reason to carry the bad value until submission
   day. `[LOCAL]`

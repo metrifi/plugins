@@ -10,7 +10,7 @@
   "interface": {
     "displayName": "MetriFi",
     "developerName": "MetriFi",
-    "shortDescription": "Credit union & bank websites",
+    "shortDescription": "Build & optimize bank websites",
     "longDescription": "MetriFi connects your AI tool to the MetriFi platform, where credit unions and banks build and improve their websites. One sign-in with your MetriFi account turns on three products plus the skills that know how to use them. Authentication is OAuth; there are no tokens to paste and no credentials in the plugin.\n\nSite Builder: generate a brand and design system, build and edit pages, manage effective-dated rates, preview, and publish.\n\nGEO: measure how visible an institution is when consumers ask AI assistants questions, then run an experiment from keyword research to a reviewed client deliverable.\n\nCRO: build Google Analytics funnels, compare them, and generate conversion recommendations from real traffic.\n\nThe bundled skills carry the methodology: auditing an existing site, designing and building a new one, and running a GEO experiment end to end, including a four-part pre-publish review covering content hygiene, NCUA and lending compliance, WCAG 2.1 AA accessibility, and fact verification against the institution's live site.\n\nRequires a MetriFi account. Everything the plugin can reach is scoped to your team and your role on it.",
     "category": "Business & Operations",
     "logo": "./assets/logo.png",
