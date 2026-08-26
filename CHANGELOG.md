@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.10 — 2026-08-26
+
+- Four skill descriptions (campaign-setup, exp-deliver, exp-research, start) trimmed back under OpenAI's 1,024-character hard limit; they had grown past it in the GEO releases since 1.4.4.
+
 ## 1.4.9 — 2026-08-19
 
 - Experiment prompt attachment is defined by coverage, not a target quota. exp-build's target-lock step now instructs a full campaign sweep (list-prompts) and attaches every prompt the planned article could plausibly move, with excluded prompts named and justified; the 'typically six to ten' phrasing is gone from the skill and Rule 8 so the count falls out of the sweep instead of reading as a quota. A consumer question the article answers that no campaign prompt covers may become a new prompt only through the existing demand gate (rules 1 to 3) and only before the article goes live so it accrues a baseline; the article never justifies a prompt, demand does. Motivated by the Experiment Report coverage audit: 22 of 42 historical top-customer experiments attached a single prompt, and sibling-prompt effects (e.g. Brightstar) were invisible to them.
