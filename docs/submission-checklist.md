@@ -770,7 +770,11 @@ Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manife
   `logo.svg` in the brand repo is 207×32 and cannot be used: OpenAI requires square. `[LOCAL]`
 - `[x]` `interface.composerIcon` — `./assets/composer-icon.png`, 256×256, same mark. No monochrome
   rule is published; revisit if review asks. `[LOCAL]`
-- `[ ]` **Demo recording URL.** The portal's first screen asks for a video "demonstrating your
+- `[x]` **Demo recording URL.** `https://youtu.be/oPHlwMgO7Nk`, Unlisted, 3:04, recorded 2026-08-25
+  in ChatGPT Developer Mode as `reviewer@metrifi.com`: sign-in, whoami, Golden Peak site and rates,
+  a scheduled rate change, preview link, GEO campaign visibility, CRO funnel report. Verified
+  reachable without login (oEmbed 200, `isUnlisted:true`). The portal blocks progress past the
+  first screen without this URL, so it is a prerequisite for creating the draft, not a last step. The portal's first screen asks for a video "demonstrating your
   plugin's functionality using Developer Mode. We use this video to validate your plugin's test
   cases and functionality. It will not be shared externally, and screen recordings are
   acceptable." Not in any doc we fetched; surfaced only by opening the form (2026-08-25). Record
