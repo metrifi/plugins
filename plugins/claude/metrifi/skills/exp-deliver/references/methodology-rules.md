@@ -474,18 +474,24 @@ write a competing definition anywhere.
 
 **Content Location: presentation wins over URL structure.** A dated permalink is an artifact of
 the publishing tool, not an editorial decision, and the definitions above say nothing about URLs.
-One observable test, in order:
+One observable test, in order. Take the first step that answers yes and stop:
 
-1. **Does the page present itself as dated?** A visible publication or "last updated" date, or it
-   sits in a rolling posts or blog index. If yes, `Blog Post`.
-2. **Otherwise, is it evergreen educational content?** Then `Resource Page`, **even under a dated
+1. **Is it a core offering or feature page?** Then `Product / Service Page`. This is asked first
+   because a product page routinely carries a rate-effective or "last updated" date, and that
+   date is a maintenance artifact, not evidence that the page is a post.
+2. **Otherwise, does the page present itself as dated?** A visible publication or "last updated"
+   date, or it sits in a rolling posts or blog index. If yes, `Blog Post`.
+3. **Otherwise, is it evergreen educational content?** Then `Resource Page`, **even under a dated
    permalink**.
-3. **Is it a core offering or feature page?** Then `Product / Service Page`, regardless of either
-   signal above.
 
 Record the signals you observed alongside the tag, in the decision document, so a later reviewer
 can see why the page was filed where it was. Expect this test to GROW the Resource Page bucket
 rather than shrink it; say so plainly when the numbers move.
+
+**Content Length at a band boundary: take the higher band.** The published bands touch at 500 and
+3000, so an article of exactly 500 words is `Medium` and one of exactly 3000 words is `Long`. That
+is the reading `3000+` already implies. The band text itself is the platform's and is quoted
+verbatim above; this settles how to read it, and does not edit it.
 
 **Content Intention: one primary, optionally one secondary.** An article may genuinely both
 explain and compare. Pass the leading intention as `primary_intention` and the other in `tags`.
