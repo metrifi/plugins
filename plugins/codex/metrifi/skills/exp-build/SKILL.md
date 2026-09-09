@@ -216,9 +216,10 @@ experiment carrying no recommendation contributes nothing to any insight compute
 whatever any one client looks at.
 
 Both tools replace rather than patch, so read `get-experiment` first, which returns the analysis, the
-recommendation and its actions. Write the finding you produced in this session and nothing else:
-never re-send a recommendation that is already there, because the call deletes the whole action set,
-including anything a human changed in the app.
+recommendation and its actions. Then send the finding you decided on in this session: the first
+recommendation, or a deliberate revision of the one you just read and are choosing to replace. What
+is never safe is writing without reading, because the call deletes the whole action set, including
+anything a human changed in the app. If what is already there is still right, leave it alone.
 
 ## 7. Draft the article
 
