@@ -35,8 +35,11 @@ anyone; say that in one line.
 
 Then fill in the detail on what it named:
 
-- `list-deliverables(team_id)` gives every deliverable with its status, version, action-item counts,
-  participant count, and whether it has been sent.
+- `list-deliverables(team_id)` gives every live deliverable with its status, version, action-item
+  counts, participant count, and whether it has been sent. It leaves out archived rows, which are
+  history rather than live client work, and its header says how many it hid; pass `include_archived`
+  when the question is about the record rather than the queue. If a team's list looks emptier than
+  the person expects, that line is the answer.
 - For anything already sent, `get-deliverable-activity(team_id, deliverable_id)` is the activity
   ledger: views, answers, comments, threads, attestations, and opt-out requests, oldest first, each
   row carrying its activity id. A deliverable with client answers newer than its latest revision is

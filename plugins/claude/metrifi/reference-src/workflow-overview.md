@@ -32,6 +32,19 @@ To find experiments in the first place: `whoami` tells you who you are and which
 `list-teams` gives you the team slugs, `list-experiments(team_id)` lists that team's experiments, and
 `list-deliverables(team_id)` lists the client-facing pages.
 
+**A deliverable can be archived**, which means somebody decided it is history rather than live client
+work: mostly legacy articles imported before the platform existed, which never had an experiment and
+were never sent. An archived page is closed, so its client link 404s, and `send-deliverable`,
+`send-deliverable-followup` and `record-deliverable-shared` refuse it outright. `list-deliverables`
+leaves archived rows out by default and tells you how many it hid; pass `include_archived` to see
+them, and `get-deliverable` returns one either way, labelled. Nothing is deleted and it reverses in
+one call: `set-deliverable-archived(team_id, deliverable_id, archived)`. Writing a manifest to an
+archived deliverable brings it back automatically and says so, because new client work is the
+plainest evidence the row is not history any more. Archiving a row that HAS an experiment is
+unusual: that row is still on the pipeline board and still in the health counts, and the tool warns
+you before it proceeds. Never archive finished work just because you are done with it; a published
+deliverable is a record, and archiving one closes a link a client may still hold.
+
 **Name the record, do not number it.** Every experiment, deliverable and campaign has a name, and
 that is what you call it in anything a person reads: your messages to your operator, workflow notes,
 event summaries, document bodies. Write "the HELOC comparison experiment", never "experiment 84".
