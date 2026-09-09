@@ -145,9 +145,44 @@ and it has its own shape:
 Then stop. The next move is the client's, and their answers come back as activity on the deliverable
 for the revise phase to pick up.
 
+## Recording that the article went live
+
+Most articles are published by hand in the institution's own CMS, and the platform only hears about
+it if you tell it. `record-deliverable-publication(team_id, deliverable_id, published_url,
+published_at, note)` is how you tell it, and it is the right call for an article that is already
+live, however long ago.
+
+- **`published_at` is the real date the article went live**, `YYYY-MM-DD`, not today's date and not
+  the date you found out. A future date is refused. If the operator only remembers the month, ask;
+  a wrong live date anchors the measurement window on the wrong days.
+- **`published_url` is the address it is live at**, absolute and starting with `https://`. Read it
+  back before you record it.
+- **It records nothing about checks and claims nothing about them.** That is the point: it skips
+  the three publish refusals because it states a fact about the world rather than certifying a
+  decision. Never describe a recorded publication as having passed anything.
+- **It is correctable.** Wrong date or wrong URL, call it again with the right one; the correction
+  goes on the activity ledger. Nothing has to be undone first.
+- **It sets the experiment's live date too** when the experiment has none, which is what anchors
+  the measurement window. If the experiment already carries a date, or carries two deliverables,
+  the tool leaves the date alone and says so in its response. Report that line to your operator
+  rather than swallowing it: it means two records disagree and a human has to pick.
+
+Use `set-deliverable-status published` only for an article being published now, through the normal
+flow, with the approval and the checks genuinely in hand. For anything historical, this is the tool.
+
 ## Warnings and refusals
 
-The send never refuses. What can come back, and what to do with it:
+The send never refuses, **except after a publication is recorded**. What can come back, and what to
+do with it:
+
+- **A send on a deliverable whose article is already published is refused outright**, by
+  `send-deliverable` (preview included) and by `send-deliverable-followup`. The refusal names the
+  recorded live date and URL. Do not route around it: every email either tool could produce asks
+  the client about work that already shipped, either for input on a published article or for
+  approval of a draft they published themselves. To reach the client about a change, push the
+  change with `push-deliverable-revision` first. To record that you handed over the link,
+  `record-deliverable-shared`. If the publication record itself is wrong, correct it with
+  `record-deliverable-publication`. Say which of the three you are doing, and why.
 
 - **A check warning on the send** names each check that was missing, failing, or stale at the
   moment the client got the article, with its own reason (no result recorded, latest result is
@@ -158,11 +193,13 @@ The send never refuses. What can come back, and what to do with it:
 - **A build contract failure** still refuses: an anchor quote that no longer resolves, an illegal
   enum, an em dash in client copy. The way through is the article or the manifest, and the message
   says which.
-- **`published` still refuses.** That status needs the client's approval plus a genuinely
-  publish-ready deliverable: no outstanding blocking items, pre-publish checks cleared. Approval
-  alone is not enough, because a client can approve while a requested change is still pending.
-  Apply the outstanding corrections first. Never fabricate an approval or a sign-off, ever, for any
-  reason.
+- **`set-deliverable-status published` still refuses.** That status needs the client's approval plus
+  a genuinely publish-ready deliverable: no outstanding blocking items, pre-publish checks cleared.
+  Approval alone is not enough, because a client can approve while a requested change is still
+  pending. Apply the outstanding corrections first. Never fabricate an approval or a sign-off, ever,
+  for any reason, and never record a check nobody ran to get past this. If the article is already
+  live, the refusal is not the obstacle it looks like: that is what
+  `record-deliverable-publication` above is for.
 
 ## When the client goes quiet
 
