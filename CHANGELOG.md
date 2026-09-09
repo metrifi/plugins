@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.14 — 2026-09-09
+
+- GEO skills: always write the experiment analysis and recommendation; record an article published outside the platform; a send refuses once a publication is recorded or the deliverable is archived; classify the article that shipped, not the one recommended (Rule 24); name records rather than numbering them.
+
 ## 1.4.13 — 2026-08-26
 
 - OpenAI listing copy stops naming the industry: subtitle is now 'Build & optimize your website', and the long description and capabilities describe the MetriFi platform without credit-union, bank or NCUA mentions. Every installer already knows MetriFi, and the neutral framing avoids OpenAI's heightened review of finance-category apps.
