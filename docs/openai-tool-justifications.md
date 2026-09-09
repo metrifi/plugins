@@ -1,6 +1,6 @@
 # MCP tool annotation justifications (OpenAI review form)
 
-161 tools, tools/list order. Each line is one form field.
+162 tools, tools/list order. Each line is one form field.
 
 
 ## list-teams
@@ -338,6 +338,12 @@
 - **Read Only: False** — Records a manual share: it attaches or updates the client participant and stamps the deliverable's share and send bookkeeping.
 - **Open World: False** — Nothing is sent. Only MetriFi's own deliverable and participant rows are written.
 - **Destructive: True** — It overwrites share and send timestamps on the existing deliverable and can update an existing participant row.
+
+## record-deliverable-publication
+
+- **Read Only: False** — Writes the deliverable's published date, published URL and status, appends an activity row, and sets the experiment's live date when the experiment carries none.
+- **Open World: False** — Nothing is sent and the recorded URL is never fetched. Only MetriFi's own deliverable, activity and experiment rows are written.
+- **Destructive: True** — It overwrites the published date, URL and status on the existing deliverable; a second call is a deliberate correction of the first.
 
 ## get-experiment-workflow
 

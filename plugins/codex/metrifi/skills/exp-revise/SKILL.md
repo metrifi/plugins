@@ -186,7 +186,17 @@ Same gate as any other send, and it applies in full here. A later send announces
 than re-introducing the deliverable, but it is still an email to a real person and still a one-way
 door.
 
-1. **The checks first.** `send-deliverable` never refuses, but any real send whose manifest carries
+**First, check whether the article is already published.** If the deliverable carries a recorded
+live date and URL, `send-deliverable` and `send-deliverable-followup` refuse and name them, and that
+refusal is correct: an email about a draft is the wrong email once the client has the article on
+their own site. Push the revision itself with `push-deliverable-revision`, then tell your operator
+the article is live, what changed, and that reaching the client about it is a conversation they have
+directly. If they say the publication record is wrong, correct it with
+`record-deliverable-publication` rather than working around the refusal. Recording a publication is
+also the right move in the other direction: when a client's reply is "we published this last month",
+record it with the date and URL they gave, reading both back to them first.
+
+1. **The checks first.** `send-deliverable` never refuses on an unpublished deliverable, but any real send whose manifest carries
    the article comes back warning about each conventional check that is missing, failing, or
    recorded against different article prose. A revision is exactly the case this catches: the edit
    you just made staled the checks pinned to it. Re-run and re-record the staled checks before the

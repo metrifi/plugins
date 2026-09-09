@@ -158,6 +158,18 @@ When your operator asks for it, give it immediately, then offer the record as a 
 handed it over themselves and you record it (`record-deliverable-shared`, which stamps `sent_at`
 and emails nobody; `client_email` is optional). Only the raw token never prints as its own line.
 
+When the article goes live, record it. `record-deliverable-publication(team_id, deliverable_id,
+published_url, published_at)` takes the real historical date and the URL it is live at, for an
+article published in the institution's own CMS however long ago. It skips the three publish
+refusals `set-deliverable-status published` enforces, because it states a fact about the world
+rather than certifying a decision, and it claims nothing about pre-publish checks. It is
+correctable, and it sets the experiment's live date when the experiment has none.
+
+**Once a publication is recorded, `send-deliverable` and `send-deliverable-followup` refuse**, and
+the refusal names the recorded date and URL. Every email they could send asks the client about work
+that already shipped. Push a change with `push-deliverable-revision`, record a handover with
+`record-deliverable-shared`, or correct a wrong publication record; never route around the refusal.
+
 ### 5. Revise: apply what the client said
 
 Skill: **exp-revise**.
