@@ -145,6 +145,30 @@ and it has its own shape:
 Then stop. The next move is the client's, and their answers come back as activity on the deliverable
 for the revise phase to pick up.
 
+## 6. Once the article is live
+
+The one post-send step this skill owns. When the client publishes and you have the live URL,
+classify what actually shipped:
+
+```
+set-deliverable-tags(team_id, deliverable_id, tags, primary_intention)
+```
+
+Judge the page at its published URL, not the draft you sent and not the recommendation that
+preceded it. **Rule 24 in `references/methodology-rules.md` is the rule**, including the Content
+Location tie-break (presentation wins over URL structure) and the one-primary-plus-optional-secondary
+shape for Content Intention. Call the tool with no tags to have it print the live vocabulary and
+each value's definition.
+
+Two things worth saying plainly:
+
+- **This is what makes the experiment evidence rather than an anecdote.** Every cross-experiment
+  finding about length, format and intention is computed from these tags. An unclassified
+  deliverable contributes nothing, and one classified from the draft contributes something worse.
+- **If nobody has told you the article is live, do not guess.** Ask, or record the live URL first.
+  The tool will warn when the deliverable has no `published_url`, because a classification of a
+  page the platform has no address for cannot be re-checked by anyone.
+
 ## Warnings and refusals
 
 The send never refuses. What can come back, and what to do with it:
