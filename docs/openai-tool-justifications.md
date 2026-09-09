@@ -1,6 +1,6 @@
 # MCP tool annotation justifications (OpenAI review form)
 
-162 tools, tools/list order. Each line is one form field.
+163 tools, tools/list order. Each line is one form field.
 
 
 ## list-teams
