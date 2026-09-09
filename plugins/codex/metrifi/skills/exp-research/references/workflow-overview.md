@@ -32,6 +32,12 @@ To find experiments in the first place: `whoami` tells you who you are and which
 `list-teams` gives you the team slugs, `list-experiments(team_id)` lists that team's experiments, and
 `list-deliverables(team_id)` lists the client-facing pages.
 
+**Name the record, do not number it.** Every experiment, deliverable and campaign has a name, and
+that is what you call it in anything a person reads: your messages to your operator, workflow notes,
+event summaries, document bodies. Write "the HELOC comparison experiment", never "experiment 84".
+IDs are for tool arguments and for telling two same-named records apart, so give one only when it is
+doing that work, and give it as "ID 84" alongside the name rather than in place of it.
+
 ## The phase map
 
 Six phases plus the setup that precedes them. Each names the skill that carries it, so you can tell
@@ -96,6 +102,11 @@ new demand-grounded prompts and attach them with `update-experiment` using
 Then write the strategy and the draft, all of it server side:
 
 - `set-experiment-opportunity` for the "why this exists" block the client reads first.
+- `set-experiment-analysis` and `set-experiment-recommendation` for the same finding as the
+  experiment's own records, every time, not only when a client opens the dashboard. They are the
+  platform's cross-team evidence aggregate: an experiment with no recommendation contributes nothing
+  to any insight. Call `list-action-types` first; both tools replace rather than patch, so read
+  `get-experiment` before writing over what is already there.
 - `set-experiment-document` for `build-analysis`, `evidence`, `decisions`, `tracked-prompts`,
   `brief`, and `outline`. Documents with `in_dossier: true` ship to the client; set it false for
   internal notes.

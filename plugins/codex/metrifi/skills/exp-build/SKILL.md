@@ -207,11 +207,18 @@ is client-facing copy: plain language, no em dashes. The headline names the answ
 demand line carries the measured number, and each target prompt carries its id, its consumer
 phrasing, and where the client stands today.
 
-The experiment's in-product analysis and recommendation records are the same finding in the MetriFi
-dashboard. When the client uses that view, write them too: `set-experiment-analysis` (its summary
-opens with the same verdict block) and `set-experiment-recommendation` with one to three actions,
-calling `list-action-types` first because every action type has to match one of those values. Both
-replace rather than patch, so send the whole payload.
+Then write the same finding into the experiment's analysis and recommendation records:
+`set-experiment-analysis` (its summary opens with the same verdict block) and
+`set-experiment-recommendation` with one to three actions, calling `list-action-types` first because
+every action type has to match one of those values. Both are part of the build phase every time.
+They are not a dashboard convenience: they are the platform's cross-team evidence aggregate, and an
+experiment carrying no recommendation contributes nothing to any insight computed across teams,
+whatever any one client looks at.
+
+Both tools replace rather than patch, so read `get-experiment` first, which returns the analysis, the
+recommendation and its actions. Write the finding you produced in this session and nothing else:
+never re-send a recommendation that is already there, because the call deletes the whole action set,
+including anything a human changed in the app.
 
 ## 7. Draft the article
 
@@ -270,6 +277,9 @@ deliver phase records it (`send-deliverable` or `record-deliverable-shared`).
 
 ## 9. Hand off
 
+- **All three build-phase records exist**: the opportunity block, the analysis, and the
+  recommendation with at least one action. A missing one is unfinished work, not a judgment call.
+  `build-deliverable` warns about each; write the record rather than handing off around the warning.
 - `set-experiment-workflow(team_id, experiment_id, status: "in-progress", note)`. Write the note as a
   sentence a colleague can act on: the verdict and the locked target, what is drafted, and what is
   next.

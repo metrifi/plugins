@@ -28,7 +28,7 @@ answer looks like today is competitive intelligence (who is cited, what shape th
 and it never contributes to a keep or drop verdict. Record the verdict with
 `record-keyword-research` so the number and the decision travel together.
 
-**Where it came from:** an abandoned Wisconsin credit-union experiment (experiment 102), first
+**Where it came from:** an abandoned Wisconsin credit-union experiment (ID 102), first
 triage pass. Seventeen prompts were kept on "rich AI Mode answer" as a soft signal. The corrected
 pass, on strict volume, kept ten.
 
@@ -251,12 +251,12 @@ citation list, and say the sample size in the analysis whenever N is below four,
 two-of-two read is a weaker verdict than a two-of-four one and the client's reviewer deserves to see
 which they are looking at.
 
-**Where it came from:** the abandoned experiment 102. Thirty-two baseline responses across four
-target prompts contained zero specific lender mentions in body text. The article would have
-published into a slot the model never fills. The pivot to lender-decision-shaped prompts, where the
-gate passes, is what made the follow-on experiment work. The absolute four became budget-relative
-after the M14 QA run (2026-07-27), where a Starter team's 50 responses a month made a fixed four
-per prompt unreachable across a normal candidate set.
+**Where it came from:** the same abandoned Wisconsin experiment (ID 102). Thirty-two baseline
+responses across four target prompts contained zero specific lender mentions in body text. The
+article would have published into a slot the model never fills. The pivot to lender-decision-shaped
+prompts, where the gate passes, is what made the follow-on experiment work. The absolute four became
+budget-relative after the M14 QA run (2026-07-27), where a Starter team's 50 responses a month made
+a fixed four per prompt unreachable across a normal candidate set.
 
 ### Rule 6: document the single-provider caveat every time
 
