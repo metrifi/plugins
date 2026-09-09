@@ -1,6 +1,6 @@
 # MCP tool annotation justifications (OpenAI review form)
 
-163 tools, tools/list order. Each line is one form field.
+164 tools, tools/list order. Each line is one form field.
 
 
 ## list-teams
@@ -350,6 +350,12 @@
 - **Read Only: False** — Writes the deliverable's published date, published URL and status, appends an activity row, and sets the experiment's live date when the experiment carries none.
 - **Open World: False** — Nothing is sent and the recorded URL is never fetched. Only MetriFi's own deliverable, activity and experiment rows are written.
 - **Destructive: True** — It overwrites the published date, URL and status on the existing deliverable; a second call is a deliberate correction of the first.
+
+## set-deliverable-tags
+
+- **Read Only: False** — Replaces the deliverable's content-tag rows (Content Length, Content Location, Content Intention) and appends a classified activity row.
+- **Open World: False** — Nothing is sent and the published URL is never fetched. Only MetriFi's own deliverable-tag and activity rows are written.
+- **Destructive: True** — It replaces the whole classification rather than patching it, so any tag not passed on this call is removed.
 
 ## get-experiment-workflow
 

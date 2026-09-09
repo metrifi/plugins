@@ -25,7 +25,9 @@ export const CLAUDE_SKILLS = 'plugins/claude/metrifi/skills';
 // add the mapping in the same change that adds the skill.
 export const REFERENCE_MAP = {
     'workflow-overview.md': ['start', 'campaign-setup', 'exp-status', 'exp-sweep', 'exp-research', 'exp-build', 'exp-review', 'exp-deliver', 'exp-revise'],
-    'methodology-rules.md': ['campaign-setup', 'exp-research', 'exp-build', 'exp-review', 'exp-revise'],
+    // exp-deliver joined the list with rule 24 (#338): it owns the one post-send step,
+    // classifying the article that actually shipped, and the rule is what it classifies by.
+    'methodology-rules.md': ['campaign-setup', 'exp-research', 'exp-build', 'exp-review', 'exp-revise', 'exp-deliver'],
     // exp-revise gets the rules and all four batteries because it re-runs and re-records every
     // check its own article edit staled, and no skill may invoke another to do that for it.
     'review-hygiene.md': ['exp-review', 'exp-revise'],

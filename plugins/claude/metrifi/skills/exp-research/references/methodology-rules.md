@@ -436,6 +436,76 @@ Target: zero action items per deliverable.
 
 ---
 
+### Rule 24: classify the article that shipped, against the live page
+
+**The trap:** the content tags used to be set during the build phase, on the recommendation,
+before anything was published, and nothing revisited them afterwards. So they recorded what we
+meant to publish. One hand-audited experiment moved from Resource Page to Blog Post and from Long
+to Medium the moment someone read the live page, and "long-form resource pages win" is computed
+from these labels. A classification nobody checked against the artifact is not evidence.
+
+**The rule:** once the article is live, call `set-deliverable-tags` on its deliverable, judging
+the page at its published URL. Not the outline, not the draft, not the recommendation.
+
+**The vocabulary is fixed, and its definitions live on the platform.** These are the current
+values, quoted from `geo_tags.description`:
+
+| Group | Value | Definition, verbatim |
+|---|---|---|
+| Content Length | `Short` | `0-500 words` |
+| Content Length | `Medium` | `500-3000 words` |
+| Content Length | `Long` | `3000+ words` |
+| Content Location | `Blog Post` | `Time-based or thought leadership content` |
+| Content Location | `Resource Page` | `Evergreen educational content (guides, research, explainers)` |
+| Content Location | `Product / Service Page` | `Core offering or feature pages` |
+| Content Location | `Landing Page` | conversion-focused campaign pages |
+| Content Location | `Support Page` | help and service content |
+| Content Location | `Trust Page` | credibility and reassurance content |
+| Content Intention | `Explain` | what X is |
+| Content Intention | `Guide` | how to do X |
+| Content Intention | `Compare` | X versus Y |
+| Content Intention | `Persuade` | why us |
+
+**The platform's own values are authoritative, not this table.** Staff can edit a tag's
+description at any time, so this copy can go stale and the platform's cannot. `set-deliverable-tags`
+reads the live rows on every refusal, so calling it with a name it does not recognise prints the
+current groups, values and definitions. Do not invent a value, do not rename one, and do not
+write a competing definition anywhere.
+
+**Content Location: presentation wins over URL structure.** A dated permalink is an artifact of
+the publishing tool, not an editorial decision, and the definitions above say nothing about URLs.
+One observable test, in order. Take the first step that answers yes and stop:
+
+1. **Is it a core offering or feature page?** Then `Product / Service Page`. This is asked first
+   because a product page routinely carries a rate-effective or "last updated" date, and that
+   date is a maintenance artifact, not evidence that the page is a post.
+2. **Otherwise, does the page present itself as dated?** A visible publication or "last updated"
+   date, or it sits in a rolling posts or blog index. If yes, `Blog Post`.
+3. **Otherwise, is it evergreen educational content?** Then `Resource Page`, **even under a dated
+   permalink**.
+
+Record the signals you observed alongside the tag, in the decision document, so a later reviewer
+can see why the page was filed where it was. Expect this test to GROW the Resource Page bucket
+rather than shrink it; say so plainly when the numbers move.
+
+**Content Length at a band boundary: take the higher band.** The published bands touch at 500 and
+3000, so an article of exactly 500 words is `Medium` and one of exactly 3000 words is `Long`. That
+is the reading `3000+` already implies. The band text itself is the platform's and is quoted
+verbatim above; this settles how to read it, and does not edit it.
+
+**Content Intention: one primary, optionally one secondary.** An article may genuinely both
+explain and compare. Pass the leading intention as `primary_intention` and the other in `tags`.
+**Insights count the primary only**, so nothing is ever counted in two buckets — double counting
+is exactly what inflated the finding this rule exists to make trustworthy. Content Length and
+Content Location take one value each; there is no secondary there, and an article that seems to
+need one is a classification question, not a second tag.
+
+**Where it came from:** issue #338. Only 26 of 67 finished experiments carried a complete tag
+set, agents had no write path at all, and the tags that did exist described intentions rather
+than artifacts.
+
+---
+
 ## Analysis writing
 
 ### Rule 16: the viability verdict opens the analysis
