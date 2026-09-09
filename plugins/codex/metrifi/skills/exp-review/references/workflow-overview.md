@@ -32,6 +32,19 @@ To find experiments in the first place: `whoami` tells you who you are and which
 `list-teams` gives you the team slugs, `list-experiments(team_id)` lists that team's experiments, and
 `list-deliverables(team_id)` lists the client-facing pages.
 
+**A deliverable can be archived**, which means somebody decided it is history rather than live client
+work: mostly legacy articles imported before the platform existed, which never had an experiment and
+were never sent. An archived page is closed, so its client link 404s, and `send-deliverable`,
+`send-deliverable-followup` and `record-deliverable-shared` refuse it outright. `list-deliverables`
+leaves archived rows out by default and tells you how many it hid; pass `include_archived` to see
+them, and `get-deliverable` returns one either way, labelled. Nothing is deleted and it reverses in
+one call: `set-deliverable-archived(team_id, deliverable_id, archived)`. Writing a manifest to an
+archived deliverable brings it back automatically and says so, because new client work is the
+plainest evidence the row is not history any more. Archiving a row that HAS an experiment is
+unusual: that row is still on the pipeline board and still in the health counts, and the tool warns
+you before it proceeds. Never archive finished work just because you are done with it; a published
+deliverable is a record, and archiving one closes a link a client may still hold.
+
 **Name the record, do not number it.** Every experiment, deliverable and campaign has a name, and
 that is what you call it in anything a person reads: your messages to your operator, workflow notes,
 event summaries, document bodies. Write "the HELOC comparison experiment", never "experiment 84".
@@ -157,6 +170,18 @@ When your operator asks for it, give it immediately, then offer the record as a 
 "send" and you email it from the platform (`send-deliverable`), or they say "shared" because they
 handed it over themselves and you record it (`record-deliverable-shared`, which stamps `sent_at`
 and emails nobody; `client_email` is optional). Only the raw token never prints as its own line.
+
+When the article goes live, record it. `record-deliverable-publication(team_id, deliverable_id,
+published_url, published_at)` takes the real historical date and the URL it is live at, for an
+article published in the institution's own CMS however long ago. It skips the three publish
+refusals `set-deliverable-status published` enforces, because it states a fact about the world
+rather than certifying a decision, and it claims nothing about pre-publish checks. It is
+correctable, and it sets the experiment's live date when the experiment has none.
+
+**Once a publication is recorded, `send-deliverable` and `send-deliverable-followup` refuse**, and
+the refusal names the recorded date and URL. Every email they could send asks the client about work
+that already shipped. Push a change with `push-deliverable-revision`, record a handover with
+`record-deliverable-shared`, or correct a wrong publication record; never route around the refusal.
 
 ### 5. Revise: apply what the client said
 
