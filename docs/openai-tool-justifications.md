@@ -1,6 +1,6 @@
 # MCP tool annotation justifications (OpenAI review form)
 
-161 tools, tools/list order. Each line is one form field.
+162 tools, tools/list order. Each line is one form field.
 
 
 ## list-teams
@@ -308,6 +308,12 @@
 - **Read Only: False** — Writes the status column (and publish_plan when given) and appends a status-changed activity row.
 - **Open World: False** — All writes are to MetriFi's own deliverable tables.
 - **Destructive: True** — It overwrites the deliverable's current status, which changes what the client-facing page shows and whether it can publish.
+
+## set-deliverable-archived
+
+- **Read Only: False** — Writes `archived_at` on the deliverable (a timestamp to archive, null to bring it back) and appends an archived activity row carrying the caller's note.
+- **Open World: False** — All writes are to MetriFi's own deliverable and deliverable-activity tables. No email is sent and no external service is contacted.
+- **Destructive: True** — Archiving closes the deliverable's public client page, so a link a client already holds starts returning 404, and it drops the row out of the default list and off the attention gate. Nothing is deleted and the same tool with `archived=false` reverses it.
 
 ## reopen-action-item
 
