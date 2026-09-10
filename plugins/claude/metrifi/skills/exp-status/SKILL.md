@@ -68,6 +68,13 @@ One compact block per experiment:
 - **Experiment.** Name, team, topic, and the experiment ID, in one line.
 - **Where it stands.** The workflow status, plus the last operator's note verbatim if there is one.
   That note is usually the most useful line on the screen; do not paraphrase it away.
+- **Live date, and what it is worth.** `list-experiments` and `get-experiment` print a **Live date**
+  line carrying the date and where it came from. Repeat that provenance whenever you repeat a
+  result, because every number in the result is anchored to that date: `recorded` came from a
+  publication with a URL, `asserted` is a date somebody typed with nothing behind it, `inherited`
+  was migrated from the old hand-entered value and nobody ever checked it against the live page,
+  and `none recorded` means the experiment has no live date at all. **None of them means verified.**
+  A result resting on an `inherited` or `asserted` date is provisional, and saying so is not a hedge.
 - **Deliverable.** Status, version, open action items with how many are blocking, and whether it has
   been sent.
 - **Checks.** Which of hygiene, NCUA compliance, accessibility, and fact verification have a
@@ -92,5 +99,12 @@ visible before the detail.
   next skill is.
 - **A stale check is not a failure.** It means the article moved after the check ran, by design.
   Report it as work to redo, not as a problem.
+- **"Which results are we not sure about?" is one call, not a scan.** `list-experiments` takes
+  `live_date_source`, so ask it for `inherited` to get the experiments still graded on a migrated
+  date nobody checked, or `none` for the ones carrying no live date at all. Report those two
+  populations separately: an inherited date may well be right and nobody has looked, while no date
+  means there is no result to be right or wrong. Correcting one is `record-deliverable-publication`
+  when there is a published article behind it, and `update-experiment`'s `live_date` only when
+  there is not.
 - **Do not re-derive judgment the workflow already recorded.** If a document holds the viability
   verdict, quote it. Do not re-score the opportunity from scratch inside a status report.
