@@ -162,10 +162,15 @@ live, however long ago.
   decision. Never describe a recorded publication as having passed anything.
 - **It is correctable.** Wrong date or wrong URL, call it again with the right one; the correction
   goes on the activity ledger. Nothing has to be undone first.
-- **It sets the experiment's live date too** when the experiment has none, which is what anchors
-  the measurement window. If the experiment already carries a date, or carries two deliverables,
-  the tool leaves the date alone and says so in its response. Report that line to your operator
-  rather than swallowing it: it means two records disagree and a human has to pick.
+- **It sets the experiment's live date too**, which is what anchors the measurement window, and it
+  CORRECTS a date already there rather than only filling an empty one. A publication record
+  outranks a migrated or typed date and overwrites it without asking. That re-grades the
+  experiment, so say so when you record a publication on an experiment that already had a date:
+  a published result may have moved, and the changed-outcomes report is where it shows up.
+- **It stops at two things and guesses at neither.** A live date another publication already set,
+  and an experiment carrying two or more deliverables, where which one published is not a question
+  the tool can answer. In both cases it leaves the date alone, logs the disagreement, and says so
+  in its response. Report that line to your operator rather than swallowing it: a human has to pick.
 
 Use `set-deliverable-status published` only for an article being published now, through the normal
 flow, with the approval and the checks genuinely in hand. For anything historical, this is the tool.

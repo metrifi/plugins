@@ -176,7 +176,10 @@ published_url, published_at)` takes the real historical date and the URL it is l
 article published in the institution's own CMS however long ago. It skips the three publish
 refusals `set-deliverable-status published` enforces, because it states a fact about the world
 rather than certifying a decision, and it claims nothing about pre-publish checks. It is
-correctable, and it sets the experiment's live date when the experiment has none.
+correctable, and it CORRECTS the experiment's live date rather than only filling an empty one: a
+publication record outranks a migrated or typed date, and the re-grade it triggers is reported in
+the changed-outcomes report. It stops only at a live date another publication already set, or at
+an experiment carrying two or more deliverables, and logs that disagreement for a human.
 
 **Once a publication is recorded, `send-deliverable` and `send-deliverable-followup` refuse**, and
 the refusal names the recorded date and URL. Every email they could send asks the client about work
