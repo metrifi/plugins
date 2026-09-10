@@ -4,6 +4,13 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.15 — 2026-09-10
+
+- Teach the GEO skills the derived experiment stage and where a live date came from
+- exp-status reports the derived stage instead of the retired workflow status
+- exp-status reports whether a live date is recorded or inherited
+- set-experiment-workflow no longer takes a status
+
 ## 1.4.14 — 2026-09-09
 
 - GEO skills: always write the experiment analysis and recommendation; record an article published outside the platform; a send refuses once a publication is recorded or the deliverable is archived; classify the article that shipped, not the one recommended (Rule 24); name records rather than numbering them.
