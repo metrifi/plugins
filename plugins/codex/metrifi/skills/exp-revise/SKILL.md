@@ -234,7 +234,7 @@ Leaving a deliverable listed costs the next run one read. Marking work nobody di
 and the worklist is only useful while it tells the truth.
 
 Then leave the handoff readable:
-`set-experiment-workflow(team_id, experiment_id, status, note)` with a note the next operator can act
+`set-experiment-workflow(team_id, experiment_id, note)` with a note the next operator can act
 on, and `add-experiment-event` for the round. Always pass `idempotency_key` with a stable value per
 round, such as `revision-round-2`, so a resumed run cannot double-log: a key that already exists
 means this round was already logged, and the call returns that event instead of appending a second

@@ -281,9 +281,10 @@ deliver phase records it (`send-deliverable` or `record-deliverable-shared`).
 - **All three build-phase records exist**: the opportunity block, the analysis, and the
   recommendation with at least one action. A missing one is unfinished work, not a judgment call.
   `build-deliverable` warns about each; write the record rather than handing off around the warning.
-- `set-experiment-workflow(team_id, experiment_id, status: "in-progress", note)`. Write the note as a
-  sentence a colleague can act on: the verdict and the locked target, what is drafted, and what is
-  next.
+- `set-experiment-workflow(team_id, experiment_id, note)`. Write the note as a sentence a colleague
+  can act on: the verdict and the locked target, what is drafted, and what is next. There is no
+  status argument; the experiment's stage is derived from its dates and comes back on
+  `get-experiment`.
 - `add-experiment-event` for the things worth finding months later: the target locked, the documents
   written, the draft built.
 - Tell your operator that the draft has had **no compliance, accessibility, fact, or hygiene check**,

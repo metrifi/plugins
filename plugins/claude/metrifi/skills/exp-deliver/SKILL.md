@@ -139,7 +139,7 @@ and it has its own shape:
   `idempotency_key` with a stable value, such as `deliverable-sent-v3`, so a resumed run cannot
   double-log: a key that already exists means this send was already logged, and the call returns that
   event instead of appending a second one.
-- `set-experiment-workflow(team_id, experiment_id, status, note)` with a note the next operator can
+- `set-experiment-workflow(team_id, experiment_id, note)` with a note the next operator can
   act on: what went out, to whom, and what we are waiting for.
 
 Then stop. The next move is the client's, and their answers come back as activity on the deliverable

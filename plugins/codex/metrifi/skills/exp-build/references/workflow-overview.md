@@ -222,14 +222,29 @@ Three, and only three. Everything else runs without a pause.
 A blocker finding that survives review is a genuine blocker, not a routine touchpoint: report it and
 stop rather than working around it.
 
+## Where an experiment stands
+
+Never ask an operator, and never infer it from dates yourself. `get-experiment` and
+`list-experiments` both return a `stage`, derived from the experiment's own dates and always
+present, in one vocabulary shared with the pipeline board: **Drafting** (nothing live yet),
+**Ready to send**, **With client**, **Approved**, **Live** (the article is out and measurement is
+running) and **Concluded** (measurement has ended). `get-experiment-workflow` reports the same
+stage above the hand-off note.
+
+A stage of Drafting on an experiment that has been open for months means no article has gone live,
+not that somebody forgot to update a label. That is a fact about the record rather than a gap in
+it.
+
 ## Recording the handoff
 
 Two calls make an experiment picked up cleanly by whoever is next:
 
-- `set-experiment-workflow(team_id, experiment_id, status, note)` sets the status label
-  (in-progress, ready-for-approval, approved, published) and, more usefully, the free-text note for
-  whoever opens this next. No ordering is enforced. Write the note as a sentence a colleague can act
-  on: what is done, what is next, what is waiting on whom.
+- `set-experiment-workflow(team_id, experiment_id, note)` records the free-text note for whoever
+  opens this next. Write it as a sentence a colleague can act on: what is done, what is next, what
+  is waiting on whom. **There is no status to set.** The old `status` argument (in-progress,
+  ready-for-approval, approved, published) is gone: it was a hand-set second answer to "where does
+  this experiment stand", left blank on most experiments, and it could contradict the experiment's
+  own dates. Read the stage instead, below.
 - `add-experiment-event(team_id, experiment_id, kind, summary)` appends one line to the log, append
   only. Log the things a person would want to find months later: prompts created, a pivot executed
   and why, a document rewritten, a handoff.
