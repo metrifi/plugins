@@ -274,14 +274,26 @@ before anyone leans on the result for cross-model claims.
 
 ## Experiment design
 
-### Rule 7: do not pre-set the measurement start date
+### Rule 7: never type a live date
 
-**The trap:** setting `started_at` when the experiment record is created starts the 28-day
-measurement clock before the article is live. Baseline drift accumulates while days tick off.
+**The trap:** dating the experiment when the record is created starts the measurement clock before
+the article is live. Baseline drift accumulates while days tick off, and the grade that comes out
+is anchored on the day somebody filled in a form.
 
-**The rule:** create the experiment as `status: "draft"` with no dates. The status flips to
-`published` when the article actually goes live, and that is what starts the clock. The baseline
-window derives from the pre-publish period.
+**The rule:** an experiment has ONE date, its live date, and it is the day the article actually
+went live. `create-experiment` has no start-date argument at all. The live date arrives with the
+publication: `record-deliverable-publication` for an article published in the institution's own
+CMS, `set-deliverable-status published` for one published through the platform. Both set it and
+both re-grade the experiment. Moving the workflow status to `published` sets no date.
+
+`update-experiment(live_date)` is the last resort, for an experiment with no deliverable to
+propagate from. It is recorded as **asserted**: a human's claim with no artifact behind it. Every
+live date carries a source — `inherited` (migrated, nobody checked it), `asserted`, `recorded`
+(from a publication with a URL) — and **none of them means verified**. Nothing in the platform
+proves an article was live on the day it claims, so never present a date as confirmed.
+
+Correcting a live date re-grades the experiment and files a changed-outcomes row, so a correction
+is a real event with a real consequence, not a tidy-up. Make it deliberately.
 
 ### Rule 8: targets are a subset of the campaign, and non-targets keep running
 

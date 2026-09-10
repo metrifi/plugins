@@ -156,9 +156,9 @@ you found, the pivot you would recommend next, and stop.
 
 Create it early, as a draft, so the workflow state has a home before the writing starts:
 `create-experiment(team_id, name, campaign_id, description, status: "draft")`. **Pass no dates**
-(rule 7): `started_at` starts the 28-day measurement clock, and that clock starts when the article
-goes live. Then `update-experiment` to attach the coverage set locked in step 3: the targets plus
-every sibling prompt the article could plausibly move.
+(rule 7): there is no start-date argument, and the measurement clock starts on the day the article
+goes live, set by the publication record. Then `update-experiment` to attach the coverage set
+locked in step 3: the targets plus every sibling prompt the article could plausibly move.
 
 Write the hypothesis into the analysis in this form: if we publish a page that does X, the concrete
 substantiable hook from the evidence, visibility on the target prompts rises from its current level

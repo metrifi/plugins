@@ -297,9 +297,10 @@ rejected. **On a dry run, stop here.**
 1. **The experiment record, as a draft.** `create-experiment(team_id, name, campaign_id, description,
    status: "draft")`. Create it before the prompts, so the workflow state, the event log, and the
    handoff note have a home from the first phase and any operator can pick this up. **Pass no dates**
-   (rule 7): `started_at` starts the measurement clock, and the clock starts when the article goes
-   live, not today. If a draft experiment for this topic already exists on the campaign, reuse it
-   rather than creating a second.
+   (rule 7): `create-experiment` has no start-date argument, because an experiment is never born
+   live. The live date arrives when the article does, from the publication record. If a draft
+   experiment for this topic already exists on the campaign, reuse it rather than creating a
+   second.
 2. **The prompts.** `create-prompt(team_id, campaign_id, content)` for each kept candidate, and only
    for kept candidates. The recorded keep set is the audit boundary: a prompt that is not in it is
    never created. `list-prompts(team_id, campaign_id)` first when reusing a campaign, and skip any
