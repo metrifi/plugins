@@ -358,9 +358,9 @@ read it at when you report the percentage.
 
 Read it once, report it plainly, and stop. Then:
 
-- `set-experiment-workflow(team_id, experiment_id, status: "in-progress", note)` with a note the
-  next operator can act on: what was created, what is running, what the sizing was, and what the
-  next step is.
+- `set-experiment-workflow(team_id, experiment_id, note)` with a note the next operator can act on:
+  what was created, what is running, what the sizing was, and what the next step is. There is no
+  status argument; the experiment's stage is derived from its dates.
 - Tell your operator that **exp-build** is what analyzes the responses and scores the opportunity,
   and that it is worth starting once readiness is at or above the 80 percent line, read at the
   `min_responses` you sized for. Name it and let them choose. Do not start it yourself, and do not

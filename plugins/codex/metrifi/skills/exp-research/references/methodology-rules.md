@@ -284,7 +284,7 @@ is anchored on the day somebody filled in a form.
 went live. `create-experiment` has no start-date argument at all. The live date arrives with the
 publication: `record-deliverable-publication` for an article published in the institution's own
 CMS, `set-deliverable-status published` for one published through the platform. Both set it and
-both re-grade the experiment. Moving the workflow status to `published` sets no date.
+both re-grade the experiment. Recording a workflow note sets no date.
 
 `update-experiment(live_date)` is the last resort, for an experiment with no deliverable to
 propagate from. It is recorded as **asserted**: a human's claim with no artifact behind it. Every
