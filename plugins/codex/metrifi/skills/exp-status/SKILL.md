@@ -11,8 +11,8 @@ where the phases, the tools, and the human gates are defined.
 ## Hard rule: read-only
 
 This skill never writes. No creates, no edits, no sends, no prompt runs, no recorded checks, no
-workflow status updates, not even a log event. If the status reveals obvious next work, name the
-skill that does it and stop there. Let the person decide.
+workflow notes, not even a log event. If where an experiment stands reveals obvious next work,
+name the skill that does it and stop there. Let the person decide.
 
 ## Scope
 
@@ -48,7 +48,7 @@ Then fill in the detail on what it named:
 ### 2. Per experiment
 
 `get-experiment-workflow(team_id, experiment_id)` returns everything this rollup needs in one call:
-the workflow status and the note the last operator left, the recent event log, which working
+the derived stage and the note the last operator left, the recent event log, which working
 documents exist, the keyword research, the target prompts, and the deliverable with its outstanding
 blocking items and latest check results.
 
@@ -66,7 +66,7 @@ That is the primary read. Only go deeper when the question demands it:
 One compact block per experiment:
 
 - **Experiment.** Name, team, topic, and the experiment ID, in one line.
-- **Where it stands.** The workflow status, plus the last operator's note verbatim if there is one.
+- **Where it stands.** The derived stage, plus the last operator's note verbatim if there is one.
   That note is usually the most useful line on the screen; do not paraphrase it away.
 - **Deliverable.** Status, version, open action items with how many are blocking, and whether it has
   been sent.

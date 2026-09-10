@@ -20,7 +20,7 @@ Everything that requires reading, thinking, or browsing is yours.
 ## The one orientation call
 
 `get-experiment-workflow(team_id, experiment_id)` is how you find out where an experiment stands.
-It returns the workflow status and the note the last operator left, the recent event log, the index
+It returns the derived stage and the note the last operator left, the recent event log, the index
 of working documents that exist, the keyword research, the target prompts, and the deliverable with
 its outstanding blocking items and latest check results.
 
