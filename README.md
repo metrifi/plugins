@@ -127,6 +127,8 @@ reference: how an update actually reaches a user, why a shipped change can take 
 more to arrive, and how to triage "this isn't working for me."
 [`docs/submission-checklist.md`](docs/submission-checklist.md) is the one-time gate for
 getting listed in the Claude and OpenAI directories.
+[`docs/openai-submission.md`](docs/openai-submission.md) is the OpenAI-side operations reference:
+what a review judges, when a deploy needs a new reviewed version, and the resubmission procedure.
 
 ## Legal
 

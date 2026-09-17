@@ -622,7 +622,7 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > client overlay" / "the client sees the reason", i.e. visible to a third party. `list-tokens`
 > returns Passport OAuth token ids ("(ID: …)") and `whoami` returns the numeric user id.
 > Lesson: the four hints must all be explicit booleans, and "the client sees it" means
-> open-world. Fix: [metrifi-platform#416](https://github.com/metrifi/metrifi-platform/pull/416) (includes #232). 119 tools' hints changed: 107 gained an explicit idempotentHint, 18 flipped open-world true. list-tokens and revoke-token removed; user id dropped from whoami; set-review-status no longer returns the share token. 164 tools, 30,991 tokens. Justifications v2 in [openai-tool-justifications.md](openai-tool-justifications.md).
+> open-world. Fix: [metrifi-platform#416](https://github.com/metrifi/metrifi-platform/pull/416) (includes #232). 119 tools' hints changed: 107 gained an explicit idempotentHint, 18 flipped open-world true. list-tokens and revoke-token removed; user id dropped from whoami; set-review-status no longer returns the share token. 164 tools, 30,961 tokens. Justifications v2 in [openai-tool-justifications.md](openai-tool-justifications.md).
 > Resubmission needs a higher version, a re-scan, and all justifications re-entered.
 >
 > **Held behind the review decision (now cleared to merge):** [metrifi-platform#232](https://github.com/metrifi/metrifi-platform/pull/232)
@@ -633,6 +633,19 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > it before the decision would make the live server contradict the submitted annotations and
 > justifications. After merge, the next OpenAI version needs a re-scan, justifications for the two
 > new tools (163 total), and a re-measured token count.
+>
+> **Open platform PRs surveyed 2026-09-17** (23 open; full table in [platform-pr-survey-2026-09-17.md](platform-pr-survey-2026-09-17.md)). Ship
+> before resubmit, in this order, each rebased on `main` after #416: #314 (handler-only,
+> mergeable now), #366 (handler-only tenancy fix), #365 (one `team_id` description line on
+> `create-review`), #273 (`set-experiment-workflow` description). Hold until after the
+> decision: #261 (makes `team_id` optional on two list tools), #215 (red CI, new
+> `acknowledge_deletions` property on `publish-site`), #183, #151, #148, #53 (23 new tools
+> between them, none with all four hints, so all fail `McpDirectoryComplianceTest` as-is),
+> #309 (MFA middleware that does not allowlist `oauth/*`, which would put a challenge in the
+> ChatGPT connect flow). Two rebase traps: #183 and #151 edit the `PlatformServer` instructions
+> string that still advertised `list-tokens`/`revoke-token`; drop that clause, do not re-merge
+> it. Whoever rebases #365 and #273 re-runs the surface snapshot afterwards, since both change
+> a description the reviewer sees.
 >
 > Post-approval: the MCP server origin is locked to `https://platform.metrifi.com/mcp`; skills
 > ship to Codex users only when the version bumps; ChatGPT pulls the published bundle.
@@ -805,7 +818,7 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
 - `[ ]` **Left for Ryan, in order:** (1) Testing → *Test credentials*: `reviewer@metrifi.com` plus
   its password, in the `username: / password:` format the field shows; OpenAI requires no 2FA and
   immediate access. (2) Merge platform #231, wait for deploy, then MCP → **Scan Tools** so the eight
-  corrected annotations show. (3) Global: confirm "Allow all countries". (4) Submit: release notes
+  corrected annotations show. (3) Global: United States only (done, we do business only in the US). (4) Submit: release notes
   (suggested: "Initial release: MetriFi platform connector with Site Builder, GEO and CRO tools, and
   13 MetriFi skills."), the seven policy checkboxes, "No" on mature content. (5) Skills must show
   scanned, not Scanning. Then **Submit for Review**.
