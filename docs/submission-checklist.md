@@ -608,7 +608,24 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > `interface.developerName` and the form's Plugin Author to `BloomCU LLC`, bump the version, and
 > resubmit; a resubmission always needs a higher version.
 >
-> **Held behind the review decision:** [metrifi-platform#232](https://github.com/metrifi/metrifi-platform/pull/232)
+> **`[!]` REJECTED 2026-09-17** (v1.4.13). Two reasons, verbatim: (1) "One or more of your
+> tool's annotations do not appear to match the tool's behavior. Please confirm annotations are
+> explicitly set to true or false (not null) for every tool." On appeal, named tools:
+> `comment-on-feedback`, `resolve-feedback`, `dismiss-feedback`. (2) "A public plugin call
+> returned caller-linked OAuth token identifier data that was not required for the user's
+> request."
+>
+> Diagnosis from the rejected export (`resources[].provided_tool_annotations`, keyed by
+> `action_name`): **105 of 161 tools emitted no `idempotentHint`** because laravel/mcp only
+> serialises it when `#[IsIdempotent]` is present, so it reads as null. The three named tools
+> carried `openWorldHint: false` while their own justifications said the write is "shown in the
+> client overlay" / "the client sees the reason", i.e. visible to a third party. `list-tokens`
+> returns Passport OAuth token ids ("(ID: …)") and `whoami` returns the numeric user id.
+> Lesson: the four hints must all be explicit booleans, and "the client sees it" means
+> open-world. Fix in flight on platform branch `mcp/openai-resubmission` (on top of #232).
+> Resubmission needs a higher version, a re-scan, and all justifications re-entered.
+>
+> **Held behind the review decision (now cleared to merge):** [metrifi-platform#232](https://github.com/metrifi/metrifi-platform/pull/232)
 > moves the side effects out of the four read paths (`assignDraftDomain()` to `createSite()` and
 > a post-commit `ensureDraftHost()` on `write-files`/`delete-files`; health refresh to a 15-minute
 > `geo:health:refresh` schedule plus new `refresh-team-health` / `refresh-master-health` tools) so
