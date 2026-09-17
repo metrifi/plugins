@@ -651,6 +651,14 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > flight, so the resubmission is **v1.4.16** and `MCP_PUBLISHED_SURFACE` follows it. The skills ZIP
 > must be rebuilt from the v1.4.16 tree; all 13 descriptions measured under 1,024 on 2026-09-17.
 >
+> **Surface lock and version gating:** [metrifi-platform#418](https://github.com/metrifi/metrifi-platform/pull/418)
+> (open, 2,150 tests passing). Commits a `tools/list` snapshot that CI checks (`php artisan
+> mcp:surface`, `--write` to accept a change), gates new tools behind `#[ShipsIn('x.y.z')]` versus
+> `MCP_PUBLISHED_SURFACE` (baseline 1.4.16, tracks this repo's CHANGELOG), and adds
+> `docs/mcp-surface-versioning.md` in the platform repo. Handler fixes deploy freely during a
+> review; a description or schema edit to an existing tool still waits for the next version.
+> Merge it before the resubmission and after any of the ship-before PRs, then `--write` once.
+>
 > Post-approval: the MCP server origin is locked to `https://platform.metrifi.com/mcp`; skills
 > ship to Codex users only when the version bumps; ChatGPT pulls the published bundle.
 
