@@ -622,7 +622,7 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > client overlay" / "the client sees the reason", i.e. visible to a third party. `list-tokens`
 > returns Passport OAuth token ids ("(ID: …)") and `whoami` returns the numeric user id.
 > Lesson: the four hints must all be explicit booleans, and "the client sees it" means
-> open-world. Fix in flight on platform branch `mcp/openai-resubmission` (on top of #232).
+> open-world. Fix: [metrifi-platform#416](https://github.com/metrifi/metrifi-platform/pull/416) (includes #232). 119 tools' hints changed: 107 gained an explicit idempotentHint, 18 flipped open-world true. list-tokens and revoke-token removed; user id dropped from whoami; set-review-status no longer returns the share token. 164 tools, 30,991 tokens. Justifications v2 in [openai-tool-justifications.md](openai-tool-justifications.md).
 > Resubmission needs a higher version, a re-scan, and all justifications re-entered.
 >
 > **Held behind the review decision (now cleared to merge):** [metrifi-platform#232](https://github.com/metrifi/metrifi-platform/pull/232)
