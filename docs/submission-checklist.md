@@ -647,6 +647,10 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > it. Whoever rebases #365 and #273 re-runs the surface snapshot afterwards, since both change
 > a description the reviewer sees.
 >
+> **Version note 2026-09-17:** GEO skill releases moved the plugin to v1.4.15 while the fix was in
+> flight, so the resubmission is **v1.4.16** and `MCP_PUBLISHED_SURFACE` follows it. The skills ZIP
+> must be rebuilt from the v1.4.16 tree; all 13 descriptions measured under 1,024 on 2026-09-17.
+>
 > Post-approval: the MCP server origin is locked to `https://platform.metrifi.com/mcp`; skills
 > ship to Codex users only when the version bumps; ChatGPT pulls the published bundle.
 
