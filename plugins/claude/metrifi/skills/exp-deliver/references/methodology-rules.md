@@ -516,6 +516,39 @@ need one is a classification question, not a second tag.
 set, agents had no write path at all, and the tags that did exist described intentions rather
 than artifacts.
 
+### Rule 25: the launch date is the publication date, and a past window is never re-dated
+
+**The trap:** the platform can now be told when an article went live, and telling it re-scores
+the experiment from whatever responses exist today. During the September 2026 reconciliation,
+four concluded experiments were re-dated from their CMS publish dates and had to be put back the
+same day. The re-grades changed their stored scores, two came back with 0% baselines because
+`update-experiment live_date` silently replaced a hand-set baseline window, and a fifth flipped
+LOSS to WIN on a URL-only correction whose date had not changed at all (issue #410).
+
+**The rule:** an experiment launched the day its content was published. That is the operator's
+definition, full stop. The launch date already on a past experiment is its publication date; if
+it was set differently at the time, there was a reason (a confound, a deliberate baseline reset),
+and it stands. What follows from that:
+
+- **`published_at` on an experiment that already has a launch date is that launch date.** A CMS
+  date that disagrees (a WordPress post stamp, a "last updated" line, a page re-created in a URL
+  clean-up) is informational. Note it in the event; do not act on it.
+- **Never write a live date onto a concluded experiment**, through `record-deliverable-publication`
+  or `update-experiment live_date`. Even a same-day record re-scores it (#410). If a concluded
+  experiment's deliverable is missing its URL, record the URL with the existing launch date and say
+  in the summary that the platform will re-count.
+- **When a live date is set on a live experiment, pass the baseline dates with it.**
+  `update-experiment` with `live_date` and no `baseline_started_at` / `baseline_ended_at` overwrites
+  a hand-set baseline window with the automatic 28 days.
+- **Confirm the URL is the artifact before classifying it.** Compare the deliverable's stored
+  article with the page at the URL. Same headings and FAQ: the URL is the artifact. A different
+  article at the same URL: the page was rewritten later, the stored article is the record of what
+  shipped, and the tags describe the stored article.
+- **A "#2" experiment with the same title as a "#1" is a secondary action on the same artifact**,
+  flagged confounded on purpose so the pair is read together. Do not clear that flag.
+
+**Where it came from:** Kaili's review of the reconciliation, 2026-09-16, and issue #410.
+
 ---
 
 ## Analysis writing
