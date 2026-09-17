@@ -367,6 +367,12 @@
 - **Destructive: True** — Destructive: it overwrites, closes or removes state that already exists, so a prior value or row does not survive the call.
 - **Idempotent: True** — Sets the archived flag to the value passed; re-sending the same value changes nothing.
 
+## set-deliverable-archived
+
+- **Read Only: False** — Writes `archived_at` on the deliverable (a timestamp to archive, null to bring it back) and appends an archived activity row carrying the caller's note.
+- **Open World: False** — All writes are to MetriFi's own deliverable and deliverable-activity tables. No email is sent and no external service is contacted.
+- **Destructive: True** — Archiving closes the deliverable's public client page, so a link a client already holds starts returning 404, and it drops the row out of the default list and off the attention gate. Nothing is deleted and the same tool with `archived=false` reverses it.
+
 ## reopen-action-item
 
 - **Read Only: False** — Not read-only, it writes stored state: Reopen one action item on a deliverable, returning it to open and clearing its live answer, so the deliverable stops reporting ready_to_publish.
@@ -415,6 +421,18 @@
 - **Open World: False** — Touches only MetriFi's own database, scoped to the caller's team: no external API call, no outbound email, and nothing a client-facing page shows.
 - **Destructive: True** — Destructive: it overwrites, closes or removes state that already exists, so a prior value or row does not survive the call.
 - **Idempotent: True** — Replaces the whole tag set with the values passed, so a repeat call is a no-op.
+
+## record-deliverable-publication
+
+- **Read Only: False** — Writes the deliverable's published date, published URL and status, appends an activity row, and sets the experiment's live date when the experiment carries none.
+- **Open World: False** — Nothing is sent and the recorded URL is never fetched. Only MetriFi's own deliverable, activity and experiment rows are written.
+- **Destructive: True** — It overwrites the published date, URL and status on the existing deliverable; a second call is a deliberate correction of the first.
+
+## set-deliverable-tags
+
+- **Read Only: False** — Replaces the deliverable's content-tag rows (Content Length, Content Location, Content Intention) and appends a classified activity row.
+- **Open World: False** — Nothing is sent and the published URL is never fetched. Only MetriFi's own deliverable-tag and activity rows are written.
+- **Destructive: True** — It replaces the whole classification rather than patching it, so any tag not passed on this call is removed.
 
 ## get-experiment-workflow
 

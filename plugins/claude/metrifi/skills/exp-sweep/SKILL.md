@@ -195,7 +195,7 @@ Anything that is not one of these four is not a gate. A phase that fails for a t
 a retry, once, and then a line in the report.
 
 **Leave the handoff readable, every time.** Before a chain ends for any reason, including a crash
-you can see coming, `set-experiment-workflow(team_id, experiment_id, status, note)` with a note the
+you can see coming, `set-experiment-workflow(team_id, experiment_id, note)` with a note the
 next run can act on, and `add-experiment-event` for what happened. That note is the only memory
 this system has. Pass a stable `idempotency_key` on the event so a resumed run cannot double-log.
 
@@ -314,8 +314,8 @@ dashes anywhere, in this report or in anything that reaches a client.
 
 **Its memory lives on the platform, not in the session.** A scheduled run starts cold and
 re-derives the whole board every time, which is why the cohort read and the workflow notes are not
-optional. The workflow status and note on each experiment are what a cold run reads to find out
-what yesterday's run did.
+optional. The derived stage and the workflow note on each experiment are what a cold run reads to find
+out what yesterday's run did.
 
 **One thing genuinely has nowhere to live, and it is worth being honest about.** A team the sweep
 looked at and decided *not* to start an experiment for has no object to hang a note on, so that

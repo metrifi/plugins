@@ -156,9 +156,9 @@ you found, the pivot you would recommend next, and stop.
 
 Create it early, as a draft, so the workflow state has a home before the writing starts:
 `create-experiment(team_id, name, campaign_id, description, status: "draft")`. **Pass no dates**
-(rule 7): `started_at` starts the 28-day measurement clock, and that clock starts when the article
-goes live. Then `update-experiment` to attach the coverage set locked in step 3: the targets plus
-every sibling prompt the article could plausibly move.
+(rule 7): there is no start-date argument, and the measurement clock starts on the day the article
+goes live, set by the publication record. Then `update-experiment` to attach the coverage set
+locked in step 3: the targets plus every sibling prompt the article could plausibly move.
 
 Write the hypothesis into the analysis in this form: if we publish a page that does X, the concrete
 substantiable hook from the evidence, visibility on the target prompts rises from its current level
@@ -207,11 +207,19 @@ is client-facing copy: plain language, no em dashes. The headline names the answ
 demand line carries the measured number, and each target prompt carries its id, its consumer
 phrasing, and where the client stands today.
 
-The experiment's in-product analysis and recommendation records are the same finding in the MetriFi
-dashboard. When the client uses that view, write them too: `set-experiment-analysis` (its summary
-opens with the same verdict block) and `set-experiment-recommendation` with one to three actions,
-calling `list-action-types` first because every action type has to match one of those values. Both
-replace rather than patch, so send the whole payload.
+Then write the same finding into the experiment's analysis and recommendation records:
+`set-experiment-analysis` (its summary opens with the same verdict block) and
+`set-experiment-recommendation` with one to three actions, calling `list-action-types` first because
+every action type has to match one of those values. Both are part of the build phase every time.
+They are not a dashboard convenience: they are the platform's cross-team evidence aggregate, and an
+experiment carrying no recommendation contributes nothing to any insight computed across teams,
+whatever any one client looks at.
+
+Both tools replace rather than patch, so read `get-experiment` first, which returns the analysis, the
+recommendation and its actions. Then send the finding you decided on in this session: the first
+recommendation, or a deliberate revision of the one you just read and are choosing to replace. What
+is never safe is writing without reading, because the call deletes the whole action set, including
+anything a human changed in the app. If what is already there is still right, leave it alone.
 
 ## 7. Draft the article
 
@@ -270,9 +278,13 @@ deliver phase records it (`send-deliverable` or `record-deliverable-shared`).
 
 ## 9. Hand off
 
-- `set-experiment-workflow(team_id, experiment_id, status: "in-progress", note)`. Write the note as a
-  sentence a colleague can act on: the verdict and the locked target, what is drafted, and what is
-  next.
+- **All three build-phase records exist**: the opportunity block, the analysis, and the
+  recommendation with at least one action. A missing one is unfinished work, not a judgment call.
+  `build-deliverable` warns about each; write the record rather than handing off around the warning.
+- `set-experiment-workflow(team_id, experiment_id, note)`. Write the note as a sentence a colleague
+  can act on: the verdict and the locked target, what is drafted, and what is next. There is no
+  status argument; the experiment's stage is derived from its dates and comes back on
+  `get-experiment`.
 - `add-experiment-event` for the things worth finding months later: the target locked, the documents
   written, the draft built.
 - Tell your operator that the draft has had **no compliance, accessibility, fact, or hygiene check**,

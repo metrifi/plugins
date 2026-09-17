@@ -139,15 +139,79 @@ and it has its own shape:
   `idempotency_key` with a stable value, such as `deliverable-sent-v3`, so a resumed run cannot
   double-log: a key that already exists means this send was already logged, and the call returns that
   event instead of appending a second one.
-- `set-experiment-workflow(team_id, experiment_id, status, note)` with a note the next operator can
+- `set-experiment-workflow(team_id, experiment_id, note)` with a note the next operator can
   act on: what went out, to whom, and what we are waiting for.
 
 Then stop. The next move is the client's, and their answers come back as activity on the deliverable
 for the revise phase to pick up.
 
+## 6. Recording that the article went live
+
+Most articles are published by hand in the institution's own CMS, and the platform only hears about
+it if you tell it. `record-deliverable-publication(team_id, deliverable_id, published_url,
+published_at, note)` is how you tell it, and it is the right call for an article that is already
+live, however long ago.
+
+- **`published_at` is the real date the article went live**, `YYYY-MM-DD`, not today's date and not
+  the date you found out. A future date is refused. If the operator only remembers the month, ask;
+  a wrong live date anchors the measurement window on the wrong days.
+- **`published_url` is the address it is live at**, absolute and starting with `https://`. Read it
+  back before you record it.
+- **It records nothing about checks and claims nothing about them.** That is the point: it skips
+  the three publish refusals because it states a fact about the world rather than certifying a
+  decision. Never describe a recorded publication as having passed anything.
+- **It is correctable.** Wrong date or wrong URL, call it again with the right one; the correction
+  goes on the activity ledger. Nothing has to be undone first.
+- **It sets the experiment's live date too**, which is what anchors the measurement window, and it
+  CORRECTS a date already there rather than only filling an empty one. A publication record
+  outranks a migrated or typed date and overwrites it without asking. That re-grades the
+  experiment, so say so when you record a publication on an experiment that already had a date:
+  a published result may have moved, and the changed-outcomes report is where it shows up.
+- **It stops at two things and guesses at neither.** A live date another publication already set,
+  and an experiment carrying two or more deliverables, where which one published is not a question
+  the tool can answer. In both cases it leaves the date alone, logs the disagreement, and says so
+  in its response. Report that line to your operator rather than swallowing it: a human has to pick.
+
+Use `set-deliverable-status published` only for an article being published now, through the normal
+flow, with the approval and the checks genuinely in hand. For anything historical, this is the tool.
+
+## 7. Once the article is live
+
+The one post-send step this skill owns. When the client publishes and you have the live URL,
+classify what actually shipped:
+
+```
+set-deliverable-tags(team_id, deliverable_id, tags, primary_intention)
+```
+
+Judge the page at its published URL, not the draft you sent and not the recommendation that
+preceded it. **Rule 24 in `references/methodology-rules.md` is the rule**, including the Content
+Location tie-break (presentation wins over URL structure) and the one-primary-plus-optional-secondary
+shape for Content Intention. Call the tool with no tags to have it print the live vocabulary and
+each value's definition.
+
+Two things worth saying plainly:
+
+- **This is what makes the experiment evidence rather than an anecdote.** Every cross-experiment
+  finding about length, format and intention is computed from these tags. An unclassified
+  deliverable contributes nothing, and one classified from the draft contributes something worse.
+- **If nobody has told you the article is live, do not guess.** Ask, or record the live URL first.
+  The tool will warn when the deliverable has no `published_url`, because a classification of a
+  page the platform has no address for cannot be re-checked by anyone.
+
 ## Warnings and refusals
 
-The send never refuses. What can come back, and what to do with it:
+The send never refuses, **except after a publication is recorded**. What can come back, and what to
+do with it:
+
+- **A send on a deliverable whose article is already published is refused outright**, by
+  `send-deliverable` (preview included) and by `send-deliverable-followup`. The refusal names the
+  recorded live date and URL. Do not route around it: every email either tool could produce asks
+  the client about work that already shipped, either for input on a published article or for
+  approval of a draft they published themselves. To reach the client about a change, push the
+  change with `push-deliverable-revision` first. To record that you handed over the link,
+  `record-deliverable-shared`. If the publication record itself is wrong, correct it with
+  `record-deliverable-publication`. Say which of the three you are doing, and why.
 
 - **A check warning on the send** names each check that was missing, failing, or stale at the
   moment the client got the article, with its own reason (no result recorded, latest result is
@@ -158,11 +222,13 @@ The send never refuses. What can come back, and what to do with it:
 - **A build contract failure** still refuses: an anchor quote that no longer resolves, an illegal
   enum, an em dash in client copy. The way through is the article or the manifest, and the message
   says which.
-- **`published` still refuses.** That status needs the client's approval plus a genuinely
-  publish-ready deliverable: no outstanding blocking items, pre-publish checks cleared. Approval
-  alone is not enough, because a client can approve while a requested change is still pending.
-  Apply the outstanding corrections first. Never fabricate an approval or a sign-off, ever, for any
-  reason.
+- **`set-deliverable-status published` still refuses.** That status needs the client's approval plus
+  a genuinely publish-ready deliverable: no outstanding blocking items, pre-publish checks cleared.
+  Approval alone is not enough, because a client can approve while a requested change is still
+  pending. Apply the outstanding corrections first. Never fabricate an approval or a sign-off, ever,
+  for any reason, and never record a check nobody ran to get past this. If the article is already
+  live, the refusal is not the obstacle it looks like: that is what
+  `record-deliverable-publication` above is for.
 
 ## When the client goes quiet
 

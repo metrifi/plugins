@@ -20,7 +20,7 @@ Everything that requires reading, thinking, or browsing is yours.
 ## The one orientation call
 
 `get-experiment-workflow(team_id, experiment_id)` is how you find out where an experiment stands.
-It returns the workflow status and the note the last operator left, the recent event log, the index
+It returns the derived stage and the note the last operator left, the recent event log, the index
 of working documents that exist, the keyword research, the target prompts, and the deliverable with
 its outstanding blocking items and latest check results.
 
@@ -31,6 +31,25 @@ it.
 To find experiments in the first place: `whoami` tells you who you are and which teams you are on,
 `list-teams` gives you the team slugs, `list-experiments(team_id)` lists that team's experiments, and
 `list-deliverables(team_id)` lists the client-facing pages.
+
+**A deliverable can be archived**, which means somebody decided it is history rather than live client
+work: mostly legacy articles imported before the platform existed, which never had an experiment and
+were never sent. An archived page is closed, so its client link 404s, and `send-deliverable`,
+`send-deliverable-followup` and `record-deliverable-shared` refuse it outright. `list-deliverables`
+leaves archived rows out by default and tells you how many it hid; pass `include_archived` to see
+them, and `get-deliverable` returns one either way, labelled. Nothing is deleted and it reverses in
+one call: `set-deliverable-archived(team_id, deliverable_id, archived)`. Writing a manifest to an
+archived deliverable brings it back automatically and says so, because new client work is the
+plainest evidence the row is not history any more. Archiving a row that HAS an experiment is
+unusual: that row is still on the pipeline board and still in the health counts, and the tool warns
+you before it proceeds. Never archive finished work just because you are done with it; a published
+deliverable is a record, and archiving one closes a link a client may still hold.
+
+**Name the record, do not number it.** Every experiment, deliverable and campaign has a name, and
+that is what you call it in anything a person reads: your messages to your operator, workflow notes,
+event summaries, document bodies. Write "the HELOC comparison experiment", never "experiment 84".
+IDs are for tool arguments and for telling two same-named records apart, so give one only when it is
+doing that work, and give it as "ID 84" alongside the name rather than in place of it.
 
 ## The phase map
 
@@ -96,6 +115,11 @@ new demand-grounded prompts and attach them with `update-experiment` using
 Then write the strategy and the draft, all of it server side:
 
 - `set-experiment-opportunity` for the "why this exists" block the client reads first.
+- `set-experiment-analysis` and `set-experiment-recommendation` for the same finding as the
+  experiment's own records, every time, not only when a client opens the dashboard. They are the
+  platform's cross-team evidence aggregate: an experiment with no recommendation contributes nothing
+  to any insight. Call `list-action-types` first; both tools replace rather than patch, so read
+  `get-experiment` before writing over what is already there.
 - `set-experiment-document` for `build-analysis`, `evidence`, `decisions`, `tracked-prompts`,
   `brief`, and `outline`. Documents with `in_dossier: true` ship to the client; set it false for
   internal notes.
@@ -147,6 +171,21 @@ When your operator asks for it, give it immediately, then offer the record as a 
 handed it over themselves and you record it (`record-deliverable-shared`, which stamps `sent_at`
 and emails nobody; `client_email` is optional). Only the raw token never prints as its own line.
 
+When the article goes live, record it. `record-deliverable-publication(team_id, deliverable_id,
+published_url, published_at)` takes the real historical date and the URL it is live at, for an
+article published in the institution's own CMS however long ago. It skips the three publish
+refusals `set-deliverable-status published` enforces, because it states a fact about the world
+rather than certifying a decision, and it claims nothing about pre-publish checks. It is
+correctable, and it CORRECTS the experiment's live date rather than only filling an empty one: a
+publication record outranks a migrated or typed date, and the re-grade it triggers is reported in
+the changed-outcomes report. It stops only at a live date another publication already set, or at
+an experiment carrying two or more deliverables, and logs that disagreement for a human.
+
+**Once a publication is recorded, `send-deliverable` and `send-deliverable-followup` refuse**, and
+the refusal names the recorded date and URL. Every email they could send asks the client about work
+that already shipped. Push a change with `push-deliverable-revision`, record a handover with
+`record-deliverable-shared`, or correct a wrong publication record; never route around the refusal.
+
 ### 5. Revise: apply what the client said
 
 Skill: **exp-revise**.
@@ -183,14 +222,29 @@ Three, and only three. Everything else runs without a pause.
 A blocker finding that survives review is a genuine blocker, not a routine touchpoint: report it and
 stop rather than working around it.
 
+## Where an experiment stands
+
+Never ask an operator, and never infer it from dates yourself. `get-experiment` and
+`list-experiments` both return a `stage`, derived from the experiment's own dates and always
+present, in one vocabulary shared with the pipeline board: **Drafting** (nothing live yet),
+**Ready to send**, **With client**, **Approved**, **Live** (the article is out and measurement is
+running) and **Concluded** (measurement has ended). `get-experiment-workflow` reports the same
+stage above the hand-off note.
+
+A stage of Drafting on an experiment that has been open for months means no article has gone live,
+not that somebody forgot to update a label. That is a fact about the record rather than a gap in
+it.
+
 ## Recording the handoff
 
 Two calls make an experiment picked up cleanly by whoever is next:
 
-- `set-experiment-workflow(team_id, experiment_id, status, note)` sets the status label
-  (in-progress, ready-for-approval, approved, published) and, more usefully, the free-text note for
-  whoever opens this next. No ordering is enforced. Write the note as a sentence a colleague can act
-  on: what is done, what is next, what is waiting on whom.
+- `set-experiment-workflow(team_id, experiment_id, note)` records the free-text note for whoever
+  opens this next. Write it as a sentence a colleague can act on: what is done, what is next, what
+  is waiting on whom. **There is no status to set.** The old `status` argument (in-progress,
+  ready-for-approval, approved, published) is gone: it was a hand-set second answer to "where does
+  this experiment stand", left blank on most experiments, and it could contradict the experiment's
+  own dates. Read the stage instead, below.
 - `add-experiment-event(team_id, experiment_id, kind, summary)` appends one line to the log, append
   only. Log the things a person would want to find months later: prompts created, a pivot executed
   and why, a document rewritten, a handoff.
