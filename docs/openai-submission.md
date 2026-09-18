@@ -337,3 +337,14 @@ Honest list, dated, so nobody repeats them.
   without a URL, so it was recorded before the tool set was final. It still shows tools we
   submitted, so it survives; a resubmission that changes what a reviewer would see needs a new
   one. Have the surface final before you start the draft.
+- **2026-09-18, the release script has no `--help`.** Any unknown flag is ignored and the script
+  cuts a real release with the notes "(describe changes)". It happened once, locally, and was
+  reset before anything was pushed. Use `--dry-run` to look before releasing.
+- **2026-09-18, the release script's `git push` fails in a worktree with no upstream.** The commit
+  and tag are already made by then. Push by hand: the branch, `HEAD:main`, and the tag.
+- **2026-09-18, boilerplate justifications hid wrong hints.** About 60 write tools shared one
+  sentence for "idempotent: true". Reading each handler (platform #426) found 18 that make a new
+  commit, version, log row or paid API call on a repeat. A justification has to say what the
+  handler does on a second identical call, or it proves nothing.
+- **2026-09-18, the rejected-version export contains the reviewer password in clear text.** Treat
+  any `metrifi-*.json` export from the portal as a secret. Never commit one.
