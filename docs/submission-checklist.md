@@ -659,6 +659,18 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > review; a description or schema edit to an existing tool still waits for the next version.
 > Merge it before the resubmission and after any of the ship-before PRs, then `--write` once.
 >
+> **Pre-submission round, 2026-09-18.** Merged on the platform: #314, #365, #366, #215, #421 (tool
+> list trimmed to 28,961 tokens), #273, #261, #183 (`extend-trial`, 165 tools), #418 (surface lock,
+> `MCP_PUBLISHED_SURFACE=1.4.16` set in Forge), #423 (server instructions no longer claim a review
+> gates `publish-site`), #424 (`transfer-team-ownership` limited to team members, no ids echoed),
+> #425 (first sign-in 419 fixed, icons shipped), #426 (hint audit: 90 hints on 64 tools read against
+> their handlers, 18 flipped to not idempotent, 8 to open-world). Held by Ryan: #148, #151 (forms),
+> #53, #309. Pre-flight: live server, URL, manifest and skill gates pass; all 165 tools carry four
+> boolean hints; 29,280 tokens. Justifications v3 in
+> [openai-tool-justifications.md](openai-tool-justifications.md), idempotent and open-world lines
+> for audited tools taken from the #426 audit. Lesson: boilerplate reasons hid wrong hints; every
+> reason must name what the handler does on a second call.
+>
 > Post-approval: the MCP server origin is locked to `https://platform.metrifi.com/mcp`; skills
 > ship to Codex users only when the version bumps; ChatGPT pulls the published bundle.
 
