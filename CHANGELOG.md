@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.16 — 2026-09-18
+
+- OpenAI resubmission release. No skill behavior changes. README no longer lists connection-token management, since the platform removed list-tokens and revoke-token. Pairs with platform MCP surface 1.4.16: explicit idempotent hints on every tool, corrected open-world and idempotent values after a handler-by-handler audit, no token or user ids in tool output.
+
 ## 1.4.15 — 2026-09-10
 
 - Teach the GEO skills the derived experiment stage and where a live date came from
