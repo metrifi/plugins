@@ -94,7 +94,9 @@ One compact block per experiment:
 - **Waiting on a human?** The load-bearing line. Name explicitly anything blocked on your operator,
   on the client contact, or on their compliance officer: an unanswered action item, a pending
   sign-off, an unapproved send, an opt-out request, a `Runner skipped for quota` line (the
-  operator decides between more quota and a smaller target; no skill runs the prompts around it).
+  operator decides between more quota and a smaller target, or ends or parks a live experiment;
+  a stuck measurement has no time cap and waits in `monitoring` for that call; no skill runs the
+  prompts around it).
   If nothing is blocked, say "nothing, this can proceed" and name what would happen next.
 
 For a whole-team rollup, order it by what the person can act on: experiments needing a human first,

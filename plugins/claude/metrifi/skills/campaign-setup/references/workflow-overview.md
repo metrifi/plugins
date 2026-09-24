@@ -251,17 +251,21 @@ nobody calls a run tool. `get-experiment` prints where that stands:
 
 - `**Run mode:**` `baseline` before the live date (an immediate pass of up to 5 per prompt when the
   prompts are attached, then a top-up once a day until the baseline holds the target or the article
-  goes live), `monitoring` after it (paced to reach the target by day 28, then against the 42-day
-  cap), `off` when parked, closed, or untargeted. It is derived on every read, never stored. An
+  goes live), `monitoring` after it (paced to reach the target by day 28, then up to 5 per prompt
+  per day until it is met), `off` when parked, closed, or untargeted. It is derived on every read, never stored. An
   experiment with no run mode line was created before targets existed and keeps the old 28-day
   arithmetic.
 - `**Responses against target:** baseline N of T, measurement N of T`, with `+P pending` for
   placeholders still resolving.
 - `**Projected close:**` the day the measurement is expected to end. With a target, the measurement
-  closes at the daily refresh once it holds the target and day 28 has passed, or at the 42-day cap,
-  whichever comes first; `ended_at` is written then and a `measurement-closed` event appended.
+  closes at the daily refresh once it holds the target and day 28 has passed; `ended_at` is written
+  then and a `measurement-closed` event appended. There is no time cap: short of the target it stays
+  open, and a stuck experiment (quota gone, team churned) sits in `monitoring` until a person ends
+  or parks it. An untargeted experiment keeps the old 28-day window.
 - `**Runner skipped for quota:**` when the team's monthly quota ran out before a pass. That is an
-  action for the operator, more quota or a smaller target, not a gap to fill with manual runs.
+  action for the operator, more quota or a smaller target (or, once live, ending or parking the
+  experiment), not a gap to fill with manual runs. On a live experiment this line is the signal
+  that it is stuck.
 
 Responses the runner gathers are tagged with the experiment: the experiment's own score and
 `get-campaign-readiness` count them, and the campaign and organization visibility ratios leave them
