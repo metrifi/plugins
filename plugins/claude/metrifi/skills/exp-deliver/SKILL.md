@@ -152,9 +152,11 @@ it if you tell it. `record-deliverable-publication(team_id, deliverable_id, publ
 published_at, note)` is how you tell it, and it is the right call for an article that is already
 live, however long ago.
 
-- **`published_at` is the real date the article went live**, `YYYY-MM-DD`, not today's date and not
-  the date you found out. A future date is refused. If the operator only remembers the month, ask;
-  a wrong live date anchors the measurement window on the wrong days.
+- **`published_at` is the day the article went live**, `YYYY-MM-DD`, not today's date and not
+  the date you found out. A future date is refused. **For an experiment that already has a launch
+  date, that launch date is the publication date** (Rule 25 in `references/methodology-rules.md`):
+  a CMS date that disagrees is informational, never a correction. Only ask the operator for a
+  date when the experiment has none.
 - **`published_url` is the address it is live at**, absolute and starting with `https://`. Read it
   back before you record it.
 - **It records nothing about checks and claims nothing about them.** That is the point: it skips
@@ -163,10 +165,12 @@ live, however long ago.
 - **It is correctable.** Wrong date or wrong URL, call it again with the right one; the correction
   goes on the activity ledger. Nothing has to be undone first.
 - **It sets the experiment's live date too**, which is what anchors the measurement window, and it
-  CORRECTS a date already there rather than only filling an empty one. A publication record
-  outranks a migrated or typed date and overwrites it without asking. That re-grades the
-  experiment, so say so when you record a publication on an experiment that already had a date:
-  a published result may have moved, and the changed-outcomes report is where it shows up.
+  overwrites a migrated or typed date without asking. That re-grades the experiment from today's
+  response data, and so does a same-day record on an experiment that has already concluded
+  (#410). So: on a concluded experiment, record a publication only to attach a missing URL, pass
+  the launch date it already carries, and say in the summary that the platform will re-count.
+  Never re-date a past window; if the operator wants one moved, that is a human decision made in
+  the web app, not a tool call.
 - **It stops at two things and guesses at neither.** A live date another publication already set,
   and an experiment carrying two or more deliverables, where which one published is not a question
   the tool can answer. In both cases it leaves the date alone, logs the disagreement, and says so
@@ -184,7 +188,10 @@ classify what actually shipped:
 set-deliverable-tags(team_id, deliverable_id, tags, primary_intention)
 ```
 
-Judge the page at its published URL, not the draft you sent and not the recommendation that
+First confirm the URL is the artifact: compare the deliverable's stored article with the page at
+the URL. Same headings and FAQ means the URL is the artifact; a different article at the same URL
+means the page was rewritten later, and the stored article is the record of what shipped (Rule 25).
+Then judge the page at its published URL, not the draft you sent and not the recommendation that
 preceded it. **Rule 24 in `references/methodology-rules.md` is the rule**, including the Content
 Location tie-break (presentation wins over URL structure) and the one-primary-plus-optional-secondary
 shape for Content Intention. Call the tool with no tags to have it print the live vocabulary and
