@@ -117,9 +117,9 @@ current period, and size the experiment to that number.
 responses wanted per window, 40 by default (the number the report's test needs to call a 0 to 20
 percent lift), settable from 8 to 400 and fixed once the experiment is live. The platform's runner
 gathers toward it, before the live date (an immediate pass of up to 5 per prompt when prompts are
-attached, then a top-up once a day) and after it (paced to reach the target by day 28, then against
-the 42-day cap). So an experiment costs about 2 times its target over its life, roughly 80
-responses at the default, plus a reserve for a pivot, whatever the prompt count. Ten to fifteen
+attached, then a top-up once a day) and after it (paced to reach the target by day 28, then up to
+5 per prompt per day until it is met). So an experiment costs about 2 times its target over its
+life, roughly 80 responses at the default, plus a reserve for a pivot, whatever the prompt count. Ten to fifteen
 tracked prompts still cover the space the build phase picks from, and below 5 responses a prompt's
 visibility figure is noise: on a real campaign a prompt read 67% visibility at 3 responses and 25%
 at 8; nothing changed but the sample. Compute what the target costs, then compare it to what the

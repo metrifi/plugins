@@ -68,8 +68,9 @@ Size the experiment to what is left (rule 21):
 1. **Compute the cost first, then compare.** About 2 times the target per experiment, roughly 80 at
    the default, plus a reserve for a pivot, because a pivot attaches new prompts and the runner
    gathers a baseline pass on them out of the same quota. Compare that to the responses remaining
-   and the date they reset. The baseline gathers over days and the measurement over 28 to 42 days,
-   so a reset inside that span counts in the plan's favour.
+   and the date they reset. The baseline gathers over days and the measurement over 28 days or
+   more (it stays open past day 28 until the target is met), so a reset inside that span counts in
+   the plan's favour.
 2. **If the plan cannot cover the target, say so before you build anything smaller.** Name the
    number the target needs, the number remaining, the shortfall, and the fact that the plan is what
    is capping the quality. Then let the operator choose: upgrade, run at a lower target, or wait
@@ -375,8 +376,9 @@ prints:
 - `**Run mode:**` `baseline`, `monitoring`, or `off`. Derived on every read, never stored.
   `baseline` means the article is not live and the runner is filling the baseline window;
   `monitoring` means the live date is set and the runner is pacing the measurement toward the
-  target by day 28, then against the 42-day cap; `off` means the experiment is parked, closed, or
-  untargeted. No mode line at all means an experiment created before targets existed, which keeps
+  target by day 28, then up to 5 per prompt per day until it is met (the measurement closes once it
+  holds the target and day 28 has passed; there is no time cap, a stuck experiment waits for a
+  person); `off` means the experiment is parked, closed, or untargeted. No mode line at all means an experiment created before targets existed, which keeps
   the old 28-day arithmetic.
 - `**Responses against target:** baseline N of T, measurement N of T`, with `+P pending` for
   placeholders still resolving. The baseline number is the one this phase hands off on. "Baseline
