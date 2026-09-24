@@ -24,23 +24,37 @@ legitimately sit on the same campaign, so leave it alone. Create one only when n
 
 ## 1. Is the campaign populated enough to score?
 
-`get-campaign-readiness(team_id, campaign_id)` before anything else. It reports the share of prompts
-with enough completed responses, the per-prompt counts, and any jobs still running.
+Two reads before anything else, and **no polling loop** on either: read the number once, report
+it, and stop if it is not there. Everything here is safe to re-run once the responses land.
 
-**There is no polling loop.** Read the number once. Below the 80 percent line, say so plainly, name
-the prompts still waiting, and stop: scoring a half-populated campaign reads empty slots as closed
-ones and can trigger a pivot on nothing. Everything here is safe to re-run once the responses land.
+**`get-experiment(team_id, experiment_id)` on a targeted experiment** prints `**Run mode:**` and
+`**Responses against target:** baseline N of T, measurement N of T`. In `baseline` mode the
+platform's runner is filling the window on its own: an immediate pass of up to 5 per prompt when
+the prompts were attached, then a top-up once a day until the target is met or the article goes
+live. Scoring can start once that first pass has landed; the target is what the live date waits
+for, not the analysis. A `**Runner skipped for quota:**` line is an action for the operator
+(quota, or a smaller target before the live date), never a reason to run the prompts by hand. No
+run mode line at all means an experiment created before targets existed; there, the readiness read
+below is the whole story and the manual run tools are how a thin baseline gets deeper.
+
+**`get-campaign-readiness(team_id, campaign_id)`** reports the share of prompts with enough
+completed responses, the per-prompt counts, and any jobs still running. Below the 80 percent line,
+say so plainly, name the prompts still waiting, and stop: scoring a half-populated campaign reads
+empty slots as closed ones and can trigger a pivot on nothing. It answers "did the prompts
+populate", not "is the baseline deep enough"; only `get-experiment` answers that.
 
 **Read the window before you believe a zero.** Readiness counts completed responses inside a
 lookback window, 28 days and three responses per prompt by default. A campaign whose baseline was
 run months ago reports 0 percent populated while `list-prompts` shows responses on every prompt.
 Widen it with `window_days` to see what actually exists. If the baseline is real but old, say its
-age in the analysis, since a stale baseline measures a model that has since moved; if it is thin,
-running the prompts again is the fix.
+age in the analysis, since a stale baseline measures a model that has since moved. If it is thin on
+a targeted experiment, the runner is already topping it up and the number to watch is
+`get-experiment`'s baseline count; on an untargeted one, running the prompts again is the fix.
 
-**Read it at the sampling the research phase paid for.** The default `min_responses` of three is a
-bar a budget-sized baseline may never have been meant to clear (rule 21): a team whose plan bought
-two responses per prompt reports 0 percent populated at the default and 100 percent at
+**Read it at the sampling the baseline was gathered at.** On a targeted experiment the runner's
+first pass is up to 5 per prompt, so the default `min_responses` of three is a fair bar. On an
+untargeted experiment the research phase sized the sample by hand (rule 21): a team whose plan
+bought two responses per prompt reports 0 percent populated at the default and 100 percent at
 `min_responses: 2`. The research phase's handoff note and the `tracked-prompts` document say which
 number was sized; pass that, and say which number you read the percentage at. Re-running prompts to
 reach an arbitrary three is spending a client's quota to satisfy a default.
@@ -104,11 +118,14 @@ invisible to a single-prompt experiment.
 If the sweep surfaces a consumer question the article plausibly answers that no campaign prompt
 covers, that is a demand-grounding candidate, not an automatic create: run it through rules 1 to
 3 (`research-keywords`, drop anything without measurable volume, `record-keyword-research`), and
-only a survivor gets `create-prompt` plus `run-prompt` at the same samples per prompt as the
-baseline, within budget (rule 21). Then attach it with `update-experiment(..., prompt_ids: [the
-new id], prompt_ids_mode: "add")` — a created prompt left unattached is still invisible to the
-experiment — and confirm via `get-campaign-readiness` that its responses have populated (read the
-fact, do not poll; stop if they have not) before the article goes live. Do all of this
+only a survivor gets `create-prompt`, then `update-experiment(..., prompt_ids: [the new id],
+prompt_ids_mode: "add")`. A created prompt left unattached is still invisible to the experiment,
+and on a targeted experiment attaching it is what gathers its baseline: the runner dispatches a
+pass on the new prompt the moment it is attached, so do not `run-prompt` it as well. Only on an
+untargeted experiment do you `run-prompt` it yourself, at the same samples per prompt as the
+baseline, within budget (rule 21). Confirm via `get-experiment` and `get-campaign-readiness` that
+its responses have populated (read the fact, do not poll; stop if they have not) before the
+article goes live. Do all of this
 pre-publish or not at all: a prompt created at publish time has no baseline and can never be
 measured. The article never justifies a prompt; demand does.
 
@@ -131,17 +148,23 @@ Executing a re-angle or re-scope pivot:
    `record-keyword-research`. A pivot that creates zero-demand prompts repeats the mistake that
    caused the pivot.
 2. `list-prompts` and drop candidates duplicating an existing prompt's intent.
-3. `create-prompt` for the survivors, then `run-prompt` for each new prompt id. Do not re-run the
-   whole campaign: the existing prompts already have a clean baseline. **Check the budget before you
-   run:** `get-team-usage(team_id)` reports the responses left this period, and rule 21 reserved
-   roughly a third of the original budget for exactly this. Size the pivot to what is actually left,
-   at the same samples per prompt as the baseline so the two sets are comparable, and say the size
-   out loud. A pivot the plan cannot pay for is a smaller pivot, not a refusal and not an overrun.
+3. `create-prompt` for the survivors. **Check the budget before you attach:**
+   `get-team-usage(team_id)` reports the responses left this period, and rule 21 reserved part of
+   it for exactly this. On a targeted experiment the runner gathers the new prompts' baseline out
+   of that quota, up to 5 per prompt on the first pass and then toward the target; if the plan
+   cannot cover it, say what it would take and let the operator lower `target_responses` (only
+   before the live date) or add quota. A pivot the plan cannot pay for is a smaller pivot, not a
+   refusal and not an overrun.
 4. `update-experiment(..., prompt_ids: [the new ids], prompt_ids_mode: "add")`. The **add** mode is
    the point: replace would detach the originals, and a prompt whose slot is closed today can open
-   later as model training data moves.
-5. Read `get-campaign-readiness` again before re-scoring. Same rule as step 1: read the fact, do not
-   poll, and stop if the new prompts have not populated. This is safe to resume.
+   later as model training data moves. On a targeted experiment this attach is also the run: the
+   runner's baseline pass on the new prompts starts here, so do not `run-prompt` them too. Do not
+   re-run the whole campaign either: the existing prompts already have a clean baseline. Only on an
+   untargeted experiment do you `run-prompt` each new id yourself, at the same samples per prompt
+   as the baseline so the two sets are comparable, and say the size out loud.
+5. Read `get-experiment` and `get-campaign-readiness` again before re-scoring. Same rule as step 1:
+   read the fact, do not poll, and stop if the new prompts have not populated. This is safe to
+   resume.
 6. Log it: `add-experiment-event(team_id, experiment_id, kind: "pivot-executed", summary)` naming the
    round, the tier, the plan, and the new prompt ids. Always pass `idempotency_key` with a stable
    value per pivot, such as `pivot-2-executed`, so a resumed run cannot double-log: a key that
@@ -155,10 +178,13 @@ you found, the pivot you would recommend next, and stop.
 ## 4. The experiment record
 
 Create it early, as a draft, so the workflow state has a home before the writing starts:
-`create-experiment(team_id, name, campaign_id, description, status: "draft")`. **Pass no dates**
-(rule 7): there is no start-date argument, and the measurement clock starts on the day the article
-goes live, set by the publication record. Then `update-experiment` to attach the coverage set
-locked in step 3: the targets plus every sibling prompt the article could plausibly move.
+`create-experiment(team_id, name, campaign_id, description, status: "draft", target_responses?)`.
+Every new experiment carries a response target, 40 per window unless you pass one (8 to 400, fixed
+once live), and the platform's runner gathers toward it. **Pass no dates** (rule 7): there is no
+start-date argument, and the measurement clock starts on the day the article goes live, set by the
+publication record. Then `update-experiment` to attach the coverage set locked in step 3: the
+targets plus every sibling prompt the article could plausibly move. On a targeted experiment that
+attach starts the runner's baseline pass on any prompt that did not have one.
 
 Write the hypothesis into the analysis in this form: if we publish a page that does X, the concrete
 substantiable hook from the evidence, visibility on the target prompts rises from its current level
@@ -271,6 +297,18 @@ rather than shipping a broken page.
 An anchor that will not resolve means the article moved under it. Then build for real with a
 `changelog` line describing what changed.
 
+**The baseline depth warning is one of those warnings, and what to do with it depends on the live
+date.** On a targeted experiment `build-deliverable` (and every tool that sets a live date) warns
+when the baseline window holds fewer usable responses than the target, naming the shortfall: "15
+usable baseline response(s) between A and B, 40 needed to score this experiment later (25 short)".
+When the observed baseline rate is 5 percent or higher it also names the larger number the power
+table asks for. It is advisory, never a refusal. Before the live date it means wait: the runner
+tops the baseline up once a day, and the article should not go live until `get-experiment` reads
+the baseline at the target, unless the operator lowers `target_responses` because the plan cannot
+afford it (rule 21: their choice, said out loud, not yours). After the live date the baseline
+window is shut, and the warning is a fact to record in the analysis; no manual burst can fill a
+window that has closed.
+
 **The client link is always available.** Every deliverable read prints `client_url` from the first
 draft call on; if your operator asks for it, give it to them immediately. Sending is still a later
 phase behind a human gate: building never emails anyone, and when a link actually goes out, the
@@ -282,7 +320,8 @@ deliver phase records it (`send-deliverable` or `record-deliverable-shared`).
   recommendation with at least one action. A missing one is unfinished work, not a judgment call.
   `build-deliverable` warns about each; write the record rather than handing off around the warning.
 - `set-experiment-workflow(team_id, experiment_id, note)`. Write the note as a sentence a colleague
-  can act on: the verdict and the locked target, what is drafted, and what is next. There is no
+  can act on: the verdict and the locked target, where the baseline stands against the target,
+  what is drafted, and what is next. There is no
   status argument; the experiment's stage is derived from its dates and comes back on
   `get-experiment`.
 - `add-experiment-event` for the things worth finding months later: the target locked, the documents

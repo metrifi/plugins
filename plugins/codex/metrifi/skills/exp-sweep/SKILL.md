@@ -186,7 +186,7 @@ stop at lane 5. A phase ending is not a reason to stop; only a gate is.
 
 | Gate | What it looks like | What happens next |
 |---|---|---|
-| **G1 Responses** | `get-campaign-readiness` says the baseline has not populated to the sized `min_responses` yet | Leave a workflow note saying so. Tomorrow's sweep picks it up at lane 3. |
+| **G1 Responses** | `get-campaign-readiness` says the prompts have not populated yet (on a targeted experiment the runner's first pass is still resolving; on an untargeted one the sized `min_responses` is not met). A `Runner skipped for quota` line on `get-experiment` is reported as needing the operator, never worked around with a manual run. | Leave a workflow note saying so. Tomorrow's sweep picks it up at lane 3. |
 | **G2 Ready to send** | Checks green, deliverable assembled, nothing blocking | Report it. Your operator sends with `exp-deliver`. |
 | **G3 Waiting on a client** | An action item is out and unanswered, inside the followup cadence | `exp-revise` owns the nudge. Nothing else to do. |
 | **G4 Halt** | An opt-out request, a withdrawn approval, or a check finding that survives a fix attempt | Stop the chain, do not revise around it, hand it to a person by name in the report. |
@@ -247,8 +247,10 @@ a bad day's work; it is permanently muddied data on a top client.
 
 - **Quota.** `exp-research` reads `get-team-usage` and sizes the experiment to what the team's plan
   has left, and budgets are per team, so a busy sweep cannot drain a shared pool. But if what is
-  left cannot fund the floor (two samples per prompt across a usable prompt set), do not start a
-  half-experiment. Report the team as quota-blocked and say what it would take.
+  left cannot cover an experiment at a target the operator would accept (about 2 times
+  `target_responses` over its life, roughly 80 at the default, and never below the two-sample floor
+  on a manual run), do not start a half-experiment. Report the team as quota-blocked and say what it
+  would take.
 - **A weak topic is expected, and it is handled downstream.** Do not agonize here. `exp-build` scores
   the baseline and returns a viability verdict, and on a weak or avoid verdict it pivots: it
   re-selects among prompts already run, or creates new demand-grounded prompts and attaches them

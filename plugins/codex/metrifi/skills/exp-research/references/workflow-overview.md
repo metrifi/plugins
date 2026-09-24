@@ -85,21 +85,26 @@ Setup ends the same way research does: prompts running, and a readiness number.
 Skill: **exp-research**.
 
 Read `get-team-usage(team_id)` first and size the experiment to the GEO responses the team has left
-this period (methodology rule 21): prompt count and samples per prompt scale to the budget, the
-tradeoff gets said out loud in one sentence, and the run happens at the size the plan allows rather
-than being refused or overspent.
+this period (methodology rule 21): prompt count and the experiment's `target_responses` scale to
+the budget, the tradeoff gets said out loud in one sentence, and the experiment runs at the size the
+plan allows rather than being refused or overspent.
 
 Then propose candidate prompts the way a consumer would actually ask an AI assistant, never with a
 brand name in the prompt, spread across intent angles, geographies, and audience segments. Measure real
 demand with `research-keywords`, leading with umbrella noun phrases (methodology rule 2). Triage
 keep or drop on measured volume only (rules 1 and 3) and record every verdict, including the drops,
-with `record-keyword-research`. Then create the campaign and its prompts and run them with
-`run-campaign-prompts`.
+with `record-keyword-research`. Then create the campaign, the experiment (which carries a response
+target, 40 per window by default), and its prompts, and attach the prompts with `update-experiment`.
+On a targeted experiment that attach starts the platform's runner, which gathers the baseline
+toward the target on its own (see "The runner and the response target" below).
+`run-campaign-prompts` and `run-prompt` remain the tools for a campaign monitored without an
+experiment and for an experiment created before targets existed.
 
 Baseline responses populate asynchronously. There is no polling loop: `get-campaign-readiness`
-reports the share of prompts with enough completed responses, as a fact you read, not a gate that
-refuses. Pass `min_responses` matching the samples per prompt you budgeted, so the population line
-measures the experiment you actually bought.
+reports the share of prompts with completed responses, and `get-experiment` reports the run mode
+and the baseline against the target, both as facts you read, not gates that refuse. On a manual run,
+pass `min_responses` matching the samples per prompt you budgeted, so the population line measures
+the experiment you actually bought.
 
 ### 2. Build: from a populated campaign to a defensible draft
 
@@ -108,9 +113,10 @@ Skill: **exp-build**.
 Read the baseline. Score each prompt on demand, on whether the model's body text ever names a
 specific institution (rule 5), and on the gap in the client's own published content. Produce the
 viability verdict (rule 16) and lock the biggest viable target. On a weak or avoid verdict, pivot
-instead of shipping a weak target: re-select among prompts already run first, then create and run
-new demand-grounded prompts and attach them with `update-experiment` using
-`prompt_ids_mode: "add"` so the originals stay attached. Log every pivot with `add-experiment-event`.
+instead of shipping a weak target: re-select among prompts already run first, then create new
+demand-grounded prompts and attach them with `update-experiment` using `prompt_ids_mode: "add"` so
+the originals stay attached. On a targeted experiment the attach is what gathers their baseline; do
+not also run them by hand. Log every pivot with `add-experiment-event`.
 
 Then write the strategy and the draft, all of it server side:
 
@@ -234,6 +240,38 @@ stage above the hand-off note.
 A stage of Drafting on an experiment that has been open for months means no article has gone live,
 not that somebody forgot to update a label. That is a fact about the record rather than a gap in
 it.
+
+## The runner and the response target
+
+Every experiment created since 2026-09-24 carries `target_responses`, the usable responses the
+platform wants in each window before it grades the experiment: 40 by default, 8 to 400 on
+`create-experiment` and `update-experiment`, fixed once the experiment is live. A targeted
+experiment with prompts attached, not parked, not closed, on a paid team runs its own prompts;
+nobody calls a run tool. `get-experiment` prints where that stands:
+
+- `**Run mode:**` `baseline` before the live date (an immediate pass of up to 5 per prompt when the
+  prompts are attached, then a top-up once a day until the baseline holds the target or the article
+  goes live), `monitoring` after it (paced to reach the target by day 28, then against the 42-day
+  cap), `off` when parked, closed, or untargeted. It is derived on every read, never stored. An
+  experiment with no run mode line was created before targets existed and keeps the old 28-day
+  arithmetic.
+- `**Responses against target:** baseline N of T, measurement N of T`, with `+P pending` for
+  placeholders still resolving.
+- `**Projected close:**` the day the measurement is expected to end. With a target, the measurement
+  closes at the daily refresh once it holds the target and day 28 has passed, or at the 42-day cap,
+  whichever comes first; `ended_at` is written then and a `measurement-closed` event appended.
+- `**Runner skipped for quota:**` when the team's monthly quota ran out before a pass. That is an
+  action for the operator, more quota or a smaller target, not a gap to fill with manual runs.
+
+Responses the runner gathers are tagged with the experiment: the experiment's own score and
+`get-campaign-readiness` count them, and the campaign and organization visibility ratios leave them
+out. `run-prompt` and `run-campaign-prompts` still work and are untagged, so a manual burst is
+campaign data. Trial teams get the target and the depth warning but no automatic runs.
+
+`build-deliverable` and every tool that sets a live date warn when the baseline window holds fewer
+usable responses than the target, naming the shortfall. Advisory, never a refusal. Before the live
+date it means wait for the runner, or lower the target if the plan cannot afford it (the operator's
+call, rule 21). After the live date the window is shut and the warning is a fact for the analysis.
 
 ## Recording the handoff
 
