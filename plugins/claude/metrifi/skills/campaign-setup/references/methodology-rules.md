@@ -112,35 +112,47 @@ the build phase may need.
 `get-team-usage(team_id)` before proposing a candidate set, take the GEO responses remaining in the
 current period, and size the experiment to that number.
 
-**There is a target, and the plan is measured against it rather than replacing it: 10 to 15 tracked
-prompts at 5 samples each.** Below 10 prompts a campaign does not cover the space the build phase
-picks from, and below 5 samples the per-prompt visibility figures are noise. On a real campaign a
-prompt read 67% visibility at 3 responses and 25% at 8; nothing changed but the sample. Compute what
-the target costs (the baseline is prompts times samples, then times 1.5, because the reserve below
-is a third of the whole budget rather than a third added on top: 12 prompts at 5 samples is a
-60-response baseline and a 90-response budget), then
-compare it to what the plan has.
+**There is a target, and the plan is measured against it rather than replacing it.** Since
+2026-09-24 the platform carries it: every new experiment has `target_responses`, the usable
+responses wanted per window, 40 by default (the number the report's test needs to call a 0 to 20
+percent lift), settable from 8 to 400 and fixed once the experiment is live. The platform's runner
+gathers toward it, before the live date (an immediate pass of up to 5 per prompt when prompts are
+attached, then a top-up once a day) and after it (paced to reach the target by day 28, then against
+the 42-day cap). So an experiment costs about 2 times its target over its life, roughly 80
+responses at the default, plus a reserve for a pivot, whatever the prompt count. Ten to fifteen
+tracked prompts still cover the space the build phase picks from, and below 5 responses a prompt's
+visibility figure is noise: on a real campaign a prompt read 67% visibility at 3 responses and 25%
+at 8; nothing changed but the sample. Compute what the target costs, then compare it to what the
+plan has.
 
 - **When the plan cannot buy the target, tell the operator before you build something smaller.**
   Name the number needed, the number remaining, the shortfall, and the fact that the plan is what is
-  capping the quality, then let them choose to upgrade, to spend now and finish after the reset, or
-  to wait. Sizing down quietly inside the budget is the failure this clause exists to stop: it
+  capping the quality, then let them choose to upgrade, to run at a lower target, or to wait for
+  the reset. Sizing down quietly inside the budget is the failure this clause exists to stop: it
   produces a campaign that looks finished, and nobody learns otherwise until a client is shown a
   visibility score computed on three responses. Absorbing the constraint is not thrift, it is a
   decision taken on someone else's behalf.
-- **Reserve about a third** of what remains for the pivot, the re-runs, and the second look the
-  build phase legitimately asks for. Size the baseline inside the rest.
-- **The arithmetic is prompts times samples per prompt.** Providers are a pool, not a multiplier:
-  the run tools spread the requested count across the providers they can actually run, so naming
-  three providers does not triple the cost or the sample.
-- **Cut prompt count before cutting samples per prompt**, down to a floor of two samples. Rule 5
-  reads body text for institution mentions, and one response per prompt cannot tell a structurally
-  closed slot from an unlucky draw.
-- **State the tradeoff to the operator in one plain sentence**, in their terms: fewer tracked
-  prompts than usual, or a thinner baseline behind each one, and which you chose.
-- **Carry the sized number forward.** Pass `min_responses` to `get-campaign-readiness` equal to the
-  samples per prompt you budgeted, or the population line measures a bar nobody paid for and reads
-  as 0 percent forever.
+- **Reserve part of what remains for the pivot.** Attaching new prompts to a targeted experiment
+  gathers a baseline pass on them out of the same quota. Size the target inside the rest.
+- **Never gather a targeted experiment's baseline by hand.** Attaching prompts with
+  `update-experiment` starts the runner; a `run-campaign-prompts` or `run-prompt` call on top of it
+  spends the quota twice, and the manual responses are untagged campaign data besides. The manual
+  run is for a campaign monitored without an experiment, an experiment created before targets
+  existed (no run mode line on `get-experiment`), and a trial team, where the runner stays off.
+- **The arithmetic for a manual run is prompts times samples per prompt.** Providers are a pool,
+  not a multiplier: the run tools spread the requested count across the providers they can actually
+  run, so naming three providers does not triple the cost or the sample.
+- **Size down by lowering the target, not by running less.** On a targeted experiment lower
+  `target_responses` before the live date. On a manual run cut prompt count before cutting samples
+  per prompt, down to a floor of two samples: rule 5 reads body text for institution mentions, and
+  one response per prompt cannot tell a structurally closed slot from an unlucky draw.
+- **State the tradeoff to the operator in one plain sentence**, in their terms: a lower target
+  behind the experiment, or fewer tracked prompts than usual, and which you chose.
+- **Carry the sized number forward.** On a targeted experiment the number is `get-experiment`'s
+  "baseline N of T", and a `Runner skipped for quota` line there is the operator's call (quota, or
+  a smaller target), not a gap to fill with manual runs. On a manual run, pass `min_responses` to
+  `get-campaign-readiness` equal to the samples per prompt you budgeted, or the population line
+  measures a bar nobody paid for and reads as 0 percent forever.
 - **Always run the best experiment the plan allows.** Never refuse the experiment over the budget,
   and never quietly exceed it. On a generous plan none of this changes anything.
 - **Cover the product space, not just the brief.** The candidate set walks deposits, consumer
@@ -156,6 +168,9 @@ compare it to what the plan has.
 assumes a fixed sampling volume", it "sizes the experiment to it", and the skill "always does the
 best experiment the plan allows rather than refusing or blowing the cap". The QA team was on
 Starter, 50 responses a month, which put the old absolute gates out of reach from the first call.
+Updated 2026-09-24 when the platform took over gathering (metrifi-platform #413, #476, #477): the
+target moved from a hand-run sample to `target_responses`, and the runner spends the quota this
+rule sizes.
 
 ### Rule 22: the prompt text carries the geography, because nothing else does
 

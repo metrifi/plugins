@@ -56,8 +56,14 @@ That is the primary read. Only go deeper when the question demands it:
 
 - `get-experiment-document(team_id, experiment_id, kind)` for a document body, when someone asks
   what a decision actually said.
+- `get-experiment(team_id, experiment_id)` when the question is "is the baseline deep enough" or
+  "when does this close". On a targeted experiment it prints `**Run mode:**`, `**Responses against
+  target:** baseline N of T, measurement N of T`, `**Projected close:**` once live, and `**Runner
+  skipped for quota:**` when the team's quota ran out before a pass. No run mode line means an
+  experiment created before targets existed.
 - `get-campaign-readiness(team_id, campaign_id)` when an experiment is waiting on baseline
-  responses and the question is "are they in yet".
+  responses and the question is "did the prompts populate at all". It does not say whether the
+  baseline is deep enough; only `get-experiment` does.
 - `list-deliverable-checks(team_id, deliverable_id)` when you need the per-check detail, including
   which checks have gone stale since the article changed.
 
@@ -75,6 +81,9 @@ One compact block per experiment:
   was migrated from the old hand-entered value and nobody ever checked it against the live page,
   and `none recorded` means the experiment has no live date at all. **None of them means verified.**
   A result resting on an `inherited` or `asserted` date is provisional, and saying so is not a hedge.
+- **Runner.** On a targeted experiment, the run mode and the responses against the target in each
+  window, and the projected close once the article is live. Quote the lines rather than
+  paraphrasing them.
 - **Deliverable.** Status, version, open action items with how many are blocking, and whether it has
   been sent.
 - **Checks.** Which of hygiene, NCUA compliance, accessibility, and fact verification have a
@@ -84,8 +93,9 @@ One compact block per experiment:
 - **Next step.** The single next action, and the skill that does it.
 - **Waiting on a human?** The load-bearing line. Name explicitly anything blocked on your operator,
   on the client contact, or on their compliance officer: an unanswered action item, a pending
-  sign-off, an unapproved send, an opt-out request. If nothing is blocked, say "nothing, this can
-  proceed" and name what would happen next.
+  sign-off, an unapproved send, an opt-out request, a `Runner skipped for quota` line (the
+  operator decides between more quota and a smaller target; no skill runs the prompts around it).
+  If nothing is blocked, say "nothing, this can proceed" and name what would happen next.
 
 For a whole-team rollup, order it by what the person can act on: experiments needing a human first,
 then the ones in flight, then anything done or dormant. Lead with a one-line count so the shape is

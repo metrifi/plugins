@@ -1,12 +1,13 @@
 ---
 name: exp-research
-description: "Phase one of a MetriFi GEO experiment: turn a topic into a demand-grounded campaign and get baseline LLM responses running. Sizes the experiment to the GEO responses the team's plan has left this period. Proposes prompts the way a real consumer asks an AI assistant (never with a brand name), measures actual search demand, triages keep or drop on measured volume alone, records every verdict including the drops, then creates and runs only the prompts that survived. Use when someone wants to start an experiment or size a topic: 'start an experiment for this team on HELOCs', 'research this topic', 'stand up a campaign', 'what prompts should we track', 'is this topic worth an experiment', 'keyword research for a campaign'. Offers a dry run when the topic is unvalidated. NOT for standing up a brand-new team or its first broad baseline campaign (campaign-setup), NOT for scoring responses or writing the article (exp-build), NOT for where an experiment stands (exp-status), NOT website work."
+description: "Phase one of a MetriFi GEO experiment: turn a topic into a demand-grounded campaign with its baseline gathering. Sizes the experiment to the GEO responses the team's plan has left this period. Proposes prompts the way a real consumer asks an AI assistant (never with a brand name), measures actual search demand, triages keep or drop on measured volume alone, records every verdict, drops included, then creates the prompts that survived and attaches them; the platform gathers the baseline. Use when someone wants to start an experiment or size a topic: 'start an experiment for this team on HELOCs', 'research this topic', 'stand up a campaign', 'what prompts should we track', 'is this topic worth an experiment', 'keyword research for a campaign'. Offers a dry run when the topic is unvalidated. NOT for standing up a brand-new team or its first broad baseline campaign (campaign-setup), NOT for scoring responses or writing the article (exp-build), NOT for where an experiment stands (exp-status), NOT website work."
 ---
 
 # exp-research: from a topic to a demand-grounded campaign
 
-The first phase of an experiment. It ends with prompts running against the LLM providers and a
-readiness number, not with an analysis.
+The first phase of an experiment. It ends with the kept prompts attached to a targeted experiment,
+the platform's runner gathering the baseline toward the experiment's response target, and a first
+read of where that stands, not with an analysis.
 
 **This skill measures a topic. `campaign-setup` measures an institution.** If the team is new, or
 has no campaign yet, or has only deep single-topic campaigns and no broad baseline, that skill runs
@@ -49,56 +50,53 @@ decide whether to commit.
 
 **`get-team-usage(team_id)` is the first call in this skill**, before candidates, before keywords,
 before a campaign exists. It reports the GEO responses used, the limit, the responses remaining, and
-the billing period they reset in. Running a prompt spends that budget; nothing else in this phase
-does (keyword research is not metered).
+the billing period they reset in. Running a prompt spends that budget, whether you call a run tool
+or the platform's runner does it for a targeted experiment; nothing else in this phase does (keyword
+research is not metered).
 
-**The target is 10 to 15 tracked prompts at 5 samples each** (rule 21). That is the size a campaign
-has to reach before its numbers are worth putting in front of a client, and it is what you compute
-the budget against first.
-
-**The reserve is a third of the whole budget, not a third added on top of the baseline.** The
-baseline is therefore two thirds of it, so the budget the target needs is the baseline cost times
-1.5:
-
-| Tracked prompts | Baseline at 5 samples | Reserve (a third of the budget) | Budget the target needs |
-|---|---|---|---|
-| 10 | 50 | 25 | **75** |
-| 12 | 60 | 30 | **90** |
-| 15 | 75 | 38 | **113** |
+**Two numbers set the size of an experiment** (rule 21): how many prompts it tracks, and its
+`target_responses`, the usable responses the platform gathers per window before it scores the
+experiment. The default target is 40 per window, the number the report's test needs to call a 0 to
+20 percent lift, and `create-experiment` accepts 8 to 400. The platform's runner gathers the
+baseline toward that target before the article goes live and the measurement toward it after, so an
+experiment at the default target costs about 80 responses over its life (baseline plus
+measurement), whatever the prompt count. Prompt count decides how the responses spread across the
+questions, not how many there are.
 
 Size the experiment to what is left (rule 21):
 
-1. **Compute the target first, then compare.** Prompts times 5 samples for the baseline, then
-   multiply by 1.5 for the build-phase reserve, which pivots and re-runs out of the same pool.
-2. **If the plan cannot buy the target, say so before you build anything smaller.** Name the number
-   the target needs, the number remaining, the shortfall, and the fact that the plan is what is
-   capping the quality. Then let the operator choose: upgrade, spend what is there now and finish
-   after the reset, or wait. **This is a decision the operator makes, not one you absorb quietly.**
-   Sizing down inside the budget without telling anyone produces a campaign that looks finished and
-   is not, and nobody finds out until a client reads a visibility score computed on three responses.
-3. **Only then size down, and only to what they chose.** Cut prompt count before samples per prompt,
-   with two samples as the hard floor. The next phase reads body text for institution mentions
-   (rule 5), and a single response cannot tell a closed slot from an unlucky draw.
+1. **Compute the cost first, then compare.** About 2 times the target per experiment, roughly 80 at
+   the default, plus a reserve for a pivot, because a pivot attaches new prompts and the runner
+   gathers a baseline pass on them out of the same quota. Compare that to the responses remaining
+   and the date they reset. The baseline gathers over days and the measurement over 28 to 42 days,
+   so a reset inside that span counts in the plan's favour.
+2. **If the plan cannot cover the target, say so before you build anything smaller.** Name the
+   number the target needs, the number remaining, the shortfall, and the fact that the plan is what
+   is capping the quality. Then let the operator choose: upgrade, run at a lower target, or wait
+   for the reset. **This is a decision the operator makes, not one you absorb quietly.** A lower
+   target is a weaker test: the report grades the experiment on the responses its windows hold, and
+   a target the plan chose reads as a finding unless the tradeoff was said out loud.
+3. **Only then size down, and only to what they chose.** Lower `target_responses` on the experiment
+   (before the live date; it is fixed once the experiment is live), and cut prompt count before
+   anything else on the campaign side. Ten to fifteen tracked prompts still cover the space the
+   build phase picks from, and the runner's first pass puts up to 5 responses on each of them,
+   which is the sample the institution-citation gate (rule 5) reads.
 4. **Say the tradeoff in one plain sentence.** For example, "this plan has 44 GEO responses left this
-   period against the 90 a full campaign needs, so unless you want to upgrade I will track 10
-   prompts at 3 samples each instead of 12 at 5, and hold about 14 back for the build phase."
+   period against the 80 an experiment at the default target needs, so unless you want to upgrade I
+   will set the target to 20 per window and track 10 prompts, which is a weaker test than the
+   default."
 
-Splitting note: providers are a pool, not a multiplier. The run tools spread the requested count
-across the providers they can run, so naming more providers costs nothing extra and buys no extra
-sample.
-
-**Three samples is noise, and it is worth knowing how much.** On a real campaign the kids-savings
-prompt read 67% visibility at 3 responses and 25% at 8. Nothing changed except the sample. Any
-figure computed on 3 responses is provisional and should be labelled that way until it is re-read.
+**A thin baseline is noise, and it is worth knowing how much.** On a real campaign the kids-savings
+prompt read 67% visibility at 3 responses and 25% at 8. Nothing changed except the sample. That is
+why the target exists: 17 of the last 25 baselines gathered by hand were too thin to call.
 
 On a generous plan this is a read that changes nothing. On a small one it is the difference between
 a smaller honest experiment and either a refusal or a blown cap, and neither of those is an option:
 run the best experiment the plan allows, and make sure the operator knows what the plan is costing
 them.
 
-Carry the two numbers you chose (tracked prompts, samples per prompt) through the rest of this
-skill. They set the size of the kept set in step 4, the `count` in step 6, and `min_responses` in
-step 7.
+Carry the two numbers you chose (tracked prompts, `target_responses`) through the rest of this
+skill. They set the size of the kept set in step 4 and the target on the experiment in step 5.
 
 ## 2. Frame the candidate set, and open the campaign
 
@@ -295,8 +293,10 @@ rejected. **On a dry run, stop here.**
 ## 5. Commit the experiment and the prompts
 
 1. **The experiment record, as a draft.** `create-experiment(team_id, name, campaign_id, description,
-   status: "draft")`. Create it before the prompts, so the workflow state, the event log, and the
-   handoff note have a home from the first phase and any operator can pick this up. **Pass no dates**
+   status: "draft", target_responses?)`. Every new experiment carries a response target, 40 per
+   window unless you pass one; pass a lower number only when the operator chose it in step 1. Create
+   it before the prompts, so the workflow state, the event log, and the handoff note have a home
+   from the first phase and any operator can pick this up. **Pass no dates**
    (rule 7): `create-experiment` has no start-date argument, because an experiment is never born
    live. The live date arrives when the article does, from the publication record. If a draft
    experiment for this topic already exists on the campaign, reuse it rather than creating a
@@ -312,12 +312,34 @@ rejected. **On a dry run, stop here.**
    verdict, and notes, with the geography in the caption and a footer carrying the unique demand
    total, the distinct-phrase count, and the raw sum. That document is what a client can be shown.
    Write the per-prompt detail as a `keyword-research` document when the reasoning is worth keeping.
+5. **Attach the kept prompts to the experiment.** `update-experiment(team_id, experiment_id,
+   prompt_ids: [the kept ids], prompt_ids_mode: "add")`. On a targeted experiment that is not live,
+   this is what starts the baseline: the platform's runner dispatches its first pass the moment the
+   prompts are attached, up to 5 responses per prompt, then tops the baseline up once a day until
+   the window holds the target or the article goes live. Nothing else needs to be called.
 
-## 6. Run the prompts
+## 6. Get the baseline running
 
-`count` is the samples per prompt you sized in step 1, never a number picked here. The
-institution-citation gate in the next phase reads body text, so one response per prompt is not
-enough to work with, and two is the floor.
+**On a targeted experiment, do not run the prompts by hand.** Attaching them in step 5 already
+dispatched the runner's first baseline pass, and a `run-campaign-prompts` or `run-prompt` call on
+top of it spends the same quota twice. Responses the runner gathers are tagged with the experiment:
+the experiment's own score and `get-campaign-readiness` count them, and the campaign and
+organization visibility ratios leave them out so a heavily run experiment cannot tilt the campaign's
+numbers. A manual run is untagged and is campaign data.
+
+Two things to say about the runner's responses whenever you describe the baseline:
+
+- **Which provider they came from** (rule 6). The runner picks the provider; `list-responses` shows
+  it. A baseline that came back from one provider is a single-provider baseline in every document
+  you write about it.
+- **Trials get the target and the depth warning but no automatic runs.** On a trial team the runner
+  stays off, and the manual run below is the only way to gather a baseline. Say so.
+
+**The manual run stays the right tool in two cases:** a campaign being monitored without an
+experiment (the `campaign-setup` path), and an experiment created before targets existed, which
+`get-experiment` shows with no run mode line. There, `count` is the samples per prompt the plan
+can afford, never below two, because the institution-citation gate in the next phase reads body
+text and one response per prompt is not enough to work with.
 
 - **A campaign with no prior baseline:** `run-campaign-prompts(team_id, campaign_id, providers,
   count)`.
@@ -333,38 +355,54 @@ a single-provider baseline in every document you write about it (rule 6).
 
 If a run tool refuses, report its exact reason and stop there. A quota refusal names the responses
 needed against the responses remaining, which means the sizing in step 1 was off; re-size to what it
-reports rather than retrying the same call. The campaign, the experiment, and the prompts already
+reports rather than retrying the same call. The same goes for the runner: a `Runner skipped for
+quota` line on `get-experiment` means the plan ran out before a pass, and the fix is the operator's
+(quota, or a smaller target), not a manual run around it. The campaign, the experiment, and the prompts already
 exist, so running again once the reason is resolved picks up exactly where you left off. Nothing
 needs to be recreated.
 
 Log it: `add-experiment-event(team_id, experiment_id, kind: "prompts-created", summary)` with the
 count, the campaign, and the unique demand total, and `actor_label` naming yourself as the agent.
 
-## 7. Read readiness, then hand off
+## 7. Read where the baseline stands, then hand off
 
-Responses populate asynchronously, over minutes to hours. **There is no polling loop.**
-`get-campaign-readiness(team_id, campaign_id)` reports the share of prompts with enough completed
-responses, the per-prompt counts and latest response dates, any in-progress jobs, and the auto-run
-schedule. It is a fact you read, not a gate that refuses.
+Responses populate asynchronously, over minutes to hours. **There is no polling loop.** Read each
+of these once, report what it says, and stop.
 
-It counts responses inside a lookback window, 28 days and three responses per prompt by default, so
-a campaign you reused reads as empty when its baseline predates the window. `window_days` widens it
-when you want to see what already exists.
+**`get-experiment(team_id, experiment_id)` is the read that matters on a targeted experiment.** It
+prints:
 
-**Pass `min_responses` equal to the samples per prompt you budgeted in step 1.** The default of
-three is a bar a two-sample baseline never clears, so leaving it alone on a tight plan reports 0
-percent populated on a campaign that is exactly as populated as you paid for. Say which number you
-read it at when you report the percentage.
+- `**Run mode:**` `baseline`, `monitoring`, or `off`. Derived on every read, never stored.
+  `baseline` means the article is not live and the runner is filling the baseline window;
+  `monitoring` means the live date is set and the runner is pacing the measurement toward the
+  target by day 28, then against the 42-day cap; `off` means the experiment is parked, closed, or
+  untargeted. No mode line at all means an experiment created before targets existed, which keeps
+  the old 28-day arithmetic.
+- `**Responses against target:** baseline N of T, measurement N of T`, with `+P pending` for
+  placeholders still resolving. The baseline number is the one this phase hands off on. "Baseline
+  15 of 40" is a baseline in progress, not a baseline that is done.
+- `**Runner skipped for quota:**` when the team's monthly quota ran out before a pass. That line is
+  an action for the operator, more quota or a smaller target, not something to work around with
+  manual runs.
 
-Read it once, report it plainly, and stop. Then:
+`get-campaign-readiness(team_id, campaign_id)` still answers a different question: did the prompts
+populate at all. It reports the share of prompts with completed responses inside a lookback window
+(28 days and three responses per prompt by default; `window_days` widens it, `min_responses` sets
+the bar), the per-prompt counts and latest response dates, and any jobs still running. It does not
+say whether the baseline is deep enough; only `get-experiment` does. On a manual run, pass
+`min_responses` equal to the samples per prompt you budgeted, or a two-sample baseline reads as 0
+percent populated forever, and say which number you read it at.
+
+Then:
 
 - `set-experiment-workflow(team_id, experiment_id, note)` with a note the next operator can act on:
-  what was created, what is running, what the sizing was, and what the next step is. There is no
-  status argument; the experiment's stage is derived from its dates.
+  what was created, the target, where the baseline stands against it, and what the next step is.
+  There is no status argument; the experiment's stage is derived from its dates.
 - Tell your operator that **exp-build** is what analyzes the responses and scores the opportunity,
-  and that it is worth starting once readiness is at or above the 80 percent line, read at the
-  `min_responses` you sized for. Name it and let them choose. Do not start it yourself, and do not
-  analyze the responses here.
+  and that it is worth starting once readiness shows the prompts populated, which the runner's first
+  pass reaches on its own. The baseline keeps filling toward the target in the background until the
+  article goes live; the live date is what waits for "baseline T of T", not the analysis. Name it and
+  let them choose. Do not start it yourself, and do not analyze the responses here.
 
 ## Judgment calls
 
