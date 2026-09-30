@@ -1,0 +1,70 @@
+{
+  "name": "metrifi",
+  "excludeSkills": [
+    "generate-claude-design-system",
+    "generate-claude-design-page"
+  ],
+  "description": "One MetriFi sign-in connects ChatGPT and Codex to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) and adds the MetriFi skills: client-report for auditing an existing site, page-design-process for designing and building pages, campaign-setup for standing up a first baseline campaign, and the GEO experiment skills that run a campaign from research through to a reviewed client deliverable.",
+  "extensions": {
+    "com.openai": {
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Account and team lookup",
+              "prompt": "Who am I on MetriFi, and which teams do I belong to?",
+              "tools_triggered": "whoami, list-teams",
+              "expected_behavior": "Returns the signed-in user, reviewer@metrifi.com, with platform role none, and one team, Reviewer Test Account (reviewer-test-account), where the caller's role is owner. No writes."
+            },
+            {
+              "description": "Site Builder: read a site and its rates",
+              "prompt": "Show me the Golden Peak Credit Union site and its current rates.",
+              "tools_triggered": "list-sites, get-site, list-rates",
+              "expected_behavior": "Returns the goldenpeakcu site with its preview state and links to the live and draft sites, and its five rates with their effective dates: new and used auto loans, the 12-month share certificate at 4.25% APY, the HELOC, and Regular Savings at 0.25% APY."
+            },
+            {
+              "description": "Site Builder: schedule a rate change and read it back",
+              "prompt": "Schedule the 12-month certificate to move to 4.50% APY on the first of next month, then show me the pending change.",
+              "tools_triggered": "list-rates, set-rate, list-scheduled-changes",
+              "expected_behavior": "Schedules the 12-month certificate to move to 4.50% APY on the first of next month on the site's draft, then lists that pending change with its new APY and effective date. The current rate stays 4.25% until that date, and nothing goes live until the site is published."
+            },
+            {
+              "description": "GEO: campaign visibility and tracked prompts",
+              "prompt": "What's the AI visibility for Golden Peak's Denver auto loans campaign, and which prompts are tracked?",
+              "tools_triggered": "list-campaigns, get-campaign, list-prompts, get-org-visibility",
+              "expected_behavior": "Returns the Denver Auto Loans campaign, its three tracked consumer prompts, and a visibility ranking across the campaign's stored AI responses. Golden Peak Credit Union is a fictional demo institution, so it shows 0% while Denver-area competitors such as Bellco, Canvas and Ent show how often AI answers name them."
+            },
+            {
+              "description": "CRO: funnel report from Google Analytics",
+              "prompt": "Show me the funnel report for the main funnel over the last 28 days.",
+              "tools_triggered": "list-funnels, get-funnel-report",
+              "expected_behavior": "Returns the team's funnel, Homepage to Talk with us, with per-step user counts for the last 28 days from the connected Google Analytics property, a few hundred users at the first step narrowing to about one at the last, and the conversion rate between steps."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Unrelated question: no MetriFi tool should be called",
+              "prompt": "What's the weather in Denver this weekend?"
+            },
+            {
+              "description": "General writing task with no reference to a site, team, or campaign: no MetriFi tool should be called",
+              "prompt": "Write a short thank-you note to a colleague who covered my shift."
+            },
+            {
+              "description": "Finance-adjacent general knowledge: the topic alone must not trigger MetriFi",
+              "prompt": "Explain the difference between a Roth IRA and a traditional IRA."
+            }
+          ]
+        },
+        "demo_recording_url": "https://youtu.be/oPHlwMgO7Nk",
+        "commerce": false
+      },
+      "publication": {
+        "countries": [
+          "US"
+        ],
+        "release_notes": "Resubmission addressing the review feedback. Every tool now declares explicit readOnly, destructive, idempotent and openWorld hints, set after a handler-by-handler audit: tools that send email, share with clients or invite people are marked destructive and open world, and tools that reach outside the caller's team are marked open world. Tool outputs no longer include OAuth token or user ids, access tokens, secret links, internal ids or raw upstream errors, and the token-management tools were removed. Platform-staff tools are hidden from regular accounts. Server instructions no longer steer the model away from other connectors."
+      }
+    }
+  }
+}

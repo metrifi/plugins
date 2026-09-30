@@ -1,6 +1,6 @@
 # MCP tool annotation justifications (OpenAI review form, v4 for the v1.4.17 resubmission)
 
-Surface 1.4.17, 157 tools, lock order, four hints each. Regenerated 2026-09-30 from `resources/mcp/surface.lock.json` on platform main. Only tools without a `visibility` tag are listed, because the reviewer signs in as an ordinary user and never sees the 9 staff tools. Every write tool's handler was read for this version; each line says what that tool does, against the value beside it. `node tools/check-justifications.mjs <path to surface.lock.json>` checks this file against the lock.
+Surface 1.4.17, 157 tools, lock order, four hints each. Regenerated 2026-09-30 from `resources/mcp/surface.lock.json` on platform main. Only tools without a `visibility` tag are listed, because the reviewer signs in as an ordinary user and never sees the 10 staff tools (`transfer-team-ownership` joined them on 2026-09-30, after OpenAI's automated scan failed it). Every write tool's handler was read for this version; each line says what that tool does, against the value beside it. `node tools/check-justifications.mjs <path to surface.lock.json>` checks this file against the lock.
 
 ## list-teams
 
@@ -92,13 +92,6 @@ Surface 1.4.17, 157 tools, lock order, four hints each. Regenerated 2026-09-30 f
 - **Open World: false** The role is used only for permission checks inside the caller's own team, and no one is notified.
 - **Destructive: true** It overwrites the member's previous role.
 - **Idempotent: true** A repeat with the same role leaves the member's permissions as they already are.
-
-## transfer-team-ownership
-
-- **Read Only: false** It makes another team member the owner of the team and turns the previous owner into an admin.
-- **Open World: false** It changes only the team's owner and two membership roles in MetriFi's database, and no email is sent.
-- **Destructive: true** It replaces the current owner, who loses owner-only powers such as transferring the team again.
-- **Idempotent: true** A repeat finds the named person already owns the team and is refused before anything changes.
 
 ## list-campaigns
 
@@ -1047,10 +1040,17 @@ Surface 1.4.17, 157 tools, lock order, four hints each. Regenerated 2026-09-30 f
 
 ## manage-review-item
 
-- **Read Only: false** It marks action items done, reopens, assigns, unassigns, archives, unarchives or deletes them, and reopens, archives, unarchives or deletes feedback threads, logging each real change.
-- **Open World: true** The client sees these changes in the review overlay, and assigning an item emails the new assignee.
-- **Destructive: true** The delete action removes items and threads for good, other actions overwrite their state, and an assignment email cannot be recalled.
-- **Idempotent: true** Each action only runs when the item is not already in that state, so a repeat is skipped with no change, no activity entry and no second email.
+- **Read Only: false** It marks action items done, reopens, unassigns, archives, unarchives or deletes them, and reopens, archives, unarchives or deletes feedback threads, logging each real change.
+- **Open World: true** The client sees these changes in the review overlay, which is shared outside the caller's team.
+- **Destructive: true** The delete action removes items and threads for good, and the other actions overwrite their state.
+- **Idempotent: true** Each action only runs when the item is not already in that state, so a repeat is skipped with no change and no activity entry.
+
+## assign-review-item
+
+- **Read Only: false** It sets the assignee on the named action items and logs each assignment.
+- **Open World: true** Each newly assigned item emails the assignee a link to it, and the client sees the assignment in the review overlay.
+- **Destructive: true** The new assignee replaces the previous one, and a sent email cannot be recalled.
+- **Idempotent: true** An item already assigned to that address is skipped, so a repeat changes nothing and sends no second email.
 
 ## resolve-feedback
 
