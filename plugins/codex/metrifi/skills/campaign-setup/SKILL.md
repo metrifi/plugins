@@ -241,6 +241,14 @@ responses are in. Name them and let the operator choose.
 `get-org-visibility(team_id, campaign_id, limit: 0)` is the competitive picture, and the platform
 extracts those competitors from the responses itself.
 
+**Treat the client's rank as an upper bound.** The platform looks for new competitors only in a
+prompt's first answer, and the client is scored against every answer, so a competitor named only
+in later answers is missing and the client ranks higher than it should. Two MetriFi clients
+showed #1 on campaigns where the real rank was #9 and #15. Before you report a rank, skim a few
+recent responses (`list-responses`) for institutions missing from the ranking; if you find any,
+say the rank is likely too high and name them. A campaign with fewer than a handful of
+competitors is the strongest signal.
+
 Entities that are not competitors are filtered on the way in now: category nouns ("Bank", "Credit
 Union", "Online Lender"), regulators (FDIC, NCUA), publishers (NerdWallet, Bankrate) and payment
 rails (Visa, Zelle). **Campaigns created before that filter existed may still carry them.** If one
