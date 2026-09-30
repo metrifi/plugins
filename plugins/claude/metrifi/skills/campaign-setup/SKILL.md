@@ -49,7 +49,7 @@ Four read-only calls:
 
 **If the plan cannot buy the target set, say so before you build something smaller** (rule 21).
 Name the number the target needs, the number remaining, and the shortfall, then let the operator
-choose to upgrade, to spend now and finish after the reset, or to wait. Sizing down quietly
+choose to spend now and finish after the reset, or to wait. Sizing down quietly
 produces a campaign that looks finished and is not.
 
 ## 2. The owned organization, or nothing is measured
@@ -132,7 +132,7 @@ arm does not earn a retirement one. **Walk the list against what the institution
 rather than pasting it in.**
 
 Then create it: `create-campaign(team_id, name, description, location, keywords)`. Name it for the
-market and the scope, not for a topic: "Sonoma County Consumer Banking Baseline" rather than
+market and the scope, not for a topic: "Example County Consumer Banking Baseline" rather than
 "HELOC Campaign". The campaign is a container, not a commitment; no prompt exists inside it until
 step 6.
 
@@ -144,7 +144,7 @@ nothing.
 
 **Narrow comes second, and it comes from this flagship.** Once the flagship has responses, the
 product that is both weak and in demand is the one that earns a narrow single-product campaign,
-built by `exp-research`. Its prompts are granular ("best used car loan in Sonoma County") and still
+built by `exp-research`. Its prompts are granular ("best used car loan in Example County") and still
 name the place; granular never means unscoped. Experiments attach those granular prompts, never the
 flagship's institution-level ones, because a broad prompt dilutes the measurement of what one
 article did. Say that out loud when you hand off, so the ordering is visible.
@@ -154,7 +154,7 @@ article did. Say that out loud when you hand off, so the ordering is visible.
 Two hard rules, and the first one is the one that gets skipped.
 
 **Every prompt names the geography in its own text** (rule 22). "Where can I get the best auto loan
-rate in Sonoma County?" measures something. "Where can I get the best auto loan rate locally?"
+rate in Example County?" measures something. "Where can I get the best auto loan rate locally?"
 measures a national market the institution is not in.
 
 This is not obvious from the data model, which is why it keeps happening: the campaign's location
@@ -167,7 +167,7 @@ What counts:
 
 | Scoping | Verdict |
 |---|---|
-| "in Sonoma County", "in Santa Rosa", "in the North Bay" | good |
+| "in Example County", "in Exampleton", "in the Example Valley" | good |
 | "in California" | weak. A state is a big market and a community institution is rarely in a state-wide answer. Use it only where the product genuinely is state-level, and expect a thin result |
 | "locally", "near me", "in my area", "do local banks offer" | not scoped at all. This is the defect |
 

@@ -121,7 +121,7 @@ Everything else runs without pausing.
   and warns on any send that carries the article while a required check is missing, failing, or
   recorded against older prose (publish still refuses). It never judges your content. Reading,
   deciding, and browsing are yours.
-- **The client link is always available.** Every deliverable read prints `client_url`; when the
+- **The client link is always available.** `get-deliverable` (and the deliverable lists) return `client_url`; when the
   operator asks for it, hand it over immediately, then offer to record the delivery
   (`send-deliverable` or `record-deliverable-shared`).
 - **The methodology rules are not optional.** They exist because each one cost a real experiment.
@@ -129,7 +129,7 @@ Everything else runs without pausing.
 - **Prompts never contain a brand name.** They are written the way a consumer asks an AI assistant.
 - **Prompts DO contain the geography.** A campaign's location is used to buy keyword demand and is
   never sent to the LLM providers, so the prompt text is the only thing that scopes an answer to
-  the client's market. "in Sonoma County", never "locally" (methodology rule 22).
+  the client's market. "in Example County", never "locally" (methodology rule 22).
 - **Web access is whatever your host gives you.** A real browser tool beats a plain fetch on
   client-rendered sites, and where there is no browsing at all, a claim is marked as needing human
   verification rather than assumed true.

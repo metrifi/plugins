@@ -66,7 +66,8 @@ and never just to find out who the top customers are.
 
 Two more things to know:
 
-- **It is platform-staff only.** If the call is refused, you are not signed in as staff. Say that
+- **It is platform-staff only.** For anyone else it is not listed at all, so if the tool is missing
+  or the call is refused, you are not signed in as staff. Say that
   in one line and stop. Do not fall back to `list-teams` and sweep your own memberships instead:
   that is a different, smaller, quietly wrong cohort, and a sweep that silently changes what it
   covers is worse than one that refuses.

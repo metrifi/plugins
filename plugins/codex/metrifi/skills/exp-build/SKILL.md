@@ -309,8 +309,8 @@ afford it (rule 21: their choice, said out loud, not yours). After the live date
 window is shut, and the warning is a fact to record in the analysis; no manual burst can fill a
 window that has closed.
 
-**The client link is always available.** Every deliverable read prints `client_url` from the first
-draft call on; if your operator asks for it, give it to them immediately. Sending is still a later
+**The client link is always available.** Once the first draft exists, `get-deliverable` returns
+`client_url`; if your operator asks for it, give it to them immediately. Sending is still a later
 phase behind a human gate: building never emails anyone, and when a link actually goes out, the
 deliver phase records it (`send-deliverable` or `record-deliverable-shared`).
 
