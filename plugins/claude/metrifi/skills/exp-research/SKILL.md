@@ -73,8 +73,8 @@ Size the experiment to what is left (rule 21):
    the plan's favour.
 2. **If the plan cannot cover the target, say so before you build anything smaller.** Name the
    number the target needs, the number remaining, the shortfall, and the fact that the plan is what
-   is capping the quality. Then let the operator choose: upgrade, run at a lower target, or wait
-   for the reset. **This is a decision the operator makes, not one you absorb quietly.** A lower
+   is capping the quality. Then let the operator choose: run at a lower target, or wait for the
+   reset. **This is a decision the operator makes, not one you absorb quietly.** A lower
    target is a weaker test: the report grades the experiment on the responses its windows hold, and
    a target the plan chose reads as a finding unless the tradeoff was said out loud.
 3. **Only then size down, and only to what they chose.** Lower `target_responses` on the experiment
@@ -83,8 +83,8 @@ Size the experiment to what is left (rule 21):
    build phase picks from, and the runner's first pass puts up to 5 responses on each of them,
    which is the sample the institution-citation gate (rule 5) reads.
 4. **Say the tradeoff in one plain sentence.** For example, "this plan has 44 GEO responses left this
-   period against the 80 an experiment at the default target needs, so unless you want to upgrade I
-   will set the target to 20 per window and track 10 prompts, which is a weaker test than the
+   period against the 80 an experiment at the default target needs, so unless you would rather wait for
+   the reset I will set the target to 20 per window and track 10 prompts, which is a weaker test than the
    default."
 
 **A thin baseline is noise, and it is worth knowing how much.** On a real campaign the kids-savings
@@ -121,7 +121,7 @@ the place. The flagship is scoped to the single most populated market the instit
 serves; additional markets are additional campaigns (rule 23).
 
 **Granular does not mean unscoped.** A narrow campaign's prompts still name the place, exactly as
-the flagship's do (rule 22): "best used car loan in Sonoma County", not "best auto loan rate near
+the flagship's do (rule 22): "best used car loan in Example County", not "best auto loan rate near
 me". "Near me" scopes nothing, because the campaign's location is never sent to the providers.
 
 Only then create the new one, with
@@ -182,7 +182,7 @@ its contents.
 
 Three hard rules on the prompt text itself:
 
-- **Name the campaign's geography in the prompt text** (rule 22). "in Sonoma County", never
+- **Name the campaign's geography in the prompt text** (rule 22). "in Example County", never
   "locally" or "near me". The campaign's location is a demand-measurement setting and is **never
   sent to the LLM providers**, so the prompt text is the only thing that scopes the answer to the
   client's market. An unscoped prompt gets a national answer that a community institution is not
@@ -215,7 +215,7 @@ What a model's answer looks like today is competitive intelligence, not demand. 
 if it is useful later, and keep it out of the verdict entirely (rule 1).
 
 **Set the campaign's geography before you measure anything.**
-`set-campaign-location(team_id, campaign_id, query)` resolves a plain place name ("Sonoma County")
+`set-campaign-location(team_id, campaign_id, query)` resolves a plain place name ("Example County")
 and stores it on the campaign. With it set, `research-keywords` buys the demand twice and stores
 both numbers: `monthly_volume` is the United States national figure and `local_monthly_volume` is
 the same phrase measured in the campaign's own market. Without it you get the national number only,
@@ -230,10 +230,9 @@ a "Demand measured in:" line so you can confirm what you set.
   community bank overstates its market by two or three orders of magnitude and is the kind of number
   a client repeats to their board.
 - **Do not use geo-anchored keyword phrasing as a local-demand proxy. That workaround is obsolete
-  and it was always wrong.** Writing the county into the keyword ("business loans santa rosa") does
+  and it was always wrong.** Writing the county into the keyword ("business loans exampleton") does
   not measure local demand, it measures how many people type the county into the search box, which
-  is almost nobody. Measured side by side in Sonoma County on 2026-08-19: "business loans santa
-  rosa" returned 0/mo and no national figure at all, while the umbrella phrase "small business loan"
+  is almost nobody. Measured side by side in Example County on 2026-08-19: "business loans exampleton" returned 0/mo and no national figure at all, while the umbrella phrase "small business loan"
   measured 140/mo in that same county. Measure the umbrella form (rule 2) at the campaign's
   geography instead.
 - **Difficulty and search intent are national-only.** The endpoint that reports them cannot go below

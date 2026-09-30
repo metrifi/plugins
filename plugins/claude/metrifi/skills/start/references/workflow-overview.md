@@ -171,7 +171,8 @@ The real send happens only after your human operator says so in conversation, in
 you have told them exactly who it goes to. Do not treat an earlier approval on a different
 deliverable as approval for this one.
 
-The client link (`client_url`) is always disclosed: every deliverable read prints it, sent or not.
+The client link (`client_url`) is always disclosed: `get-deliverable`, `list-deliverables`, and
+`list-deliverables-needing-attention` return it, sent or not. Other deliverable tools do not.
 When your operator asks for it, give it immediately, then offer the record as a follow-up: they say
 "send" and you email it from the platform (`send-deliverable`), or they say "shared" because they
 handed it over themselves and you record it (`record-deliverable-shared`, which stamps `sent_at`

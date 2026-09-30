@@ -47,8 +47,8 @@ row whose `sent` reads "not yet" is a deliverable no delivery has ever been reco
 as the useful signal it is, and check the send state before assuming the client has seen anything.
 
 **One important exception, and it is common.** "Not yet sent" means no delivery is on the record,
-not that the client has never seen it: operators frequently paste the client link (always printed
-on every deliverable read) into Slack, a call recap, or their own email instead of sending from the
+not that the client has never seen it: operators frequently paste the client link (`get-deliverable`
+always returns it) into Slack, a call recap, or their own email instead of sending from the
 platform. The tell is client activity on a deliverable still marked unsent: views, answers, or
 comments mean somebody has the link, whatever `sent_at` says. When you see that, say so and record
 it with `record-deliverable-shared(team_id, deliverable_id, client_email, client_name, shared_at)`,
@@ -209,8 +209,8 @@ record it with the date and URL they gave, reading both back to them first.
    wait for your human operator's explicit OK in this conversation. An OK on the first send is not an
    OK on this one. Pass `client_email` with `client_name` if the client contact is not already
    captured; without one the deliverable can never be followed up on.
-4. **The client link is always printed; the record is what you keep honest.** If your operator asks
-   for the URL, give it immediately, then offer to record the delivery: `send-deliverable` when the
+4. **The client link is always available; the record is what you keep honest.** If your operator asks
+   for the URL, read it from `get-deliverable` and give it immediately, then offer to record the delivery: `send-deliverable` when the
    platform should email it, `record-deliverable-shared` when they handed it over themselves.
 
 If your operator would rather run the send as its own step, say so and let them start the deliver

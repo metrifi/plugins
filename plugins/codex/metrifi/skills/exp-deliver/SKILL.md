@@ -105,8 +105,8 @@ captures the institution's contact as the client participant, and it is what mak
 followable up on later. Without it, the deliverable can never be nudged and the quiet-client path
 below is closed for good. Get the address right the first time and read it back before sending.
 
-**The client link is always available; hand it over on request, then record the delivery.** Every
-deliverable read prints `client_url`, sent or not. When your operator asks for the link, give it
+**The client link is always available; hand it over on request, then record the delivery.** `get-deliverable`,
+`list-deliverables`, and `list-deliverables-needing-attention` return `client_url`, sent or not. When your operator asks for the link, give it
 immediately, no conditions, then follow up with one line offering the record: say "send" to email
 it from the platform, or "shared" if you handed it to the customer yourself and I'll record it.
 `record-deliverable-shared` stamps `sent_at` and emails nobody; pass `client_email` when they name

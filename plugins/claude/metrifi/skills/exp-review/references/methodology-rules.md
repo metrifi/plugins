@@ -46,7 +46,7 @@ believing the zero.
 **A geo-anchored keyword is not a measurement of local demand, and never was.** Writing the county
 into the phrase measures how many people type the county into a search box, which is almost nobody.
 Set the campaign's geography with `set-campaign-location` and measure the umbrella form there
-instead. Side by side in Sonoma County on 2026-08-19: "business loans santa rosa" returned 0/mo and
+instead. Side by side in Example County on 2026-08-19: "business loans exampleton" returned 0/mo and
 no national figure, while "small business loan" measured 140/mo in that same county.
 
 **This clause is about KEYWORDS ONLY. It says nothing about prompt text, which points the opposite
@@ -127,8 +127,7 @@ plan has.
 
 - **When the plan cannot buy the target, tell the operator before you build something smaller.**
   Name the number needed, the number remaining, the shortfall, and the fact that the plan is what is
-  capping the quality, then let them choose to upgrade, to run at a lower target, or to wait for
-  the reset. Sizing down quietly inside the budget is the failure this clause exists to stop: it
+  capping the quality, then let them choose to run at a lower target or to wait for the reset. Sizing down quietly inside the budget is the failure this clause exists to stop: it
   produces a campaign that looks finished, and nobody learns otherwise until a client is shown a
   visibility score computed on three responses. Absorbing the constraint is not thrift, it is a
   decision taken on someone else's behalf.
@@ -182,7 +181,7 @@ me" all get answered nationally, and a community institution is not in a nationa
 prompt then measures a zero it was never going to escape, and that zero reads as a finding.
 
 **The rule:** every prompt on a campaign with a geography names that place in its own words. "in
-Sonoma County", not "locally". The place can be the county, the city, or the metro, and the state
+Example County", not "locally". The place can be the county, the city, or the metro, and the state
 is a weak substitute rather than a scoped prompt. `create-prompt` warns when the place is missing;
 treat the warning as a defect to fix, not a note to acknowledge.
 
@@ -193,10 +192,10 @@ market to answer for. Same place name, opposite verdicts, because a keyword is m
 endpoint and a prompt is answered by a model. Reading rule 2 as a general instruction to keep
 geography out is exactly the mistake this rule exists to stop.
 
-**Where it came from:** Exchange Bank's Sonoma County consumer-lending campaign, read 2026-08-19.
+**Where it came from:** Example Community Bank's Example County consumer-lending campaign, read 2026-08-19.
 Three prompts were written without a place name ("who offers them locally", "do local banks offer
-consolidation loans") or scoped to all of California. All three read 0% visibility across five
-samples each. The three that named Sonoma County or Santa Rosa in their text read 100%, 100% and
+consolidation loans") or scoped to the whole state. All three read 0% visibility across five
+samples each. The three that named Example County or Exampleton in their text read 100%, 100% and
 60%. Geography in the text is necessary and not sufficient: one prompt that did name the county
 still read 0%, which is a real visibility gap rather than a defective prompt.
 
@@ -232,7 +231,7 @@ demand. That ordering is the point. A first campaign chosen for depth is a guess
 opportunity is; the flagship measures it.
 
 **Granular is not the same as unscoped.** A narrow campaign's prompts still name the place, exactly
-as the flagship's do: "best used car loan in Sonoma County", not "best auto loan rate near me".
+as the flagship's do: "best used car loan in Example County", not "best auto loan rate near me".
 
 **Experiments attach the narrow campaign's granular prompts, never the flagship's.** An
 institution-level prompt dilutes the measurement of what one article did, and the flagship's job is
@@ -240,7 +239,7 @@ to stay comparable over time rather than to move. Attach every granular prompt t
 plausibly move: an effect that lands on a sibling prompt is invisible to a single-prompt
 experiment.
 
-**Where it came from:** Ryan, 2026-08-19, reviewing new-team setup. Exchange Bank had three
+**Where it came from:** Ryan, 2026-08-19, reviewing new-team setup. Example Community Bank had three
 campaigns, all narrow single-topic ones (consumer lending, deposits, business banking) and no
 flagship, so there was no single number for the institution's visibility and no way to say whether
 it was improving. The "every geography it serves" reading was written into the skills the same day
