@@ -140,8 +140,12 @@ and is actually an empty measurement.
 **Competitors are a different matter: the platform extracts them from the responses on its own.**
 Do not tell an operator to register a competitor set by hand, and do not report "no competitive
 ranking is available" without calling `get-org-visibility` first. A real campaign's handoff note
-carried that claim for a day while the platform had already extracted 30 competitors and ranked the
-client first among them. Read the tool, then say what it says. Two things to watch when you do:
+carried that claim for a day while the platform had already extracted 30 competitors. Read the
+tool, then say what it says, and treat the client's rank as an upper bound: the platform looks for
+new competitors only in a prompt's first answer, so competitors named only in later answers are
+missing and the client ranks too high (two clients showed #1 where the real rank was #9 and #15).
+Skim a few recent responses for institutions missing from the ranking before you report a rank.
+Two more things to watch:
 generic nouns ("Bank", "Credit Union", "Online Lender") and non-competitors (FDIC, NCUA,
 NerdWallet, Visa) are filtered on the way in now, but campaigns created before that filter existed
 still carry them, and one of them can outrank every real competitor. If one appears in a ranking
