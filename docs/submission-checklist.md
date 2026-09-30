@@ -671,6 +671,13 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > for audited tools taken from the #426 audit. Lesson: boilerplate reasons hid wrong hints; every
 > reason must name what the handler does on a second call.
 >
+> **Justifications v4 for v1.4.17, 2026-09-30.** Regenerated from platform surface 1.4.17 in
+> [openai-tool-justifications.md](openai-tool-justifications.md): 157 tools, only those without a
+> `visibility` tag, since the reviewer signs in as an ordinary user. Each line was written from the
+> handler, not from v3. `node tools/check-justifications.mjs <surface.lock.json>` fails on a tool-set
+> or value mismatch with the lock, on em dashes, file paths and code identifiers, and on text that
+> contradicts its value (for example open world false while the line mentions the client or GitHub).
+>
 > Post-approval: the MCP server origin is locked to `https://platform.metrifi.com/mcp`; skills
 > ship to Codex users only when the version bumps; ChatGPT pulls the published bundle.
 
