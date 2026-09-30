@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.17 — 2026-09-30
+
+- OpenAI resubmission release. Skills: page-design-process and client-report run on MetriFi tools alone, red-team fixes to tool names and examples, GEO skills treat a client's rank as an upper bound. Justifications v4 for platform MCP surface 1.4.17 (157 tools) with a checker.
+
 ## 1.4.16 — 2026-09-18
 
 - OpenAI resubmission release. No skill behavior changes. README no longer lists connection-token management, since the platform removed list-tokens and revoke-token. Pairs with platform MCP surface 1.4.16: explicit idempotent hints on every tool, corrected open-world and idempotent values after a handler-by-handler audit, no token or user ids in tool output.
