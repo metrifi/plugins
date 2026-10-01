@@ -1,6 +1,6 @@
 # MCP tool annotation justifications (OpenAI review form, v4 for the v1.4.17 resubmission)
 
-Surface 1.4.17, 158 tools, lock order, four hints each. Regenerated 2026-09-30 from `resources/mcp/surface.lock.json` on platform main. Only tools without a `visibility` tag are listed, because the reviewer signs in as an ordinary user and never sees the 10 staff tools (`transfer-team-ownership` joined them on 2026-09-30, after OpenAI's automated scan failed it). Every write tool's handler was read for this version; each line says what that tool does, against the value beside it. `node tools/check-justifications.mjs <path to surface.lock.json>` checks this file against the lock.
+Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 from `resources/mcp/surface.lock.json` on platform main. Only tools without a `visibility` tag are listed, because the reviewer signs in as an ordinary user and never sees the 10 staff tools (`transfer-team-ownership` joined them on 2026-09-30, after OpenAI's automated scan failed it). On 2026-10-01 `manage-review-item` was retired into `set-review-items-done`, `set-review-items-archived`, `unassign-review-items` and `reopen-feedback`. Every write tool's handler was read for this version; each line says what that tool does, against the value beside it. `node tools/check-justifications.mjs <path to surface.lock.json>` checks this file against the lock.
 
 ## list-teams
 
@@ -1038,12 +1038,19 @@ Surface 1.4.17, 158 tools, lock order, four hints each. Regenerated 2026-09-30 f
 - **Destructive: false** It only reports the thread and leaves it as it was.
 - **Idempotent: true** A repeat returns the same thread until someone comments on it or closes it.
 
-## manage-review-item
+## set-review-items-done
 
-- **Read Only: false** It marks action items done, reopens, unassigns, archives or unarchives them, and reopens, archives or unarchives feedback threads, logging each real change.
-- **Open World: true** The client sees these changes in the review overlay, which is shared outside the caller's team.
-- **Destructive: true** Each action overwrites an item's or thread's current state, even though another action can set it back.
-- **Idempotent: true** Each action only runs when the item is not already in that state, so a repeat is skipped with no change and no activity entry.
+- **Read Only: false** It marks the named action items done, or reopens them when done is false, and logs each real change.
+- **Open World: true** The client sees the change in the review overlay, which is shared outside the caller's team.
+- **Destructive: true** It overwrites each item's current status, even though the opposite call can set it back.
+- **Idempotent: true** An item already in the requested state is skipped, so a repeat changes nothing and logs nothing.
+
+## set-review-items-archived
+
+- **Read Only: false** It archives the named action items and feedback threads, or restores them when archived is false, and logs each real change.
+- **Open World: true** The client sees archived items leave their active list in the review overlay, which is shared outside the caller's team.
+- **Destructive: true** It overwrites each item's or thread's archived state, even though nothing is deleted and the opposite call restores it.
+- **Idempotent: true** An item or thread already in the requested state is skipped, so a repeat changes nothing and logs nothing.
 
 ## assign-review-item
 
@@ -1051,6 +1058,13 @@ Surface 1.4.17, 158 tools, lock order, four hints each. Regenerated 2026-09-30 f
 - **Open World: true** Each newly assigned item emails the assignee a link to it, and the client sees the assignment in the review overlay.
 - **Destructive: true** The new assignee replaces the previous one, and a sent email cannot be recalled.
 - **Idempotent: true** An item already assigned to that address is skipped, so a repeat changes nothing and sends no second email.
+
+## unassign-review-items
+
+- **Read Only: false** It clears the assignee on the named action items and logs each one.
+- **Open World: true** The client sees the item become unowned in the review overlay, which is shared outside the caller's team.
+- **Destructive: true** It removes the current assignee from each item, and the earlier assignment email is not recalled.
+- **Idempotent: true** An item with no assignee is skipped, so a repeat changes nothing, logs nothing and sends no email.
 
 ## delete-review-items
 
@@ -1072,6 +1086,13 @@ Surface 1.4.17, 158 tools, lock order, four hints each. Regenerated 2026-09-30 f
 - **Open World: true** The client reads the dismissal reason in the review overlay.
 - **Destructive: true** It closes the threads as dismissed and overwrites their status.
 - **Idempotent: true** Threads already closed are skipped, so a repeat saves nothing, logs nothing and notifies no one.
+
+## reopen-feedback
+
+- **Read Only: false** It sets resolved or dismissed feedback threads back to open and logs each one.
+- **Open World: true** The client sees the threads return to their open list in the review overlay.
+- **Destructive: true** It overwrites each thread's closed status and clears when and against which version it was closed.
+- **Idempotent: true** Threads already open are skipped, so a repeat changes nothing and logs nothing.
 
 ## comment-on-feedback
 
