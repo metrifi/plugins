@@ -678,6 +678,26 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > or value mismatch with the lock, on em dashes, file paths and code identifiers, and on text that
 > contradicts its value (for example open world false while the line mentions the client or GitHub).
 >
+> **`[x]` RESUBMITTED 2026-10-01** (v1.4.17). Status: "In review". New-portal flow: plugin
+> `plugin_asdk_app_6abd4bce2cbc8191adc9b161584d3882` (app `asdk_app_6abd4bce2cbc8191adc9b161584d3882`),
+> created fresh because the migrated plugin never offered Connect; the old plugin was deleted to
+> free the MCP URL. One ZIP built by `node tools/build-openai-package.mjs` from `openai/package.json`
+> (5 positive and 3 negative test cases, demo video, US only); reviewer credentials entered in the
+> dashboard only. Platform `main` at `ca2ea87`, reviewer view 161 tools, fingerprint
+> `a74eba517997a2ad865bcc4a69474d8ae9dc1d39d98d802482971ab9a1a1f106`, pinned in Forge as
+> `MCP_SUBMITTED_SURFACE_SHA256` and passing `mcp:surface --check-submitted`. The portal's automated
+> scan reported no issues on 161 tools and the server instructions. Getting there took four platform
+> PRs after the first scan: #563 (`transfer-team-ownership` staff-only, `research-keywords`
+> reworded), #564 (`assign-review-item` split out), #565 (`delete-review-items` split out) and #574
+> (`manage-review-item` retired into four single-purpose tools). Lesson: the scan held the one tool
+> whose `action` argument chose which operation ran, even with no check named, and cleared only
+> when that switch was gone. Justifications for 161 tools are in
+> [openai-tool-justifications.md](openai-tool-justifications.md) for reference; the new portal reads
+> hints from the server and has no justification form. Pre-submit, a scripted cold OAuth connect as
+> `reviewer@metrifi.com` passed on production (password only, MFA exemption), and the five positive
+> cases' read tools returned the expected data. Until the decision: no tool text, schema, hint,
+> instruction or prompt change; do not change the reviewer's password (it revokes OAuth grants).
+>
 > Post-approval: the MCP server origin is locked to `https://platform.metrifi.com/mcp`; skills
 > ship to Codex users only when the version bumps; ChatGPT pulls the published bundle.
 
