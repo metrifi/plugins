@@ -174,6 +174,30 @@ Checked against the live repo and the live server on **2026-07-23**, not assumed
 > **What happens next is in [marketplace-operations.md](marketplace-operations.md), not
 > here.** Approval is not listing; the post-listing checks (`git-subdir` source shape, a
 > clean-machine install, SHA pin freshness) live there.
+>
+> **`[!]` REJECTED** (found 2026-10-09; dated Aug 5 in the Console list). Nothing was scanned.
+> Reviewer notes, verbatim: "We could not find a plugin at the folder you submitted (.). There
+> is no usable .claude-plugin/plugin.json there, so nothing was scanned. The plugin is in
+> 'plugins/claude/metrifi'. Resubmit with that folder and it will be scanned normally." The
+> path in the table above never reached the reviewer. No email arrived at
+> `ryan.harmon@metrifi.com`; the notice was only in the Console list.
+>
+> **Resubmission route, 2026-10-09.** The Console form is closed: its submit now returns
+> `403 plugin_submission_console_closed`, "Plugin submissions have moved to claude.ai". Per
+> claude.com/docs/directory/publish: **Withdraw** the Console submission, then submit at
+> `claude.ai/directory/manage` (**Submit new** → **Plugin bundle**) from the claude.ai Team
+> org as an Owner, with GitHub connected in that org and push access to `metrifi/plugins`.
+> Source step: repository `metrifi/plugins`, plugin path `plugins/claude/metrifi`, branch
+> `main`; run **Validate** and clear every **Blocking** finding. The portal's checklist
+> (claude.com/docs/plugins/pre-submission-checklist) requires a README of 40+ words **in the
+> plugin folder**, so `plugins/claude/metrifi/README.md` was added, disclosing everything the
+> plugin connects to, sends, and fetches (the security scan rejects undisclosed behavior), with
+> a copy of `LICENSE` beside it. Checked against that list: no system files, no bad names, no
+> file over 256 KiB, 46 text files, no hooks, scripts, launchers or binaries, `.mcp.json` is
+> one `http` server on `https://`. A proprietary license is not a blocker: the live catalog
+> lists `credibledata/credible-plugin` ("All rights reserved") and BSL-licensed plugins, and
+> 27 of 182 sampled listed repos have no license at all. The docs also recommend submitting
+> the MCP server separately as an **MCP connector** and pairing the two listings (section B).
 
 Automated screening of the repo. [AN-PLUG]: "Anthropic performs basic automated review on
 submissions before adding them to the directory." No functional test of the MCP server, so
