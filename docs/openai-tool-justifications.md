@@ -1,6 +1,6 @@
-# MCP tool annotation justifications (OpenAI review form, v4 for the v1.4.17 resubmission)
+# MCP tool annotation justifications (v5 for the v1.4.18 resubmission)
 
-Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 from `resources/mcp/surface.lock.json` on platform main. Only tools without a `visibility` tag are listed, because the reviewer signs in as an ordinary user and never sees the 10 staff tools (`transfer-team-ownership` joined them on 2026-09-30, after OpenAI's automated scan failed it). On 2026-10-01 `manage-review-item` was retired into `set-review-items-done`, `set-review-items-archived`, `unassign-review-items` and `reopen-feedback`. Every write tool's handler was read for this version; each line says what that tool does, against the value beside it. `node tools/check-justifications.mjs <path to surface.lock.json>` checks this file against the lock.
+Surface 1.4.18, 161 tools, lock order, four hints each. v5, 2026-10-15: OpenAI rejected v1.4.17 on annotations without naming tools, and a handler audit against OpenAI's current hint wording changed 36 hints. 25 reads that only touch the team's own GitHub repo, Vercel project, Google Analytics property or MetriFi's analytics database are now closed world ("Connectivity alone does not determine this value"); five writes that spend quota or cannot be undone are now destructive; six writes whose effect reaches an invitee, the client page or OpenAI are now open world. The new portal reads hints from the server and asks for no justifications, so this file is the reference for an appeal. v4 was regenerated 2026-09-30 from `resources/mcp/surface.lock.json` on platform main. Only tools without a `visibility` tag are listed, because the reviewer signs in as an ordinary user and never sees the 10 staff tools (`transfer-team-ownership` joined them on 2026-09-30, after OpenAI's automated scan failed it). On 2026-10-01 `manage-review-item` was retired into `set-review-items-done`, `set-review-items-archived`, `unassign-review-items` and `reopen-feedback`. Every write tool's handler was read for this version; each line says what that tool does, against the value beside it. `node tools/check-justifications.mjs <path to surface.lock.json>` checks this file against the lock.
 
 ## list-teams
 
@@ -61,7 +61,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## revoke-invitation
 
 - **Read Only: false** It removes a still-pending membership for that email from the team and deletes any unused sign-up links for it.
-- **Open World: false** It changes only the team's own invitation records in MetriFi's database, and no email is sent to anyone.
+- **Open World: true** The invitation link already emailed to that address stops working, so the change reaches a person outside the team, though no new email is sent.
 - **Destructive: true** It deletes the pending invitation and its sign-up links, so the old link stops working.
 - **Idempotent: true** A repeat finds no pending invitation or link left and changes nothing.
 
@@ -82,14 +82,14 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## remove-member
 
 - **Read Only: false** It takes the named person off the team, so they lose access to its campaigns, funnels and sites. The owner cannot be removed.
-- **Open World: false** It changes only the team's membership records in MetriFi's database, and no email or notice goes to anyone.
+- **Open World: true** The removed person loses access, and invitation links they already emailed to people outside the team stop working.
 - **Destructive: true** It deletes the person's membership and role on the team, and they would need a new invitation to come back.
 - **Idempotent: true** A repeat finds that the person is no longer a member and changes nothing.
 
 ## set-member-role
 
 - **Read Only: false** It changes a team member's role, which decides what that person may view, edit or publish on the team.
-- **Open World: false** The role is used only for permission checks inside the caller's own team, and no one is notified.
+- **Open World: true** Demoting an admin makes the invitation links they already emailed to people outside the team stop working, so the change reaches those invitees.
 - **Destructive: true** It overwrites the member's previous role.
 - **Idempotent: true** A repeat with the same role leaves the member's permissions as they already are.
 
@@ -138,8 +138,8 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## create-prompt
 
 - **Read Only: false** It adds a new prompt, the question MetriFi will later put to AI assistants, to one of the team's campaigns.
-- **Open World: false** It only stores the prompt in MetriFi's database, and nothing is put to any AI provider until a run tool is called.
-- **Destructive: false** It only adds a prompt and changes no existing prompt or response.
+- **Open World: true** In a paid team's campaign with auto-run turned on, the new prompt is sent to OpenAI on the campaign's next scheduled run without any further tool call.
+- **Destructive: false** It only adds a prompt and changes no existing prompt or response, and it spends no quota itself: any run, by a run tool or the campaign's own schedule, is a separate step.
 - **Idempotent: false** A repeat with the same text adds a second, duplicate prompt to the campaign.
 
 ## list-responses
@@ -166,7 +166,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## get-team-report
 
 - **Read Only: true** It gathers the team's usage, campaigns, experiments and deliverables into one report, plus the AI crawler traffic recorded on the institution's website. Nothing is changed.
-- **Open World: true** The traffic section is read from the outside database that stores crawler visits collected on the institution's own website, not from MetriFi's main database.
+- **Open World: false** Its traffic section reads only the visits recorded for the team's own website in MetriFi's analytics database, and every other section reads the team's own MetriFi records.
 - **Destructive: false** It only assembles a report and leaves every campaign, experiment and deliverable as it was.
 - **Idempotent: true** A repeat returns the same report, moving only as the team's data or its site traffic changes.
 
@@ -174,14 +174,14 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 
 - **Read Only: false** It queues one to five background runs of the prompt, and each run stores a new AI answer and counts against the team's response quota.
 - **Open World: true** Each queued run puts the prompt text to an outside AI provider such as OpenAI and stores the answer it returns.
-- **Destructive: false** It only adds new responses, and no existing response, prompt or campaign is changed.
+- **Destructive: true** Each run sends the prompt text to an outside AI provider and spends the team's paid response quota, and neither the send nor the spend can be taken back.
 - **Idempotent: false** A repeat queues another set of paid runs and uses up more of the team's monthly response quota.
 
 ## run-campaign-prompts
 
 - **Read Only: false** It queues background runs for every prompt in the campaign, one to five per prompt, and each run stores a new AI answer and counts against the team's quota.
 - **Open World: true** Each queued run puts a prompt to an outside AI provider such as OpenAI and stores the answer it returns.
-- **Destructive: false** It only adds new responses, and no existing response, prompt or campaign is changed.
+- **Destructive: true** Every prompt in the campaign is sent to an outside AI provider and each run spends the team's paid response quota, and neither the sends nor the spend can be taken back.
 - **Idempotent: false** A repeat queues a whole new batch of paid runs across the campaign and uses up that much more quota.
 
 ## get-experiment-insights
@@ -250,7 +250,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## get-ai-user-bot-traffic
 
 - **Read Only: true** It reads which of the institution's web pages AI assistants such as ChatGPT fetched on a user's behalf over a date range, with visit counts. Nothing is changed.
-- **Open World: true** The visits are read from the outside database that stores crawler hits collected by a plugin or worker on the institution's own website.
+- **Open World: false** It reads only the visits recorded for the team's own website in MetriFi's analytics database, and nothing else is reached.
 - **Destructive: false** It only reports traffic and leaves the traffic records and the website as they were.
 - **Idempotent: true** A repeat over the same dates returns the same counts, growing only as new visits are recorded.
 
@@ -390,7 +390,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## set-experiment-document
 
 - **Read Only: false** It saves an experiment document by kind and key, creating it or replacing the one already stored under that kind and key.
-- **Open World: false** It stays in MetriFi's database for the team, and the document reaches no client until a later build of the deliverable copies it in.
+- **Open World: true** A new document goes into the deliverable dossier by default, so the next build of the deliverable puts it on the client's page.
 - **Destructive: true** It replaces the earlier content of a document stored under the same kind and key.
 - **Idempotent: true** A repeat with the same content finds the stored document already matching and writes nothing.
 
@@ -404,7 +404,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## set-experiment-opportunity
 
 - **Read Only: false** It saves the experiment's opportunity block, meaning the headline, demand, verdict and target prompts, stamps the time and logs an opportunity event.
-- **Open World: false** It stays in the owning team's records, and the opportunity reaches no client until a later build of the deliverable copies it in.
+- **Open World: true** The opportunity block is client-facing copy that the next build of the deliverable places on the client's page word for word.
 - **Destructive: true** It overwrites the opportunity block already saved on the experiment.
 - **Idempotent: false** A repeat logs another opportunity event and stamps a new time, which pushes back when the experiment is archived as stale.
 
@@ -426,7 +426,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 
 - **Read Only: false** It stores one pre-publish check result, such as compliance or fact verification, with its findings, pinned to the current article version.
 - **Open World: true** The check's verification notes are shown on the client's own deliverable page.
-- **Destructive: false** It only adds a check record, and earlier checks stay on file as history.
+- **Destructive: true** The newest check of each type replaces the verdict the deliverable page shows and can open or close the send gate, so the earlier verdict stops counting.
 - **Idempotent: false** A repeat adds a second check record and another entry in the history.
 
 ## list-deliverable-checks
@@ -530,21 +530,21 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## get-funnel-report
 
 - **Read Only: true** It pulls live step-by-step user counts and conversion rates for the funnel from Google Analytics over a date range. Nothing is changed.
-- **Open World: true** The figures are fetched live from the team's Google Analytics property, an outside service.
+- **Open World: false** It reads only the team's own connected Google Analytics property, a private account, and nothing else is reached.
 - **Destructive: false** It only reports figures and leaves the funnel and its snapshots as they were.
 - **Idempotent: true** A repeat over the same dates returns the same figures, apart from late-arriving analytics data.
 
 ## ga-page-users
 
 - **Read Only: true** It pulls the number of users per page from the team's Google Analytics property for a date range, optionally filtered by path. Nothing is changed.
-- **Open World: true** The page figures are fetched live from Google Analytics, an outside service.
+- **Open World: false** It reads only the team's own connected Google Analytics property, a private account, and nothing else is reached.
 - **Destructive: false** It only reports page traffic and leaves every funnel and connection as it was.
 - **Idempotent: true** A repeat over the same dates returns the same counts, apart from late-arriving analytics data.
 
 ## ga-outbound-link-users
 
 - **Read Only: true** It pulls the number of users who clicked each outbound link from the team's Google Analytics property for a date range. Nothing is changed.
-- **Open World: true** The click figures are fetched live from Google Analytics, an outside service.
+- **Open World: false** It reads only the team's own connected Google Analytics property, a private account, and nothing else is reached.
 - **Destructive: false** It only reports link clicks and leaves every funnel and connection as it was.
 - **Idempotent: true** A repeat over the same dates returns the same counts, apart from late-arriving analytics data.
 
@@ -643,7 +643,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 
 - **Read Only: false** It marks the recommendation queued and starts background generation, which captures page screenshots and has an AI model write the landing page, using one of the team's monthly recommendations.
 - **Open World: true** Generation captures screenshots of the pages through an outside screenshot service and has an outside AI model write the page.
-- **Destructive: false** It only starts a new generation, and the funnels and dashboards it draws on are left unchanged.
+- **Destructive: true** It spends one of the team's monthly recommendations, sends page screenshots and content to outside services, and a repeat overwrites the recommendation's earlier content and outline.
 - **Idempotent: false** A repeat queues another paid generation and uses another recommendation from the team's quota.
 
 ## get-block
@@ -747,21 +747,21 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## list-sites
 
 - **Read Only: true** It searches GitHub for the MetriFi site repos tagged with the caller's teams and returns their slugs and last push times. Nothing is changed on GitHub or in MetriFi.
-- **Open World: true** The site list comes from a live search of MetriFi's GitHub organization, an outside service, rather than from MetriFi's own database.
+- **Open World: false** It searches only MetriFi's own private GitHub organization for the sites the caller's teams own, and nothing else is reached.
 - **Destructive: false** It only looks up repositories and returns a list, so no repo, site or setting is removed or replaced.
 - **Idempotent: true** Repeating it runs the same repository search and returns the same list unless a site was added or moved in between.
 
 ## get-site
 
 - **Read Only: true** It reads the site's repo details and draft-versus-live commit comparison from GitHub, plus its preview deployment, draft host status and preview password from Vercel. It only asks whether the draft host exists and assigns nothing.
-- **Open World: true** Its data comes from GitHub and Vercel, and it returns password-carrying links to the client's hosted preview and live site.
+- **Open World: false** It reads the team's own site records in MetriFi's private GitHub organization and Vercel account, and the links it returns open only that team's password-gated site.
 - **Destructive: false** It reports the site's state and review links and leaves the repo, the Vercel project and every domain as they were.
 - **Idempotent: true** A repeat asks GitHub and Vercel the same questions and returns the same details, only newer if someone pushed or deployed in between.
 
 ## check-slug
 
 - **Read Only: true** It turns the input into a slug, checks it against the format and reserved names, and asks GitHub whether a repo with that name already exists. It reserves nothing.
-- **Open World: true** The availability answer depends on a live lookup against MetriFi's GitHub organization, an outside service.
+- **Open World: false** It looks the slug up only in MetriFi's own private GitHub organization, not on the open web, and nothing else is reached.
 - **Destructive: false** It answers yes or no with reasons, and no repo or site is claimed, removed or replaced.
 - **Idempotent: true** Repeating it gives the same answer for the same slug until someone creates a repo with that name.
 
@@ -769,7 +769,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 
 - **Read Only: false** It creates a private GitHub repo from the starter template, tags it with the owning team, creates a linked Vercel project with its preview password, adds the site's review workspace in MetriFi and starts the first production build.
 - **Open World: true** It creates real resources in GitHub and Vercel and puts a password-gated site on the public internet under a metrifi.dev address.
-- **Destructive: false** It only brings new resources into being for a slug that is confirmed free, so no existing repo, project or review is removed or replaced.
+- **Destructive: true** It creates real outside resources that no tool takes back as they were: a GitHub repo, a Vercel project with its domains, and a first production deploy that puts a password-gated site online.
 - **Idempotent: false** A successful call stands up a new repo, Vercel project, domains and first deployment, so a repeat is not a safe retry: the same slug is then taken, and a different one creates a second site.
 
 ## move-site
@@ -789,14 +789,14 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## list-site-files
 
 - **Read Only: true** It reads one directory, or the whole file tree, of the site's repo on GitHub at the working branch or a given ref. Nothing in the repo is changed.
-- **Open World: true** The file listing is read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only lists file names and leaves every file in the repo as it was.
 - **Idempotent: true** Repeating it returns the same listing for the same ref unless a commit lands in between.
 
 ## read-file
 
 - **Read Only: true** It reads one file's content and version fingerprint from the site's repo on GitHub, from the working branch or a given ref. The repo is left unchanged.
-- **Open World: true** The file is fetched live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads one file from the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It returns the file and its fingerprint and leaves the repo exactly as it was.
 - **Idempotent: true** A repeat returns the same content and fingerprint for the same ref until a commit changes that file.
 
@@ -817,14 +817,14 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## file-history
 
 - **Read Only: true** It reads the commit log for one path from the site's repo on GitHub, with who drafted and published each change. Nothing in the repo is changed.
-- **Open World: true** The history is read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads the commit log of the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only reports past commits and leaves the file and its history as they were.
 - **Idempotent: true** A repeat returns the same commit log for the same path and ref until a new commit touches that path.
 
 ## get-preview-url
 
 - **Read Only: true** It looks up the site's Vercel project, its latest working-branch deployment, whether the draft host is assigned and the preview password, then builds the shareable links. It assigns nothing on Vercel.
-- **Open World: true** It reads from Vercel and returns a link that carries the site's gate password and opens the client's hosted preview or live site.
+- **Open World: false** It reads the team's own site settings in MetriFi's Vercel account, and the link it returns opens only that team's password-gated site.
 - **Destructive: false** It returns links and deployment state and leaves the Vercel project, its domains and deployments as they were.
 - **Idempotent: true** A repeat returns the same links, changing only if a new deployment finished in between.
 
@@ -838,7 +838,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## list-site-assets
 
 - **Read Only: true** It lists the images staged for this site in Vercel Blob storage, with each one's link, size and upload time. Nothing is stored or removed.
-- **Open World: true** The list is read from Vercel Blob storage, an outside service that holds the site's staged uploads.
+- **Open World: false** It reads only the team's staged uploads in MetriFi's own Vercel Blob store, and nothing else is reached.
 - **Destructive: false** It only lists staged uploads and leaves every blob in place.
 - **Idempotent: true** A repeat returns the same list unless someone uploads or removes an image in between.
 
@@ -852,14 +852,14 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## list-rates
 
 - **Read Only: true** It reads the site's rates file from the repo on GitHub and returns each rate's current value and count of pending scheduled changes. The file is left unchanged.
-- **Open World: true** The rates are read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only reports rates and leaves the rates file and the live site as they were.
 - **Idempotent: true** A repeat returns the same rates for the same ref, differing only when a scheduled change has come due or a commit landed in between.
 
 ## get-rate
 
 - **Read Only: true** It reads one rate's current value and its full effective-dated timeline from the site's rates file on GitHub. Nothing is changed.
-- **Open World: true** The rate is read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only reports one rate and leaves its timeline as it was.
 - **Idempotent: true** A repeat returns the same timeline for the same ref, with an entry moving from scheduled to active only once its time passes.
 
@@ -873,7 +873,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## list-scheduled-changes
 
 - **Read Only: true** It reads the site's rates file on GitHub and lists every future-dated change in time order. Nothing is changed.
-- **Open World: true** The pending changes are read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only lists pending changes and leaves the rates file as it was.
 - **Idempotent: true** A repeat returns the same list for the same ref, shrinking only as scheduled times pass.
 
@@ -887,14 +887,14 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## rate-history
 
 - **Read Only: true** It reads one rate's effective-dated timeline and the commit log of the site's rates file from GitHub. Nothing is changed.
-- **Open World: true** The timeline and log are read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only reports history and leaves the rate and its commits as they were.
 - **Idempotent: true** A repeat returns the same timeline and log for the same ref until a new commit touches the rates file.
 
 ## find-rate-usages
 
 - **Read Only: true** It lists the site's source files on GitHub, reads the pages and components that might reference the rate, and returns the matching lines. Nothing is changed.
-- **Open World: true** The search reads the site's code live from its repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only searches the code and leaves every file as it was.
 - **Idempotent: true** A repeat returns the same matches for the same ref until someone commits a change to those files.
 
@@ -908,14 +908,14 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## list-facts
 
 - **Read Only: true** It reads the site's facts file from the repo on GitHub and returns every managed fact, such as routing number, phone and hours. The file is left unchanged.
-- **Open World: true** The facts are read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only reports facts and leaves the facts file as it was.
 - **Idempotent: true** A repeat returns the same facts for the same ref until a commit changes the file.
 
 ## get-fact
 
 - **Read Only: true** It reads one managed fact's label, type and value from the site's facts file on GitHub. Nothing is changed.
-- **Open World: true** The fact is read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only reports one fact and leaves the facts file as it was.
 - **Idempotent: true** A repeat returns the same fact for the same ref until a commit changes it.
 
@@ -929,7 +929,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## get-brand
 
 - **Read Only: true** It reads the site's brand settings, meaning colors, fonts, logo and voice, from the site's repo on GitHub at the working branch or a given ref. Nothing is changed.
-- **Open World: true** The brand is read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only reports the brand and leaves the brand files as they were.
 - **Idempotent: true** A repeat returns the same brand for the same ref until a commit changes it.
 
@@ -943,7 +943,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## validate-brand
 
 - **Read Only: true** It reads the site's brand from GitHub and checks it for errors and warnings, including whether the site's compliance record is resolved. Nothing is changed.
-- **Open World: true** The brand and compliance record it checks are read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only reports problems and leaves the brand and compliance files as they were.
 - **Idempotent: true** A repeat returns the same findings for the same ref until a commit changes the brand.
 
@@ -964,7 +964,7 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## get-compliance
 
 - **Read Only: true** It reads the site's compliance record, meaning institution, charter type, insurer, regulator and required disclosures, from the site's repo on GitHub. Nothing is changed.
-- **Open World: true** The record is read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only reports the record and leaves it as it was.
 - **Idempotent: true** A repeat returns the same record for the same ref until a commit changes it.
 
@@ -985,14 +985,14 @@ Surface 1.4.17, 161 tools, lock order, four hints each. Regenerated 2026-09-30 f
 ## list-pending-changes
 
 - **Read Only: true** It lists the sites the caller can reach whose working branch holds changes not yet published. Nothing is changed.
-- **Open World: true** It compares branches live on GitHub, an outside service, for each site.
+- **Open World: false** It compares branches only in the private site repositories of the caller's own sites in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only lists waiting changes and leaves every branch as it was.
 - **Idempotent: true** A repeat returns the same list until someone drafts or publishes a change.
 
 ## summarize-changes
 
 - **Read Only: true** It compares the site's working branch with the live branch on GitHub and summarizes the files and commits that would go live on publish. Nothing is changed.
-- **Open World: true** The comparison is read live from the site's repository on GitHub, an outside service.
+- **Open World: false** It reads only the team's own private site repository in MetriFi's GitHub organization, and nothing else is reached.
 - **Destructive: false** It only reports the difference and leaves both branches as they were.
 - **Idempotent: true** A repeat returns the same summary until another commit lands on either branch.
 
