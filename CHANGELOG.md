@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.18 — 2026-10-15
+
+- OpenAI resubmission release. Justifications v5 for platform MCP surface 1.4.18: 36 tool hints re-read against OpenAI's current wording (25 reads closed world, 5 writes destructive, 6 writes open world). Checker no longer treats naming GitHub, Vercel or Google as open world. No skill changes.
+
 ## 1.4.17 — 2026-09-30
 
 - OpenAI resubmission release. Skills: page-design-process and client-report run on MetriFi tools alone, red-team fixes to tool names and examples, GEO skills treat a client's rank as an upper bound. Justifications v4 for platform MCP surface 1.4.17 (157 tools) with a checker.
