@@ -44,14 +44,16 @@ codex mcp login metrifi
 ## What's inside
 
 - Account tools: whoami (answers "Who am I on MetriFi?"), team and member
-  management (invite, roles, switching), and connection-token management
+  management (invite, roles, switching)
 - The MetriFi connector (`https://platform.metrifi.com/mcp`; OAuth with your MetriFi sign-in)
 - Skills: `generate-claude-design-system` → `generate-claude-design-page` →
   `page-design-process` (the three-stage MetriFi site-design workflow; the full
   methodology is fetched from MetriFi at runtime, behind your sign-in)
 - GEO experiment skills: `start` (orient, then point you at the right skill),
   `exp-status` (a read-only rollup of where every experiment and deliverable
-  stands), `exp-research` (a topic to a demand-grounded campaign with baseline
+  stands), `campaign-setup` (a new institution to a baseline campaign: its
+  market, its registered organization, and a first campaign wide across the
+  products), `exp-research` (a topic to a demand-grounded campaign with baseline
   runs going), `exp-build` (a populated campaign to a scored opportunity and a
   drafted client deliverable), `exp-review` (the four pre-publish checks:
   hygiene, NCUA compliance, accessibility, fact verification), `exp-deliver`
@@ -125,6 +127,8 @@ reference: how an update actually reaches a user, why a shipped change can take 
 more to arrive, and how to triage "this isn't working for me."
 [`docs/submission-checklist.md`](docs/submission-checklist.md) is the one-time gate for
 getting listed in the Claude and OpenAI directories.
+[`docs/openai-submission.md`](docs/openai-submission.md) is the OpenAI-side operations reference:
+what a review judges, when a deploy needs a new reviewed version, and the resubmission procedure.
 
 ## Legal
 

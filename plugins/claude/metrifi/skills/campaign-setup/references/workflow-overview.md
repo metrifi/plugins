@@ -1,0 +1,295 @@
+# The GEO experiment workflow: where state lives and how a run moves
+
+A MetriFi GEO experiment takes a topic from "nobody has asked whether this is worth doing" to a
+published article whose lift can be measured, with a client-facing deliverable in the middle that a
+real person at the institution reviews and signs off on.
+
+Two facts shape everything below.
+
+**All state lives on the MetriFi platform.** Nothing is written to your machine. There is no
+experiment folder, no local artifact, no file to hand to the next person. Any operator on the team,
+on any machine, in any supported agent, can pick up any experiment. That is what makes this
+multi-operator, and it is why "where am I" is a question with one answer instead of a folder listing.
+
+**The platform owns state, structure, and completeness. You own judgment and web access.** The
+server never re-judges your content. It enforces three things: that a send with an incomplete
+required check says so loudly (a warning on send, a refusal only at publish), that the assembled
+page is structurally valid, and that a check recorded against an older article counts as stale.
+Everything that requires reading, thinking, or browsing is yours.
+
+## The one orientation call
+
+`get-experiment-workflow(team_id, experiment_id)` is how you find out where an experiment stands.
+It returns the derived stage and the note the last operator left, the recent event log, the index
+of working documents that exist, the keyword research, the target prompts, and the deliverable with
+its outstanding blocking items and latest check results.
+
+Call it first, every time, before doing anything to an experiment. It does not return document
+bodies; fetch one with `get-experiment-document(team_id, experiment_id, kind)` when you need to read
+it.
+
+To find experiments in the first place: `whoami` tells you who you are and which teams you are on,
+`list-teams` gives you the team slugs, `list-experiments(team_id)` lists that team's experiments, and
+`list-deliverables(team_id)` lists the client-facing pages.
+
+**A deliverable can be archived**, which means somebody decided it is history rather than live client
+work: mostly legacy articles imported before the platform existed, which never had an experiment and
+were never sent. An archived page is closed, so its client link 404s, and `send-deliverable`,
+`send-deliverable-followup` and `record-deliverable-shared` refuse it outright. `list-deliverables`
+leaves archived rows out by default and tells you how many it hid; pass `include_archived` to see
+them, and `get-deliverable` returns one either way, labelled. Nothing is deleted and it reverses in
+one call: `set-deliverable-archived(team_id, deliverable_id, archived)`. Writing a manifest to an
+archived deliverable brings it back automatically and says so, because new client work is the
+plainest evidence the row is not history any more. Archiving a row that HAS an experiment is
+unusual: that row is still on the pipeline board and still in the health counts, and the tool warns
+you before it proceeds. Never archive finished work just because you are done with it; a published
+deliverable is a record, and archiving one closes a link a client may still hold.
+
+**Name the record, do not number it.** Every experiment, deliverable and campaign has a name, and
+that is what you call it in anything a person reads: your messages to your operator, workflow notes,
+event summaries, document bodies. Write "the HELOC comparison experiment", never "experiment 84".
+IDs are for tool arguments and for telling two same-named records apart, so give one only when it is
+doing that work, and give it as "ID 84" alongside the name rather than in place of it.
+
+## The phase map
+
+Six phases plus the setup that precedes them. Each names the skill that carries it, so you can tell
+your operator which one fits next. No phase reads or writes a file.
+
+### 0. Setup: from an institution to a baseline campaign
+
+Skill: **campaign-setup**.
+
+Campaigns and prompts exist before any experiment does, and a new team starts here. This phase
+picks the geography (the most populated market the institution actually serves, one campaign per
+market), confirms the institution is registered as an organization at all, and builds the first
+campaign **wide across the products** rather than deep on one topic: auto, home, checking, savings,
+CDs, retirement, personal, plus whatever else is core (methodology rule 23). That set is the
+baseline every later number is read against, and it is what tells you which product is worth an
+experiment.
+
+Two facts about scoping live here and hold everywhere downstream:
+
+- **A campaign's location is a demand-measurement setting.** It tells `research-keywords` which
+  market to buy volume in, and it is **never sent to the LLM providers**. So every prompt names the
+  place in its own text (rule 22); "locally" and "near me" scope nothing, and `create-prompt` warns
+  when the place is missing.
+- **An unregistered institution reads as zero visibility forever**, which looks like a finding and
+  is an empty measurement. No tool in this plugin creates an organization; a person does it in the
+  MetriFi GEO app.
+
+Setup ends the same way research does: prompts running, and a readiness number.
+
+### 1. Research: from a topic to a demand-grounded campaign
+
+Skill: **exp-research**.
+
+Read `get-team-usage(team_id)` first and size the experiment to the GEO responses the team has left
+this period (methodology rule 21): prompt count and the experiment's `target_responses` scale to
+the budget, the tradeoff gets said out loud in one sentence, and the experiment runs at the size the
+plan allows rather than being refused or overspent.
+
+Then propose candidate prompts the way a consumer would actually ask an AI assistant, never with a
+brand name in the prompt, spread across intent angles, geographies, and audience segments. Measure real
+demand with `research-keywords`, leading with umbrella noun phrases (methodology rule 2). Triage
+keep or drop on measured volume only (rules 1 and 3) and record every verdict, including the drops,
+with `record-keyword-research`. Then create the campaign, the experiment (which carries a response
+target, 40 per window by default), and its prompts, and attach the prompts with `update-experiment`.
+On a targeted experiment that attach starts the platform's runner, which gathers the baseline
+toward the target on its own (see "The runner and the response target" below).
+`run-campaign-prompts` and `run-prompt` remain the tools for a campaign monitored without an
+experiment and for an experiment created before targets existed.
+
+Baseline responses populate asynchronously. There is no polling loop: `get-campaign-readiness`
+reports the share of prompts with completed responses, and `get-experiment` reports the run mode
+and the baseline against the target, both as facts you read, not gates that refuse. On a manual run,
+pass `min_responses` matching the samples per prompt you budgeted, so the population line measures
+the experiment you actually bought.
+
+### 2. Build: from a populated campaign to a defensible draft
+
+Skill: **exp-build**.
+
+Read the baseline. Score each prompt on demand, on whether the model's body text ever names a
+specific institution (rule 5), and on the gap in the client's own published content. Produce the
+viability verdict (rule 16) and lock the biggest viable target. On a weak or avoid verdict, pivot
+instead of shipping a weak target: re-select among prompts already run first, then create new
+demand-grounded prompts and attach them with `update-experiment` using `prompt_ids_mode: "add"` so
+the originals stay attached. On a targeted experiment the attach is what gathers their baseline; do
+not also run them by hand. Log every pivot with `add-experiment-event`.
+
+Then write the strategy and the draft, all of it server side:
+
+- `set-experiment-opportunity` for the "why this exists" block the client reads first.
+- `set-experiment-analysis` and `set-experiment-recommendation` for the same finding as the
+  experiment's own records, every time, not only when a client opens the dashboard. They are the
+  platform's cross-team evidence aggregate: an experiment with no recommendation contributes nothing
+  to any insight. Call `list-action-types` first; both tools replace rather than patch, so read
+  `get-experiment` before writing over what is already there.
+- `set-experiment-document` for `build-analysis`, `evidence`, `decisions`, `tracked-prompts`,
+  `brief`, and `outline`. Documents with `in_dossier: true` ship to the client; set it false for
+  internal notes.
+- `update-deliverable-draft` for the article markdown, the checklist, and the action items. It
+  patches: send only what changed, and a half-finished draft stays writable because only what you
+  send is validated. The first call creates the deliverable when you pass `experiment_id`, `slug`,
+  and `title`.
+- `build-deliverable` assembles the client page from that state and validates it. Pass
+  `dry_run: true` to see the result without saving a version.
+
+### 3. Review: four checks, recorded
+
+Skill: **exp-review**.
+
+Four batteries: hygiene, NCUA compliance, accessibility, and fact verification. Each one is
+performed by the agent, not by a script, using the reference battery that ships with the review
+skill. Each produces a full report as an experiment document (`review-hygiene`, `review-ncua`,
+`review-ada`, `review-fact`) and a recorded verdict through `record-deliverable-check`.
+
+Recording is what makes skipping visible, and no status gets an unchecked article past it silently.
+The server never refuses a send: any non-preview send whose manifest carries a non-empty article
+(or whose status is in the ready family) goes out and, when any of the four conventional checks has
+no recorded result, has a failing one, or was recorded against different article prose, the
+response appends a warning naming each incomplete check with its own reason and
+`record-deliverable-check` as the way to clear it. A send carrying no article warns about nothing
+unless its status is in that ready family, which is the collaboration loop: asking the client
+questions before an article exists. Treat a warning as work to do now: run the check, record the
+result, revise if it fails. Publish (`set-deliverable-status published`) still refuses on the same
+blockers.
+
+Checks are pinned to the article they ran against, so editing the article stales them by design. A
+revision cannot ride a green check from an older draft.
+
+### 4. Deliver: preview, then the human's explicit go
+
+Skill: **exp-deliver**.
+
+`build-deliverable` saves the version. `send-deliverable` with `preview: true` delivers every email
+to you, the signed-in operator, recording nothing: no send timestamp, no participant, no activity
+entry, and no check warning. Use it to read the email in your own inbox.
+
+The real send happens only after your human operator says so in conversation, in this session, after
+you have told them exactly who it goes to. Do not treat an earlier approval on a different
+deliverable as approval for this one.
+
+The client link (`client_url`) is always disclosed: `get-deliverable`, `list-deliverables`, and
+`list-deliverables-needing-attention` return it, sent or not. Other deliverable tools do not.
+When your operator asks for it, give it immediately, then offer the record as a follow-up: they say
+"send" and you email it from the platform (`send-deliverable`), or they say "shared" because they
+handed it over themselves and you record it (`record-deliverable-shared`, which stamps `sent_at`
+and emails nobody; `client_email` is optional). Only the raw token never prints as its own line.
+
+When the article goes live, record it. `record-deliverable-publication(team_id, deliverable_id,
+published_url, published_at)` takes the real historical date and the URL it is live at, for an
+article published in the institution's own CMS however long ago. It skips the three publish
+refusals `set-deliverable-status published` enforces, because it states a fact about the world
+rather than certifying a decision, and it claims nothing about pre-publish checks. It is
+correctable, and it CORRECTS the experiment's live date rather than only filling an empty one: a
+publication record outranks a migrated or typed date, and the re-grade it triggers is reported in
+the changed-outcomes report. It stops only at a live date another publication already set, or at
+an experiment carrying two or more deliverables, and logs that disagreement for a human.
+
+**Once a publication is recorded, `send-deliverable` and `send-deliverable-followup` refuse**, and
+the refusal names the recorded date and URL. Every email they could send asks the client about work
+that already shipped. Push a change with `push-deliverable-revision`, record a handover with
+`record-deliverable-shared`, or correct a wrong publication record; never route around the refusal.
+
+### 5. Revise: apply what the client said
+
+Skill: **exp-revise**.
+
+`get-deliverable-activity(team_id, deliverable_id, since)` is the polling endpoint: views, answers,
+comments, threads, attestations, opt-out requests, revision pushes, and status changes, oldest
+first.
+
+Three rules govern what you do with it. A client answer is an **input to the methodology**, never a
+literal edit command: run it through the rules, and if it does not survive them, return that item
+with a plain-language explanation instead of forcing it in. A client **confirming** a checklist item
+is not a verification: re-verify it against the real source. And if the article changed, the checks
+it staled have to be re-run and re-recorded before anything sends.
+
+### 6. Status: the read-only rollup
+
+Skill: **exp-status**.
+
+One pass over the team's active experiments and deliverables, reporting where each one stands and
+what is waiting on a human. It never writes.
+
+## The human gates
+
+Three, and only three. Everything else runs without a pause.
+
+1. **Client sign-off.** A designated person at the institution signs off on the deliverable before
+   the article publishes. You assist. You never sign off, and you never fabricate a sign-off.
+2. **The send gate.** The client notification email goes out only on your human operator's explicit
+   OK in this conversation. Preview is the safe rehearsal; the real send is a one-way door.
+3. **The halt gates.** A pivot that would move to an adjacent market is returned to the human, never
+   executed. An avoid verdict at high confidence halts the experiment. A client's opt-out request
+   halts publication immediately.
+
+A blocker finding that survives review is a genuine blocker, not a routine touchpoint: report it and
+stop rather than working around it.
+
+## Where an experiment stands
+
+Never ask an operator, and never infer it from dates yourself. `get-experiment` and
+`list-experiments` both return a `stage`, derived from the experiment's own dates and always
+present, in one vocabulary shared with the pipeline board: **Drafting** (nothing live yet),
+**Ready to send**, **With client**, **Approved**, **Live** (the article is out and measurement is
+running) and **Concluded** (measurement has ended). `get-experiment-workflow` reports the same
+stage above the hand-off note.
+
+A stage of Drafting on an experiment that has been open for months means no article has gone live,
+not that somebody forgot to update a label. That is a fact about the record rather than a gap in
+it.
+
+## The runner and the response target
+
+Every experiment created since 2026-09-24 carries `target_responses`, the usable responses the
+platform wants in each window before it grades the experiment: 40 by default, 8 to 400 on
+`create-experiment` and `update-experiment`, fixed once the experiment is live. A targeted
+experiment with prompts attached, not parked, not closed, on a paid team runs its own prompts;
+nobody calls a run tool. `get-experiment` prints where that stands:
+
+- `**Run mode:**` `baseline` before the live date (an immediate pass of up to 5 per prompt when the
+  prompts are attached, then a top-up once a day until the baseline holds the target or the article
+  goes live), `monitoring` after it (paced to reach the target by day 28, then up to 5 per prompt
+  per day until it is met), `off` when parked, closed, or untargeted. It is derived on every read, never stored. An
+  experiment with no run mode line was created before targets existed and keeps the old 28-day
+  arithmetic.
+- `**Responses against target:** baseline N of T, measurement N of T`, with `+P pending` for
+  placeholders still resolving.
+- `**Projected close:**` the day the measurement is expected to end. With a target, the measurement
+  closes at the daily refresh once it holds the target and day 28 has passed; `ended_at` is written
+  then and a `measurement-closed` event appended. There is no time cap: short of the target it stays
+  open, and a stuck experiment (quota gone, team churned) sits in `monitoring` until a person ends
+  or parks it. An untargeted experiment keeps the old 28-day window.
+- `**Runner skipped for quota:**` when the team's monthly quota ran out before a pass. That is an
+  action for the operator, more quota or a smaller target (or, once live, ending or parking the
+  experiment), not a gap to fill with manual runs. On a live experiment this line is the signal
+  that it is stuck.
+
+Responses the runner gathers are tagged with the experiment: the experiment's own score and
+`get-campaign-readiness` count them, and the campaign and organization visibility ratios leave them
+out. `run-prompt` and `run-campaign-prompts` still work and are untagged, so a manual burst is
+campaign data. Trial teams get the target and the depth warning but no automatic runs.
+
+`build-deliverable` and every tool that sets a live date warn when the baseline window holds fewer
+usable responses than the target, naming the shortfall. Advisory, never a refusal. Before the live
+date it means wait for the runner, or lower the target if the plan cannot afford it (the operator's
+call, rule 21). After the live date the window is shut and the warning is a fact for the analysis.
+
+## Recording the handoff
+
+Two calls make an experiment picked up cleanly by whoever is next:
+
+- `set-experiment-workflow(team_id, experiment_id, note)` records the free-text note for whoever
+  opens this next. Write it as a sentence a colleague can act on: what is done, what is next, what
+  is waiting on whom. **There is no status to set.** The old `status` argument (in-progress,
+  ready-for-approval, approved, published) is gone: it was a hand-set second answer to "where does
+  this experiment stand", left blank on most experiments, and it could contradict the experiment's
+  own dates. Read the stage instead, below.
+- `add-experiment-event(team_id, experiment_id, kind, summary)` appends one line to the log, append
+  only. Log the things a person would want to find months later: prompts created, a pivot executed
+  and why, a document rewritten, a handoff.
+
+Both take an `actor_label`, so record yourself as the agent when you are the one acting.

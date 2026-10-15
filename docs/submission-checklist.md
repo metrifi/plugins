@@ -174,6 +174,30 @@ Checked against the live repo and the live server on **2026-07-23**, not assumed
 > **What happens next is in [marketplace-operations.md](marketplace-operations.md), not
 > here.** Approval is not listing; the post-listing checks (`git-subdir` source shape, a
 > clean-machine install, SHA pin freshness) live there.
+>
+> **`[!]` REJECTED** (found 2026-10-09; dated Aug 5 in the Console list). Nothing was scanned.
+> Reviewer notes, verbatim: "We could not find a plugin at the folder you submitted (.). There
+> is no usable .claude-plugin/plugin.json there, so nothing was scanned. The plugin is in
+> 'plugins/claude/metrifi'. Resubmit with that folder and it will be scanned normally." The
+> path in the table above never reached the reviewer. No email arrived at
+> `ryan.harmon@metrifi.com`; the notice was only in the Console list.
+>
+> **Resubmission route, 2026-10-09.** The Console form is closed: its submit now returns
+> `403 plugin_submission_console_closed`, "Plugin submissions have moved to claude.ai". Per
+> claude.com/docs/directory/publish: **Withdraw** the Console submission, then submit at
+> `claude.ai/directory/manage` (**Submit new** → **Plugin bundle**) from the claude.ai Team
+> org as an Owner, with GitHub connected in that org and push access to `metrifi/plugins`.
+> Source step: repository `metrifi/plugins`, plugin path `plugins/claude/metrifi`, branch
+> `main`; run **Validate** and clear every **Blocking** finding. The portal's checklist
+> (claude.com/docs/plugins/pre-submission-checklist) requires a README of 40+ words **in the
+> plugin folder**, so `plugins/claude/metrifi/README.md` was added, disclosing everything the
+> plugin connects to, sends, and fetches (the security scan rejects undisclosed behavior), with
+> a copy of `LICENSE` beside it. Checked against that list: no system files, no bad names, no
+> file over 256 KiB, 46 text files, no hooks, scripts, launchers or binaries, `.mcp.json` is
+> one `http` server on `https://`. A proprietary license is not a blocker: the live catalog
+> lists `credibledata/credible-plugin` ("All rights reserved") and BSL-licensed plugins, and
+> 27 of 182 sampled listed repos have no license at all. The docs also recommend submitting
+> the MCP server separately as an **MCP connector** and pairing the two listings (section B).
 
 Automated screening of the repo. [AN-PLUG]: "Anthropic performs basic automated review on
 submissions before adding them to the directory." No functional test of the MCP server, so
@@ -591,6 +615,117 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 
 ## C. OpenAI Plugins Directory
 
+> **`[x]` SUBMITTED 2026-08-26.** Status: "MetriFi submitted for review. We'll notify you when a
+> decision is made." Draft `asdk_app_6a8e607211fc8191b04a36d63dad17cb`, version
+> `asdk_app_v_6a8e6072929481919c7be62e0ca9a266`, project `MetriFi` (global), developer identity
+> `MetriFi`. Plugin at **v1.4.13**; platform at `main` after #229, #230, #231.
+>
+> Final pre-submission review ran as a seven-gate ledger (four runnable checks against the live
+> server, listing URLs, manifest limits and skill descriptions, with a negative control; three
+> manual gates evidenced by a Playwright dump of the draft, Ryan's unattached negative-prompt runs,
+> and the identity/residency facts). 7 met, 0 abandoned.
+>
+> What review will find that we know about: `get-site` and `get-preview-url` are annotated as
+> writes (they assign a Vercel draft domain), so ChatGPT asks for confirmation before calling them;
+> `manage-review-item` bundles `assign` and `delete` behind one `action` enum. Both are noted as
+> follow-ups in platform #229 and #231. If rejected for the developer name, switch
+> `interface.developerName` and the form's Plugin Author to `BloomCU LLC`, bump the version, and
+> resubmit; a resubmission always needs a higher version.
+>
+> **`[!]` REJECTED 2026-09-17** (v1.4.13). Two reasons, verbatim: (1) "One or more of your
+> tool's annotations do not appear to match the tool's behavior. Please confirm annotations are
+> explicitly set to true or false (not null) for every tool." On appeal, named tools:
+> `comment-on-feedback`, `resolve-feedback`, `dismiss-feedback`. (2) "A public plugin call
+> returned caller-linked OAuth token identifier data that was not required for the user's
+> request."
+>
+> Diagnosis from the rejected export (`resources[].provided_tool_annotations`, keyed by
+> `action_name`): **105 of 161 tools emitted no `idempotentHint`** because laravel/mcp only
+> serialises it when `#[IsIdempotent]` is present, so it reads as null. The three named tools
+> carried `openWorldHint: false` while their own justifications said the write is "shown in the
+> client overlay" / "the client sees the reason", i.e. visible to a third party. `list-tokens`
+> returns Passport OAuth token ids ("(ID: …)") and `whoami` returns the numeric user id.
+> Lesson: the four hints must all be explicit booleans, and "the client sees it" means
+> open-world. Fix: [metrifi-platform#416](https://github.com/metrifi/metrifi-platform/pull/416) (includes #232). 119 tools' hints changed: 107 gained an explicit idempotentHint, 18 flipped open-world true. list-tokens and revoke-token removed; user id dropped from whoami; set-review-status no longer returns the share token. 164 tools, 30,961 tokens. Justifications v2 in [openai-tool-justifications.md](openai-tool-justifications.md).
+> Resubmission needs a higher version, a re-scan, and all justifications re-entered.
+>
+> **Held behind the review decision (now cleared to merge):** [metrifi-platform#232](https://github.com/metrifi/metrifi-platform/pull/232)
+> moves the side effects out of the four read paths (`assignDraftDomain()` to `createSite()` and
+> a post-commit `ensureDraftHost()` on `write-files`/`delete-files`; health refresh to a 15-minute
+> `geo:health:refresh` schedule plus new `refresh-team-health` / `refresh-master-health` tools) so
+> `get-site`, `get-preview-url`, `get-team-health`, `get-master-health` are read-only again. Merging
+> it before the decision would make the live server contradict the submitted annotations and
+> justifications. After merge, the next OpenAI version needs a re-scan, justifications for the two
+> new tools (163 total), and a re-measured token count.
+>
+> **Open platform PRs surveyed 2026-09-17** (23 open; full table in [platform-pr-survey-2026-09-17.md](platform-pr-survey-2026-09-17.md)). Ship
+> before resubmit, in this order, each rebased on `main` after #416: #314 (handler-only,
+> mergeable now), #366 (handler-only tenancy fix), #365 (one `team_id` description line on
+> `create-review`), #273 (`set-experiment-workflow` description). Hold until after the
+> decision: #261 (makes `team_id` optional on two list tools), #215 (red CI, new
+> `acknowledge_deletions` property on `publish-site`), #183, #151, #148, #53 (23 new tools
+> between them, none with all four hints, so all fail `McpDirectoryComplianceTest` as-is),
+> #309 (MFA middleware that does not allowlist `oauth/*`, which would put a challenge in the
+> ChatGPT connect flow). Two rebase traps: #183 and #151 edit the `PlatformServer` instructions
+> string that still advertised `list-tokens`/`revoke-token`; drop that clause, do not re-merge
+> it. Whoever rebases #365 and #273 re-runs the surface snapshot afterwards, since both change
+> a description the reviewer sees.
+>
+> **Version note 2026-09-17:** GEO skill releases moved the plugin to v1.4.15 while the fix was in
+> flight, so the resubmission is **v1.4.16** and `MCP_PUBLISHED_SURFACE` follows it. The skills ZIP
+> must be rebuilt from the v1.4.16 tree; all 13 descriptions measured under 1,024 on 2026-09-17.
+>
+> **Surface lock and version gating:** [metrifi-platform#418](https://github.com/metrifi/metrifi-platform/pull/418)
+> (open, 2,150 tests passing). Commits a `tools/list` snapshot that CI checks (`php artisan
+> mcp:surface`, `--write` to accept a change), gates new tools behind `#[ShipsIn('x.y.z')]` versus
+> `MCP_PUBLISHED_SURFACE` (baseline 1.4.16, tracks this repo's CHANGELOG), and adds
+> `docs/mcp-surface-versioning.md` in the platform repo. Handler fixes deploy freely during a
+> review; a description or schema edit to an existing tool still waits for the next version.
+> Merge it before the resubmission and after any of the ship-before PRs, then `--write` once.
+>
+> **Pre-submission round, 2026-09-18.** Merged on the platform: #314, #365, #366, #215, #421 (tool
+> list trimmed to 28,961 tokens), #273, #261, #183 (`extend-trial`, 165 tools), #418 (surface lock,
+> `MCP_PUBLISHED_SURFACE=1.4.16` set in Forge), #423 (server instructions no longer claim a review
+> gates `publish-site`), #424 (`transfer-team-ownership` limited to team members, no ids echoed),
+> #425 (first sign-in 419 fixed, icons shipped), #426 (hint audit: 90 hints on 64 tools read against
+> their handlers, 18 flipped to not idempotent, 8 to open-world). Held by Ryan: #148, #151 (forms),
+> #53, #309. Pre-flight: live server, URL, manifest and skill gates pass; all 165 tools carry four
+> boolean hints; 29,280 tokens. Justifications v3 in
+> [openai-tool-justifications.md](openai-tool-justifications.md), idempotent and open-world lines
+> for audited tools taken from the #426 audit. Lesson: boilerplate reasons hid wrong hints; every
+> reason must name what the handler does on a second call.
+>
+> **Justifications v4 for v1.4.17, 2026-09-30.** Regenerated from platform surface 1.4.17 in
+> [openai-tool-justifications.md](openai-tool-justifications.md): 157 tools, only those without a
+> `visibility` tag, since the reviewer signs in as an ordinary user. Each line was written from the
+> handler, not from v3. `node tools/check-justifications.mjs <surface.lock.json>` fails on a tool-set
+> or value mismatch with the lock, on em dashes, file paths and code identifiers, and on text that
+> contradicts its value (for example open world false while the line mentions the client or GitHub).
+>
+> **`[x]` RESUBMITTED 2026-10-01** (v1.4.17). Status: "In review". New-portal flow: plugin
+> `plugin_asdk_app_6abd4bce2cbc8191adc9b161584d3882` (app `asdk_app_6abd4bce2cbc8191adc9b161584d3882`),
+> created fresh because the migrated plugin never offered Connect; the old plugin was deleted to
+> free the MCP URL. One ZIP built by `node tools/build-openai-package.mjs` from `openai/package.json`
+> (5 positive and 3 negative test cases, demo video, US only); reviewer credentials entered in the
+> dashboard only. Platform `main` at `ca2ea87`, reviewer view 161 tools, fingerprint
+> `a74eba517997a2ad865bcc4a69474d8ae9dc1d39d98d802482971ab9a1a1f106`, pinned in Forge as
+> `MCP_SUBMITTED_SURFACE_SHA256` and passing `mcp:surface --check-submitted`. The portal's automated
+> scan reported no issues on 161 tools and the server instructions. Getting there took four platform
+> PRs after the first scan: #563 (`transfer-team-ownership` staff-only, `research-keywords`
+> reworded), #564 (`assign-review-item` split out), #565 (`delete-review-items` split out) and #574
+> (`manage-review-item` retired into four single-purpose tools). Lesson: the scan held the one tool
+> whose `action` argument chose which operation ran, even with no check named, and cleared only
+> when that switch was gone. Justifications for 161 tools are in
+> [openai-tool-justifications.md](openai-tool-justifications.md) for reference; the new portal reads
+> hints from the server and has no justification form. Pre-submit, a scripted cold OAuth connect as
+> `reviewer@metrifi.com` passed on production (password only, MFA exemption), and the five positive
+> cases' read tools returned the expected data. Until the decision: no tool text, schema, hint,
+> instruction or prompt change; do not change the reviewer's password (it revokes OAuth grants).
+>
+> Post-approval: the MCP server origin is locked to `https://platform.metrifi.com/mcp`; skills
+> ship to Codex users only when the version bumps; ChatGPT pulls the published bundle.
+
+
 One submission, listed in both ChatGPT and Codex. [OA-SUBP]: approved plugins appear in the
 "Plugins Directory available in both ChatGPT and Codex." [OA-APP] confirms the merge: "Apps are
 now submitted and published as plugins." Most mechanically strict of the three, and the error
@@ -634,7 +769,16 @@ Two caveats on the number: the schema figure counts PHP builder source, not the 
 Schema, which will differ in both directions; and chars÷4 is a rough token ratio. A precise
 figure needs an authenticated `tools/list` counted with a real tokenizer.
 
-- `[ ]` **Confirm with a real tokenizer** against an authenticated `tools/list` before betting on it.
+- `[x]` **Confirm with a real tokenizer** against an authenticated `tools/list` before betting on it.
+  Done 2026-08-25 in [metrifi-platform#229](https://github.com/metrifi/metrifi-platform/pull/229),
+  tiktoken `o200k_base` over the real HTTP `tools/list`: **37,950 tokens before, 30,192 after**
+  the description cut. Largest single tool 1,157 → 939 (`push-deliverable-revision`). `[LOCAL]`
+- `[!]` **16,000 is not reachable without cutting input schemas.** With every description deleted,
+  schema structure, names, titles and the three mandatory annotation keys still cost ~16,400
+  tokens (schema structure alone 9,063). 30,192 sits under the ~32,000 cutoff [C-OA-SCAN] measured
+  empirically, and above the 16,000 support quoted. If the scanner fails, the only lever left is
+  the manifest and review-spec input schemas (a `ref` upload path already exists for the
+  manifest). Arithmetic in the PR body and `docs/mcp-authoring.md` in the platform repo. `[LOCAL]`
 - `[ ]` Bring the surface down. In order of preference:
   1. **Cut description length.** Descriptions are 47k of the 121k characters, and the [D.2]
      rewrite removes behavioral instructions from them anyway. A 50% description cut lands the
@@ -649,7 +793,9 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
   exposes 236 tools (large surface compared to most submissions)." We are in the same size class.
 
 ### Prerequisites
-- `[ ]` Verified identity. [OA-REV]: "Before submitting a plugin with MCP, complete identity
+- `[x]` Verified identity. **Business verification completed 2026-08-25 under the name
+  `MetriFi`.** Expect a lag of a few days before submission accepts it [C-OA-VERIF].
+  [OA-REV]: "Before submitting a plugin with MCP, complete identity
   verification in the OpenAI Platform Dashboard for the name you plan to publish under in the
   directory... This is enforced during review. Publishing under an unverified individual or
   business name will result in rejection."
@@ -673,10 +819,13 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
     a few days too early. The actual confirmation seems to take a few days." Corroborated by
     EdgarM the same week. **Do the verification early and expect to wait, do not schedule it as
     the last step.**
-- `[ ]` Give the organization and project real names, not "Default". Buried in the workaround that
+- `[x]` Give the organization and project real names, not "Default". Project is `MetriFi`
+  as of 2026-08-25. `[LOCAL]` Buried in the workaround that
   cleared a multi-week scanner outage, [C-OA-SCANFIX] Walo_Fenton: "Went to
   /settings/organization/general and gave a name to my Organization (had Default)".
-- `[!]` **Check the OpenAI project's data residency.** [OA-REV]: "For now, projects with EU data
+- `[x]` **Check the OpenAI project's data residency.** Done 2026-08-25: created a dedicated
+  project named `MetriFi`, region **global**. Publish from this project, not from a
+  Paraloom project. `[LOCAL]` [OA-REV]: "For now, projects with EU data
   residency cannot submit plugins with MCP servers for review. Use a project with global data
   residency." **Verify before doing any other OpenAI work; this is a hard block.**
   **Where to look:** `https://platform.openai.com/settings/organization/projects`, open the
@@ -691,7 +840,12 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
   may be published at a time and only one version may be in review at a time."
 
 ### Domain verification
-- `[ ]` Host the challenge token at `https://platform.metrifi.com/.well-known/openai-apps-challenge`
+- `[x]` Host the challenge token at `https://platform.metrifi.com/.well-known/openai-apps-challenge`
+  — [metrifi-platform#230](https://github.com/metrifi/metrifi-platform/pull/230), token in
+  `config/services.php` (public by design). Same PR corrects eight tool annotations the
+  justification pass found understated; the 483 justifications themselves are in
+  [openai-tool-justifications.md](openai-tool-justifications.md) and get filled into the form by
+  Playwright once the corrected annotations are deployed and rescanned. `[LOCAL]`
   `[OA-SUB]` `[OA-ERR: domain_verification_required]`
 - `[ ]` Return **only** the token. [OA-SUB]: "The challenge endpoint must return only that
   plugin's verification token—do not return JSON, a list of tokens, or multiple tokens from the
@@ -714,6 +868,35 @@ figure needs an authenticated `tools/list` counted with a real tokenizer.
   in Cloudflare** alongside Anthropic's egress range.
 
 ### Authentication
+- `[x]` **Draft exists, MCP scanned, domain verified, 483 justifications filled.** 2026-08-25/26:
+  OpenAI draft `asdk_app_6a8e607211fc8191b04a36d63dad17cb`, project `MetriFi`. Tool scan passed on
+  the 30,192-token surface. Domain verified against the live challenge route. All 161 × 3
+  justifications filled by Playwright from `openai-tool-justifications.md` and confirmed to persist
+  after reload. **Open:** the eight annotation corrections did not make the #230 squash; they are
+  [metrifi-platform#231](https://github.com/metrifi/metrifi-platform/pull/231). After it merges and
+  deploys, click **Scan Tools** again so the form shows the corrected values for get-team-health,
+  get-master-health, get-site, get-preview-url (read-only → write), build-deliverable,
+  research-keywords, accept-invitation, activate-due-rates (→ destructive). The justification text
+  already describes the corrected values. `[LOCAL]`
+- `[x]` **Prompts, Testing, Skills sections filled 2026-08-26 (overnight, via Playwright).** Three
+  starter prompts; five positive test cases (account lookup, site and rates, scheduled rate change,
+  GEO campaign visibility, CRO funnel report) and three negative ones (unrelated question, no
+  implicit publish, foreign team is refused); all 13 skills uploaded as one ZIP of
+  `plugins/codex/metrifi/skills` and accepted into scanning ("may take up to 2 hours"). All of it
+  confirmed to persist after reload. `[LOCAL]`
+- `[x]` **Skill descriptions re-checked against the 1,024 limit at the moment of upload.** Four had
+  grown past it since 1.4.4 (`campaign-setup` 1242, `exp-deliver` 1226, `exp-research` 1081, `start`
+  1025; the plugin now has 13 skills). Trimmed in **v1.4.12**. Two releases before it, 1.4.10 and
+  1.4.11, went out as version-bump-only because the release script ran after a failed length check;
+  their changelog entries say so. Lesson, now a rule: **measure every skill description right before
+  any OpenAI upload, since `main` moves between sessions.** `[LOCAL]`
+- `[ ]` **Left for Ryan, in order:** (1) Testing → *Test credentials*: `reviewer@metrifi.com` plus
+  its password, in the `username: / password:` format the field shows; OpenAI requires no 2FA and
+  immediate access. (2) Merge platform #231, wait for deploy, then MCP → **Scan Tools** so the eight
+  corrected annotations show. (3) Global: United States only (done, we do business only in the US). (4) Submit: release notes
+  (suggested: "Initial release: MetriFi platform connector with Site Builder, GEO and CRO tools, and
+  13 MetriFi skills."), the seven policy checkboxes, "No" on mature content. (5) Skills must show
+  scanned, not Scanning. Then **Submit for Review**.
 - `[ ]` Register ChatGPT's redirect URI. [OA-AUTH]: "ChatGPT completes the OAuth flow by
   redirecting to `https://chatgpt.com/connector/oauth/{callback_id}` and the URL will be shown in
   the app management page. Add that production redirect URI to your authorization server's
@@ -732,43 +915,70 @@ Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manife
 - `[x]` Top-level `description`, ≤1,024 chars (`plugin_description_missing`, `_too_long`) — 427 `[LOCAL]`
 - `[x]` Top-level `name` ≤64 (7), `version` ≤64 (5), `author.name` ≤120 (7) `[LOCAL]`
 - `[x]` `interface.shortDescription` ≤30 final / 240 validation (`plugin_short_description_too_long`)
-  — now `"Credit union & bank websites"`, 28 chars. Was 156, which passes draft validation but
+  — now `"Build & optimize your website"`, 29 chars. Changed 2026-08-26 to stop naming the
+  industry: OpenAI's Submit tab makes the developer certify compliance with "all laws and
+  regulations applicable to the industry", and every installer already knows MetriFi, so the
+  listing exists for recognition, not targeting. The long description and capabilities lost their
+  credit-union, bank and NCUA mentions for the same reason. Was 156, which passes draft validation but
   fails final submission. Cut on 2026-08-05: a 156-character "short" description was poor UX in
   the Codex plugin list anyway, so there was no reason to carry the bad value until submission
   day. `[LOCAL]`
 - `[x]` `interface.displayName` ≤30 final / 80 validation (`plugin_display_name_too_long`) — `MetriFi` is 7 `[LOCAL]`
 - `[x]` `interface.longDescription` ≤4,000 (`plugin_long_description_too_long`) — 1,146 chars,
   mirrors the copy submitted to Anthropic for submission A so the two listings agree `[LOCAL]`
-- `[?]` `interface.developerName` ≤80 final / 120 validation (`plugin_developer_name_too_long`).
-  **Blocked on the identity-verification outcome, deliberately left unset.** This is the
-  publisher line ("MetriFi **by ...**"), separate from `displayName`, so the plugin is called
-  MetriFi either way. It must match the verified identity character for character. Our entity is
-  **BloomCU LLC doing business as MetriFi**, and OpenAI support names this exact case as a
-  rejection trigger: "Even small differences like abbreviations or branding vs legal name can
-  trigger that rejection." [C-OA-REJ4] Preference order: (1) verify with the Utah MetriFi DBA
-  certificate, (2) accept `BloomCU LLC`, which is also what metrifi.com's terms say so reviewers
-  cross-checking the listing against the site find no mismatch, (3) rename the entity, which is
-  weeks and legal cost. Set this field only after verification returns a name.
-- `[ ]` `interface.brandColor` / `brandColorDark` — six-digit hex (`plugin_brand_color_format`).
-  No brand hex values exist anywhere in this repo. `[LOCAL]`
-- `[ ]` `interface.logo` — required, square (`plugin_logo_path_missing`) **`[!]` missing**
-- `[ ]` `interface.composerIcon` — required, square (`plugin_composer_icon_path_missing`) **`[!]` missing**
-- `[ ]` Image rules: ≥48×48 (`raster_image_dimensions_too_small`), ≤4096×4096
+- `[x]` `interface.developerName` ≤80 final / 120 validation (`plugin_developer_name_too_long`)
+  — set to `MetriFi` on 2026-08-25, the exact string entered during OpenAI business
+  verification that day. This is the publisher line ("MetriFi **by ...**"), separate from
+  `displayName`, and it must match the verified identity character for character. Residual
+  risk: our entity is **BloomCU LLC doing business as MetriFi**, and OpenAI support names
+  branding-vs-legal-name as a rejection trigger [C-OA-REJ4]. If review rejects with "The
+  developer name you entered does not match your verified individual or business name"
+  [C-OA-REJ1], change this field to `BloomCU LLC` and resubmit with a version bump. `[LOCAL]`
+- `[x]` `interface.brandColor` / `brandColorDark` — six-digit hex (`plugin_brand_color_format`).
+  `#884DFF` (favicon violet, 4.61:1 on white) and `#A074FF` (`--violet` from
+  `bloomcu/metrifi-brand` tokens.css, 4.94:1 on `#212121`). Both clear the 2:1 rule. `[LOCAL]`
+- `[x]` `interface.logo` — `./assets/logo.png`, 1024×1024 8-bit RGBA, rasterised from the favicon
+  SVG in `bloomcu/metrifi-brand` (`magick -density 400`). The portal's upload fields ask for PNG
+  (directory icon ≥256², composer icon ≥48²), so PNG is used in the manifest too. The wordmark
+  `logo.svg` in the brand repo is 207×32 and cannot be used: OpenAI requires square. `[LOCAL]`
+- `[x]` `interface.composerIcon` — `./assets/composer-icon.png`, 256×256, same mark. No monochrome
+  rule is published; revisit if review asks. `[LOCAL]`
+- `[x]` **Demo recording URL.** `https://youtu.be/oPHlwMgO7Nk`, Unlisted, 3:04, recorded 2026-08-25
+  in ChatGPT Developer Mode as `reviewer@metrifi.com`: sign-in, whoami, Golden Peak site and rates,
+  a scheduled rate change, preview link, GEO campaign visibility, CRO funnel report. Verified
+  reachable without login (oEmbed 200, `isUnlisted:true`). The portal blocks progress past the
+  first screen without this URL, so it is a prerequisite for creating the draft, not a last step. The portal's first screen asks for a video "demonstrating your
+  plugin's functionality using Developer Mode. We use this video to validate your plugin's test
+  cases and functionality. It will not be shared externally, and screen recordings are
+  acceptable." Not in any doc we fetched; surfaced only by opening the form (2026-08-25). Record
+  after the tool-surface PR lands so the video shows the final tool set. Roughly 30 minutes:
+  install the plugin in ChatGPT Developer Mode, sign in, then run the three starter prompts.
+  Host it somewhere that returns 200 to a non-browser (not behind the Cloudflare challenge on
+  `support.metrifi.com`). `[LOCAL]`
+- `[x]` Image rules: ≥48×48 (`raster_image_dimensions_too_small`), ≤4096×4096
   (`_too_large`), ≤5 MiB (`image_file_too_large`), format `.png/.jpg/.jpeg/.webp/.svg`
   (`image_file_format_unsupported`), extension must match real format
   (`raster_image_extension_content_mismatch`), path must start `./`
   (`branding_asset_path_missing_root_prefix`). SVGs need a square numeric `viewBox`
   (`svg_dimensions_not_square`, `svg_dimensions_not_numeric`).
-- `[ ]` `interface.category` from the 13 allowed values (`plugin_category_unknown`)
-- `[ ]` `interface.capabilities` ≤20 items, each ≤120 chars, single line
+- `[x]` `interface.category` from the 13 allowed values (`plugin_category_unknown`) — `Business & Operations`.
+  The full list: Productivity, Creativity, Developer Tools, Business & Operations, Data &
+  Analytics, Communication, Education & Research, Security, Finance, Healthcare, Travel,
+  Entertainment, Other. [OA-ERR] `[LOCAL]`
+- `[x]` `interface.capabilities` ≤20 items — 11 items, longest 87 chars `[LOCAL]`, each ≤120 chars, single line
   (`plugin_capabilities_too_many`, `plugin_capability_too_long`)
-- `[ ]` `interface.defaultPrompt` ≤3 prompts (`plugin_default_prompt_too_many`), each ≤128 chars
+- `[x]` `interface.defaultPrompt` ≤3 prompts — 3, longest 67 chars, none names the app [OA-ERR] `[LOCAL]` (`plugin_default_prompt_too_many`), each ≤128 chars
   final (`_too_long`), unique after normalization (`_duplicate`), no app `@mention`
   (`plugin_default_prompt_mention`)
-- `[ ]` `websiteURL`, `privacyPolicyURL`, `termsOfServiceURL`, `supportURL` — HTTPS, ≤1,024 chars
+- `[x]` `websiteURL`, `privacyPolicyURL`, `termsOfServiceURL`, `supportURL` — HTTPS, ≤1,024 chars.
+  All four set under `interface` (where [OA-ERR] places them). `supportURL` is
+  `https://metrifi.com/talk-with-us/` (200 to any client). **Not** `https://support.metrifi.com`:
+  it redirects to `/hc/en-us`, which sits behind a Cloudflare challenge (`cf-mitigated: challenge`)
+  and returns 403 to anything that is not a real browser, so an automated URL check during review
+  would fail. Verified 2026-08-25. `[LOCAL]`
   (`plugin_*_url_format`, `_too_long`). We have all four URLs. `[LOCAL]`
-- `[ ]` `brandColor` `#RRGGBB` with ≥2:1 contrast vs white (`plugin_brand_color_contrast`)
-- `[ ]` `brandColorDark` `#RRGGBB` with ≥2:1 contrast vs `#212121` (`plugin_brand_color_dark_contrast`)
+- `[x]` `brandColor` `#RRGGBB` with ≥2:1 contrast vs white — 4.61:1 (`plugin_brand_color_contrast`)
+- `[x]` `brandColorDark` `#RRGGBB` with ≥2:1 contrast vs `#212121` — 4.94:1 (`plugin_brand_color_dark_contrast`)
 - `[x]` `version` valid semver (`plugin_version_not_semver`) and **bumped on every resubmission**
   (`plugin_version_unchanged`) `[LOCAL]`
 - `[x]` `mcpServers` declares `./.mcp.json`. [OA-ERR] warns that an undeclared one is silently
@@ -801,7 +1011,12 @@ Measured 2026-08-05 with `python3 -c "import json; ..."` against the live manife
   descriptions short beyond the 1,024-character hard limit.
 
 ### Tools
-- `[ ]` Explicit `readOnlyHint`, `openWorldHint`, **and** `destructiveHint` on every tool
+- `[x]` Explicit `readOnlyHint`, `openWorldHint`, **and** `destructiveHint` on every tool — all
+  161 tools, plus a title each, in [metrifi-platform#229](https://github.com/metrifi/metrifi-platform/pull/229)
+  (CI green, awaiting merge). A registry-walking test keeps the next tool compliant. Follow-up
+  named in the PR: `manage-review-item` puts `assign` and `delete` behind one `action` enum, the
+  only catch-all tool; annotated destructive so nothing is understated, splitting it is a
+  behaviour change. `[LOCAL]`
   (`annotations_required`) `[OA-ERR]` `[OA-SUB]`
 - `[ ]` **A written justification for each hint value** (`justification_required`). Required by
   OpenAI, not by Anthropic. `[OA-ERR]` [OA-SUB]: "Explicit readOnlyHint, openWorldHint, and

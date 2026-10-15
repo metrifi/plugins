@@ -66,7 +66,8 @@ and never just to find out who the top customers are.
 
 Two more things to know:
 
-- **It is platform-staff only.** If the call is refused, you are not signed in as staff. Say that
+- **It is platform-staff only.** For anyone else it is not listed at all, so if the tool is missing
+  or the call is refused, you are not signed in as staff. Say that
   in one line and stop. Do not fall back to `list-teams` and sweep your own memberships instead:
   that is a different, smaller, quietly wrong cohort, and a sweep that silently changes what it
   covers is worse than one that refuses.
@@ -152,10 +153,10 @@ built and one nudge unblocks it. `exp-revise` owns the decision of whether a giv
 simply patience.
 
 **Check lane 2 rows for an unrecorded manual share, because it is often the real reason nothing has
-been chased.** A deliverable whose client link reads "withheld until first send" while the client has
-been viewing or answering it is one somebody shared by hand, outside the platform. It has no captured
-client contact, so it cannot be nudged at all, and it will sit at zero followups forever no matter how
-many times the sweep looks at it. Flag those explicitly in the report; `exp-revise` records the share
+been chased.** A deliverable still marked "not yet" sent while the client has been viewing or
+answering it is one somebody shared by hand, outside the platform. It has no captured client
+contact, so it cannot be nudged at all, and it will sit at zero followups forever no matter how many
+times the sweep looks at it. Flag those explicitly in the report; `exp-revise` records the share
 and unfreezes the cadence.
 
 **Lane 6a is the one to get right.** A team whose only experiment is a shell (prompts attached, no
@@ -186,7 +187,7 @@ stop at lane 5. A phase ending is not a reason to stop; only a gate is.
 
 | Gate | What it looks like | What happens next |
 |---|---|---|
-| **G1 Responses** | `get-campaign-readiness` says the baseline has not populated to the sized `min_responses` yet | Leave a workflow note saying so. Tomorrow's sweep picks it up at lane 3. |
+| **G1 Responses** | `get-campaign-readiness` says the prompts have not populated yet (on a targeted experiment the runner's first pass is still resolving; on an untargeted one the sized `min_responses` is not met). A `Runner skipped for quota` line on `get-experiment` is reported as needing the operator, never worked around with a manual run. | Leave a workflow note saying so. Tomorrow's sweep picks it up at lane 3. |
 | **G2 Ready to send** | Checks green, deliverable assembled, nothing blocking | Report it. Your operator sends with `exp-deliver`. |
 | **G3 Waiting on a client** | An action item is out and unanswered, inside the followup cadence | `exp-revise` owns the nudge. Nothing else to do. |
 | **G4 Halt** | An opt-out request, a withdrawn approval, or a check finding that survives a fix attempt | Stop the chain, do not revise around it, hand it to a person by name in the report. |
@@ -195,7 +196,7 @@ Anything that is not one of these four is not a gate. A phase that fails for a t
 a retry, once, and then a line in the report.
 
 **Leave the handoff readable, every time.** Before a chain ends for any reason, including a crash
-you can see coming, `set-experiment-workflow(team_id, experiment_id, status, note)` with a note the
+you can see coming, `set-experiment-workflow(team_id, experiment_id, note)` with a note the
 next run can act on, and `add-experiment-event` for what happened. That note is the only memory
 this system has. Pass a stable `idempotency_key` on the event so a resumed run cannot double-log.
 
@@ -247,8 +248,10 @@ a bad day's work; it is permanently muddied data on a top client.
 
 - **Quota.** `exp-research` reads `get-team-usage` and sizes the experiment to what the team's plan
   has left, and budgets are per team, so a busy sweep cannot drain a shared pool. But if what is
-  left cannot fund the floor (two samples per prompt across a usable prompt set), do not start a
-  half-experiment. Report the team as quota-blocked and say what it would take.
+  left cannot cover an experiment at a target the operator would accept (about 2 times
+  `target_responses` over its life, roughly 80 at the default, and never below the two-sample floor
+  on a manual run), do not start a half-experiment. Report the team as quota-blocked and say what it
+  would take.
 - **A weak topic is expected, and it is handled downstream.** Do not agonize here. `exp-build` scores
   the baseline and returns a viability verdict, and on a weak or avoid verdict it pivots: it
   re-selects among prompts already run, or creates new demand-grounded prompts and attaches them
@@ -314,8 +317,8 @@ dashes anywhere, in this report or in anything that reaches a client.
 
 **Its memory lives on the platform, not in the session.** A scheduled run starts cold and
 re-derives the whole board every time, which is why the cohort read and the workflow notes are not
-optional. The workflow status and note on each experiment are what a cold run reads to find out
-what yesterday's run did.
+optional. The derived stage and the workflow note on each experiment are what a cold run reads to find
+out what yesterday's run did.
 
 **One thing genuinely has nowhere to live, and it is worth being honest about.** A team the sweep
 looked at and decided *not* to start an experiment for has no object to hang a note on, so that
@@ -337,5 +340,5 @@ of decisions for a person, and that is the design working rather than the design
   of either being answered.
 - **A team missing from the cohort is not a team without work.** It is a team nobody flagged as a
   top customer. Say the cohort size so that stays visible instead of becoming assumed coverage.
-- **When a phase skill refuses, follow the refusal rather than working around it.** A send gate
-  naming a stale check wants the check re-run, not the status lowered.
+- **When a tool refuses or warns, follow it rather than working around it.** A send warning
+  naming a stale check wants the check re-run, not the warning ignored or the status lowered.

@@ -179,35 +179,46 @@ Give it a concrete topic with geography, for example "homeowners in north Alabam
 against a cash-out refinance". Ask for the **dry run** first.
 
 **The sizing pass is the first thing to watch.** Before it proposes anything, the skill calls
-`get-team-usage`, reports the GEO responses remaining this period, and says in one plain sentence
-what the budget bought: how many prompts it will track, how many samples per prompt, and what got
-thinner as a result. On a fresh Starter QA team that number is small, so the skill should visibly
-scale down (fewer tracked prompts, or a thinner baseline behind each one) rather than proposing the
-usual fifteen to twenty at three or four samples.
+`get-team-usage`, reports the GEO responses remaining this period, and compares that to what the
+target costs: 10 to 15 tracked prompts at 5 samples each, about 90 responses with the build reserve.
+On a fresh Starter QA team the plan cannot buy that, so **the skill should say so and hand you the
+choice** (upgrade, spend now and finish after the reset, or wait) rather than quietly scaling down
+to a campaign that looks finished and is not. Only after you choose does it size down, and it says
+in one plain sentence what the budget bought and what got thinner as a result.
 
 Pass, in this order:
 
-1. `get-team-usage` is called before any campaign, prompt, or keyword call, and the sizing sentence
-   names actual numbers.
-2. The dry run creates the campaign and nothing else, reports a demand table with keep and drop
-   verdicts, and stops. National-only DataForSEO volumes are **labeled as national**, with the
-   geo-anchored phrase presented as the local-demand signal.
-3. The skill checks whether the subject institution is registered as an organization on the campaign,
+1. `get-team-usage` is called before any campaign, prompt, or keyword call, the sizing sentence names
+   actual numbers, and the shortfall against the 10-to-15-prompts-at-5-samples target is surfaced as
+   **your** decision rather than absorbed silently.
+2. The candidate set covers the product space, not only the topic you gave it: at least one candidate
+   in each category the institution offers across deposits, consumer lending, business banking,
+   wealth and trust, digital and servicing, and local discovery. A category outside the campaign's
+   scope is proposed as its own campaign rather than crammed in.
+3. The dry run creates the campaign and nothing else, reports a demand table with keep and drop
+   verdicts, and stops. **The campaign has a geography set with `set-campaign-location`**, the demand
+   table **leads with the local column** and presents the national figure as the ceiling on the topic
+   rather than the size of the market, and triage judges on the local number.
+4. The skill checks whether the subject institution is registered as an organization on the campaign,
    and says plainly that a person adds it in the MetriFi GEO app if it is not there, rather than
-   reporting an empty visibility read as a finding.
-4. On your go, it creates a draft experiment with **no dates**, creates only the kept prompts, records
+   reporting an empty visibility read as a finding. It does **not** tell you to register competitors
+   by hand: those are auto-extracted, and it reads `get-org-visibility` before saying anything about
+   a competitive ranking.
+5. On your go, it creates a draft experiment with **no dates**, creates only the kept prompts, records
    every verdict including the drops (over-budget drops carry that reason and their volume), and runs
    the prompts at the sized `count`.
-5. It reports `get-campaign-readiness` once, with no polling loop, passing `min_responses` equal to
+6. It reports `get-campaign-readiness` once, with no polling loop, passing `min_responses` equal to
    the samples per prompt it sized for, and says which number it read the percentage at.
-6. It reports honestly which providers actually ran. The run tools name any provider the platform
+7. It reports honestly which providers actually ran. The run tools name any provider the platform
    cannot run and skip it, and refuse a request naming only unsupported ones, so the skill should
    repeat that back and call a single-provider baseline single-provider.
 
 Fail: a prompt containing a brand name, a prompt created for a dropped candidate, a poll loop, a
 `started_at` on the experiment, sizing numbers that ignore the quota, a run that exceeds the
-remaining quota or refuses the experiment because of it, or a national volume quoted as if it were
-local demand.
+remaining quota or refuses the experiment because of it, a national volume quoted as if it were
+local demand, a campaign left with no geography, a geo-anchored keyword phrase offered as the
+local-demand signal (that workaround is retired and measures nothing), a plan shortfall scaled down
+without telling you, or an instruction to register competitors by hand.
 
 Responses populate over minutes to hours. This is the natural break between sittings.
 

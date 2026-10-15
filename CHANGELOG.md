@@ -4,6 +4,57 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.17 — 2026-09-30
+
+- OpenAI resubmission release. Skills: page-design-process and client-report run on MetriFi tools alone, red-team fixes to tool names and examples, GEO skills treat a client's rank as an upper bound. Justifications v4 for platform MCP surface 1.4.17 (157 tools) with a checker.
+
+## 1.4.16 — 2026-09-18
+
+- OpenAI resubmission release. No skill behavior changes. README no longer lists connection-token management, since the platform removed list-tokens and revoke-token. Pairs with platform MCP surface 1.4.16: explicit idempotent hints on every tool, corrected open-world and idempotent values after a handler-by-handler audit, no token or user ids in tool output.
+
+## 1.4.15 — 2026-09-10
+
+- Teach the GEO skills the derived experiment stage and where a live date came from
+- exp-status reports the derived stage instead of the retired workflow status
+- exp-status reports whether a live date is recorded or inherited
+- set-experiment-workflow no longer takes a status
+
+## 1.4.14 — 2026-09-09
+
+- GEO skills: always write the experiment analysis and recommendation; record an article published outside the platform; a send refuses once a publication is recorded or the deliverable is archived; classify the article that shipped, not the one recommended (Rule 24); name records rather than numbering them.
+
+## 1.4.13 — 2026-08-26
+
+- OpenAI listing copy stops naming the industry: subtitle is now 'Build & optimize your website', and the long description and capabilities describe the MetriFi platform without credit-union, bank or NCUA mentions. Every installer already knows MetriFi, and the neutral framing avoids OpenAI's heightened review of finance-category apps.
+
+## 1.4.12 — 2026-08-26
+
+- Four skill descriptions (campaign-setup, exp-deliver, exp-research, start) trimmed under OpenAI's 1,024-character hard limit, which they had crossed in the GEO releases since 1.4.4. 1.4.10 and 1.4.11 claimed this trim and did not contain it; their entries are corrected.
+
+## 1.4.11 — 2026-08-26
+
+- Version bump only. The skill-description trim this entry originally claimed did not land; it ships in 1.4.12.
+
+## 1.4.10 — 2026-08-26
+
+- Version bump only. The skill-description trim this entry originally claimed did not land; it ships in 1.4.12.
+
+## 1.4.9 — 2026-08-19
+
+- Experiment prompt attachment is defined by coverage, not a target quota. exp-build's target-lock step now instructs a full campaign sweep (list-prompts) and attaches every prompt the planned article could plausibly move, with excluded prompts named and justified; the 'typically six to ten' phrasing is gone from the skill and Rule 8 so the count falls out of the sweep instead of reading as a quota. A consumer question the article answers that no campaign prompt covers may become a new prompt only through the existing demand gate (rules 1 to 3) and only before the article goes live so it accrues a baseline; the article never justifies a prompt, demand does. Motivated by the Experiment Report coverage audit: 22 of 42 historical top-customer experiments attached a single prompt, and sibling-prompt effects (e.g. Brightstar) were invisible to them.
+
+## 1.4.8 — 2026-08-19
+
+- **The campaign-shape convention is written down where campaigns and experiments get created.** A team's FIRST GEO campaign must be broad (the whole institution, every geography it serves, its core products) so the team gets one high-level visibility score that stays comparable over time; every later campaign goes narrow, one product with granular consumer prompts, and experiments attach those granular prompts, never the flagship's institution-level ones. The convention existed only in conversation, so agents kept standing up product campaigns as a team's first and judging experiments on broad prompts. Now exp-research flags a campaign-less team before creating anything and proposes the flagship first, exp-build's target-lock step forbids attaching flagship prompts and says to attach every granular prompt the article could plausibly move (single-prompt experiments miss effects on sibling prompts), and start's scoping questions catch it at intake. The platform's MCP tool descriptions (create-campaign, create-prompt, create-experiment, the build-campaign and build-experiment prompt templates, and the GEO server instructions) carry the same rule in a matching metrifi-platform PR, so the guidance reaches agents on both surfaces.
+
+## 1.4.6 — 2026-08-12
+
+- **exp-review records what it actually verified, not only what it found** (implements Phase 3 of metrifi-platform `plans/m16-deliverable-verification-transparency.md`). `findings` carries problems only, so a battery that walked 24 fact checks and found two issues recorded as "two findings" and the client's page showed a day of work as one green badge. Each battery's record step now also passes `verifications`, one row per criterion actually walked with the source it was checked against and a `note` carrying the reason on an `n/a` row (the client page prints both under the item, so an `n/a` with no note reads as a blank), and each reference file defines its own rows: hygiene is the H1 to H6 sub-checks, NCUA is each regulation area walked (740.2/.4/.5, 707.8, Reg Z triggers, Reg E, Reg B, field of membership), ADA is each WCAG criterion evaluated against the article content, and fact is one row per extracted claim with the URL it was checked against. The guardrail sits where the recording happens: an item you did not perform is never recorded, not as `n/a` and not as `pass`, because the client is told these checks happened under our name. ADA's deferred page-level items stay `note` findings and are explicitly not verification rows: nobody has evaluated them, and a row here would say we did. Needs the platform column (geo_0053) deployed; on an older platform the argument is simply ignored.
+
+## 1.4.5 — 2026-08-12
+
+- **The client URL is always disclosed, and the send gate is a warning** (matches metrifi-platform#186). The platform no longer withholds `client_url` until the first send, and `send-deliverable` no longer refuses on incomplete pre-publish checks: the send goes out and the response names each missing, failing, or stale check as a warning (publish still refuses). Every skill that taught the old behavior is updated, descriptions included: routing metadata an agent reads before it opens a skill is the version that reaches the decision, so exp-deliver's and exp-review's descriptions moved with their bodies. exp-deliver now hands the URL over the moment the operator asks, then offers the record as a follow-up: "send" emails it from the platform, "shared" records a manual share with `record-deliverable-shared`, whose `client_email` is now optional. The manual-share tell in exp-revise and exp-sweep moves from "link reads withheld" to `sent: not yet`, and exp-revise's activity note is corrected: a manual share records `sent` with `method: manual`, not a `shared` kind. Found live: asked for the link to Honda FCU deliverable 274, the agent followed the skill text and said no link could exist before a send.
+
 ## 1.4.4 — 2026-08-06
 
 - Codex listing copy for the OpenAI plugin directory: interface.shortDescription cut from 156 to 28 characters to clear OpenAI's 30-character final limit, and interface.longDescription added, mirroring the description submitted to Anthropic so both directory listings say the same thing. interface.developerName is deliberately still unset pending OpenAI business verification.

@@ -1,14 +1,22 @@
 ---
 name: exp-research
-description: "Phase one of a MetriFi GEO experiment: turn a topic into a demand-grounded campaign and get baseline LLM responses running. Sizes the experiment to the GEO responses the team's plan has left this period rather than refusing or overspending. Proposes prompts the way a real consumer asks an AI assistant (never with a brand name in them), measures actual search demand, triages keep or drop on measured volume alone, records every verdict including the drops, then creates and runs only the prompts that survived. Use when someone wants to start an experiment or size a topic: 'start an experiment for this team on HELOCs', 'research this topic', 'stand up a campaign', 'what prompts should we track', 'is this topic worth an experiment', 'do people actually search for this', 'keyword research for a campaign'. Offers a dry run when the topic is unvalidated. NOT for scoring responses or writing the article (exp-build), NOT for where an experiment stands (exp-status), NOT website work."
+description: "Phase one of a MetriFi GEO experiment: turn a topic into a demand-grounded campaign with its baseline gathering. Sizes the experiment to the GEO responses the team's plan has left this period. Proposes prompts the way a real consumer asks an AI assistant (never with a brand name), measures actual search demand, triages keep or drop on measured volume alone, records every verdict, drops included, then creates the prompts that survived and attaches them; the platform gathers the baseline. Use when someone wants to start an experiment or size a topic: 'start an experiment for this team on HELOCs', 'research this topic', 'stand up a campaign', 'what prompts should we track', 'is this topic worth an experiment', 'keyword research for a campaign'. Offers a dry run when the topic is unvalidated. NOT for standing up a brand-new team or its first broad baseline campaign (campaign-setup), NOT for scoring responses or writing the article (exp-build), NOT for where an experiment stands (exp-status), NOT website work."
 ---
 
 # exp-research: from a topic to a demand-grounded campaign
 
-The first phase of an experiment. It ends with prompts running against the LLM providers and a
-readiness number, not with an analysis.
+The first phase of an experiment. It ends with the kept prompts attached to a targeted experiment,
+the platform's runner gathering the baseline toward the experiment's response target, and a first
+read of where that stands, not with an analysis.
 
-Read `references/methodology-rules.md` (rules 1 to 4, 6, 7, 8, 21) and
+**This skill measures a topic. `campaign-setup` measures an institution.** If the team is new, or
+has no campaign yet, or has only deep single-topic campaigns and no broad baseline, that skill runs
+first: it picks the market, confirms the institution is registered so anything gets scored at all,
+and builds a wide first campaign across the products (rule 23). A topic campaign built before a
+baseline exists is a guess about where the opportunity is. Say so once, name the skill, and let the
+operator choose.
+
+Read `references/methodology-rules.md` (rules 1 to 4, 6, 7, 8, 21, 22, 23) and
 `references/workflow-overview.md` before the first write. Rules 1 to 3 are the whole triage;
 skipping them is how a campaign ends up tracking prompts nobody searches. Rule 21 decides how big
 the experiment gets to be, and it is the first call you make.
@@ -42,37 +50,81 @@ decide whether to commit.
 
 **`get-team-usage(team_id)` is the first call in this skill**, before candidates, before keywords,
 before a campaign exists. It reports the GEO responses used, the limit, the responses remaining, and
-the billing period they reset in. Running a prompt spends that budget; nothing else in this phase
-does (keyword research is not metered).
+the billing period they reset in. Running a prompt spends that budget, whether you call a run tool
+or the platform's runner does it for a targeted experiment; nothing else in this phase does (keyword
+research is not metered).
+
+**Two numbers set the size of an experiment** (rule 21): how many prompts it tracks, and its
+`target_responses`, the usable responses the platform gathers per window before it scores the
+experiment. The default target is 40 per window, the number the report's test needs to call a 0 to
+20 percent lift, and `create-experiment` accepts 8 to 400. The platform's runner gathers the
+baseline toward that target before the article goes live and the measurement toward it after, so an
+experiment at the default target costs about 80 responses over its life (baseline plus
+measurement), whatever the prompt count. Prompt count decides how the responses spread across the
+questions, not how many there are.
 
 Size the experiment to what is left (rule 21):
 
-1. **Reserve about a third** of the remaining responses for the build phase, which pivots and
-   re-runs out of the same pool.
-2. **Split the rest** into tracked prompts times samples per prompt. Providers are a pool, not a
-   multiplier: the run tools spread the requested count across the providers they can run, so
-   naming more providers costs nothing extra and buys no extra sample.
-3. **Cut prompt count before samples per prompt**, with two samples as the floor. The next phase
-   reads body text for institution mentions (rule 5), and a single response cannot tell a closed
-   slot from an unlucky draw.
-4. **Say the tradeoff in one plain sentence** before you create anything: what the budget bought,
-   and what got thinner because of it. For example, "this plan has 44 GEO responses left this
-   period, so I am tracking 10 prompts at 3 samples each instead of the usual 15 to 20, and holding
-   about 14 back for the build phase."
+1. **Compute the cost first, then compare.** About 2 times the target per experiment, roughly 80 at
+   the default, plus a reserve for a pivot, because a pivot attaches new prompts and the runner
+   gathers a baseline pass on them out of the same quota. Compare that to the responses remaining
+   and the date they reset. The baseline gathers over days and the measurement over 28 days or
+   more (it stays open past day 28 until the target is met), so a reset inside that span counts in
+   the plan's favour.
+2. **If the plan cannot cover the target, say so before you build anything smaller.** Name the
+   number the target needs, the number remaining, the shortfall, and the fact that the plan is what
+   is capping the quality. Then let the operator choose: run at a lower target, or wait for the
+   reset. **This is a decision the operator makes, not one you absorb quietly.** A lower
+   target is a weaker test: the report grades the experiment on the responses its windows hold, and
+   a target the plan chose reads as a finding unless the tradeoff was said out loud.
+3. **Only then size down, and only to what they chose.** Lower `target_responses` on the experiment
+   (before the live date; it is fixed once the experiment is live), and cut prompt count before
+   anything else on the campaign side. Ten to fifteen tracked prompts still cover the space the
+   build phase picks from, and the runner's first pass puts up to 5 responses on each of them,
+   which is the sample the institution-citation gate (rule 5) reads.
+4. **Say the tradeoff in one plain sentence.** For example, "this plan has 44 GEO responses left this
+   period against the 80 an experiment at the default target needs, so unless you would rather wait for
+   the reset I will set the target to 20 per window and track 10 prompts, which is a weaker test than the
+   default."
+
+**A thin baseline is noise, and it is worth knowing how much.** On a real campaign the kids-savings
+prompt read 67% visibility at 3 responses and 25% at 8. Nothing changed except the sample. That is
+why the target exists: 17 of the last 25 baselines gathered by hand were too thin to call.
 
 On a generous plan this is a read that changes nothing. On a small one it is the difference between
 a smaller honest experiment and either a refusal or a blown cap, and neither of those is an option:
-run the best experiment the plan allows.
+run the best experiment the plan allows, and make sure the operator knows what the plan is costing
+them.
 
-Carry the two numbers you chose (tracked prompts, samples per prompt) through the rest of this
-skill. They set the size of the kept set in step 4, the `count` in step 6, and `min_responses` in
-step 7.
+Carry the two numbers you chose (tracked prompts, `target_responses`) through the rest of this
+skill. They set the size of the kept set in step 4 and the target on the experiment in step 5.
 
 ## 2. Frame the candidate set, and open the campaign
 
 Decide new or existing first: `list-campaigns(team_id)`, and reuse a campaign that already covers
 this topic rather than standing up a near-duplicate. `get-campaign(team_id, campaign_id)` shows its
-location and keywords when the name alone is ambiguous. Create the new one now, with
+location and keywords when the name alone is ambiguous.
+
+**Campaign shape is a convention, not a preference, and it gates creation.** A team's FIRST
+campaign is the broad flagship: the institution's core products together, so the team gets one
+high-level visibility score that stays comparable over time. Every campaign after that goes narrow,
+one product or service, with granular consumer prompts, and those granular prompts are what
+experiments attach, never the flagship's institution-level ones. So if `list-campaigns` came back
+empty, stop here: the team is missing its flagship, and standing up a product campaign as their
+first breaks the convention. `campaign-setup` is the skill that builds it. Propose that, or get an
+explicit go-ahead to skip it, before any campaign for this experiment exists.
+
+**Broad means broad across PRODUCTS, in ONE market. It does not mean every geography the
+institution serves.** A campaign carries a single geography (`set-campaign-location`), so one
+spanning three counties cannot buy local demand for any of them, and its prompts cannot all name
+the place. The flagship is scoped to the single most populated market the institution actually
+serves; additional markets are additional campaigns (rule 23).
+
+**Granular does not mean unscoped.** A narrow campaign's prompts still name the place, exactly as
+the flagship's do (rule 22): "best used car loan in Example County", not "best auto loan rate near
+me". "Near me" scopes nothing, because the campaign's location is never sent to the providers.
+
+Only then create the new one, with
 `create-campaign(team_id, name, description, location, keywords)` and the geography in `location`,
 because the demand research and the keep-drop verdicts are both recorded against a campaign. The
 campaign is a container, not a commitment: no prompt exists inside it until the triage in step 4
@@ -83,7 +135,22 @@ says so.
 mentions against. If the institution is not in that list, nothing is tracking it: the visibility
 percentages every later phase reads come from matching an organization's terms against response
 text, so an unregistered institution reads as zero visibility forever, which looks like a finding
-and is actually an empty measurement. There is no tool in this plugin that creates one, so say so
+and is actually an empty measurement.
+
+**Competitors are a different matter: the platform extracts them from the responses on its own.**
+Do not tell an operator to register a competitor set by hand, and do not report "no competitive
+ranking is available" without calling `get-org-visibility` first. A real campaign's handoff note
+carried that claim for a day while the platform had already extracted 30 competitors. Read the
+tool, then say what it says, and treat the client's rank as an upper bound: the platform looks for
+new competitors only in a prompt's first answer, so competitors named only in later answers are
+missing and the client ranks too high (two clients showed #1 where the real rank was #9 and #15).
+Skim a few recent responses for institutions missing from the ranking before you report a rank.
+Two more things to watch:
+generic nouns ("Bank", "Credit Union", "Online Lender") and non-competitors (FDIC, NCUA,
+NerdWallet, Visa) are filtered on the way in now, but campaigns created before that filter existed
+still carry them, and one of them can outrank every real competitor. If one appears in a ranking
+you are about to report, exclude it, say that you did, and tell the operator the campaign has stale
+entries so a person can clear them. There is no tool in this plugin that creates one, so say so
 plainly and once: a person adds the institution as an organization on this campaign, with its name
 and website and its common name variants as terms, in the MetriFi GEO app. Do it before the run
 where you can. A registration added later is not lost work, because the platform rescans past
@@ -94,12 +161,34 @@ Then generate a **wide** candidate set, 24 to 36 prompts, spread across:
 
 - **Intent angles:** informational, comparative, transactional, locational.
 - **The segments and geography variants** you scoped above.
+- **The product and service space, not just the angle you were briefed on.** Walk the categories
+  deliberately and write at least one candidate in each that the institution actually offers:
+  deposits and rates; consumer lending (mortgage, refinance, home equity and HELOC, auto, personal,
+  debt consolidation); business banking and commercial lending; wealth, trust and retirement;
+  digital and servicing (online and mobile banking, fees, opening an account); and local discovery
+  ("banks near me", "best local banks in X", bank versus credit union).
 
-Breadth is deliberate. The build phase picks the biggest opportunity out of this set and pivots
-among these prompts, so cover the space rather than writing six phrasings of one question.
+Breadth is deliberate, and the category sweep is the part that gets skipped. A campaign built only
+around the angle in the brief measures the angle in the brief. On a real engagement both campaigns
+were scoped to the pitch story, deposits and business banking, and consumer lending went unmeasured
+until a later pass found it carried more local demand than either, including the best
+demand-to-difficulty phrase in the whole account. The build phase picks the biggest opportunity out
+of this set and pivots among these prompts, so cover the space rather than writing six phrasings of
+one question.
 
-Two hard rules on the prompt text itself:
+**A category that does not fit the campaign's scope belongs in its own campaign, not crammed into
+this one.** Say so and propose it rather than diluting a campaign whose name then stops describing
+its contents.
 
+Three hard rules on the prompt text itself:
+
+- **Name the campaign's geography in the prompt text** (rule 22). "in Example County", never
+  "locally" or "near me". The campaign's location is a demand-measurement setting and is **never
+  sent to the LLM providers**, so the prompt text is the only thing that scopes the answer to the
+  client's market. An unscoped prompt gets a national answer that a community institution is not
+  in, and measures a zero it could never have escaped. `create-prompt` warns when the place is
+  missing; that is a defect to fix, not a note to acknowledge. Do not read rule 2's anti-geo
+  keyword clause as applying here: it is about keywords, and it points the other way.
 - **Write it the way a consumer asks an AI assistant**, in their words, not in marketing language.
 - **Never put a brand name in a prompt**, the client's or a competitor's. The entire measurement is
   which brands a model names on its own. A prompt naming the institution measures nothing.
@@ -108,7 +197,9 @@ Two hard rules on the prompt text itself:
 
 Translate every candidate into keyword phrases **ordered by rule 2**: the shortest bare-noun
 umbrella form first ("best mortgage lender"), the geo-anchored form second ("mortgage lender
-wisconsin"), the stacked-modifier prompt-literal form last or not at all. Stacked modifiers return
+wisconsin"), the stacked-modifier prompt-literal form last or not at all. **This ordering governs
+keywords only. The prompt itself still names the place** (rule 22); the two artifacts are measured
+by different endpoints and the rules genuinely point in opposite directions. Stacked modifiers return
 zero volume for topics that plainly have demand, and that zero has cost real experiments twice.
 
 Then `research-keywords(team_id, campaign_id, keywords, experiment_id?)` with the whole translated
@@ -123,29 +214,59 @@ it records facts only: it never writes a keep or drop verdict, so it cannot over
 What a model's answer looks like today is competitive intelligence, not demand. Note who gets cited
 if it is useful later, and keep it out of the verdict entirely (rule 1).
 
-**These volumes are national United States numbers, not local ones.** The platform buys demand at
-the country level, so "best mortgage lender" comes back as the whole country's monthly searches, not
-the client's counties. Two consequences, and both of them show up the moment a client reads the
-number:
+**Set the campaign's geography before you measure anything.**
+`set-campaign-location(team_id, campaign_id, query)` resolves a plain place name ("Example County")
+and stores it on the campaign. With it set, `research-keywords` buys the demand twice and stores
+both numbers: `monthly_volume` is the United States national figure and `local_monthly_volume` is
+the same phrase measured in the campaign's own market. Without it you get the national number only,
+which is a number no community institution should ever be handed as its market.
 
-- **The geo-anchored phrase is the honest local-demand signal.** "mortgage lender wisconsin" or
-  "heloc huntsville al" is the closest measurable proxy for demand in the campaign's geography, so
-  lead the client-facing table with those and treat the umbrella form as the ceiling, not the market.
-- **Label every national number as national**, in the triage table, in the `tracked-prompts`
-  document, and out loud whenever you quote one. An unlabeled national volume presented to a credit
-  union reads as its own market, which overstates the opportunity by orders of magnitude and is the
-  kind of number a client repeats to their board.
+An ambiguous query writes nothing and returns the candidates. Pick the row whose `type` matches what
+you meant, usually `County` or `City`, and call again with its `location_code`. `get-campaign` prints
+a "Demand measured in:" line so you can confirm what you set.
+
+- **Lead every client-facing table with the local number**, and present the national one as the
+  ceiling on the topic rather than the size of the market. An unlabeled national volume shown to a
+  community bank overstates its market by two or three orders of magnitude and is the kind of number
+  a client repeats to their board.
+- **Do not use geo-anchored keyword phrasing as a local-demand proxy. That workaround is obsolete
+  and it was always wrong.** Writing the county into the keyword ("business loans exampleton") does
+  not measure local demand, it measures how many people type the county into the search box, which
+  is almost nobody. Measured side by side in Example County on 2026-08-19: "business loans exampleton" returned 0/mo and no national figure at all, while the umbrella phrase "small business loan"
+  measured 140/mo in that same county. Measure the umbrella form (rule 2) at the campaign's
+  geography instead.
+- **Difficulty and search intent are national-only.** The endpoint that reports them cannot go below
+  a country, and the endpoint that reports local volume returns neither. So a row can carry a real
+  local volume and no difficulty. That is expected, not a failure.
+- **A row measured at a different geography is re-bought automatically**, but a row measured with no
+  geography at all still reads as cache-fresh. When you set a location on a campaign that already
+  has keyword rows, pass `refresh: true` on the next `research-keywords` call or the old national
+  numbers stay.
 
 ## 4. Triage
 
-Apply rule 3 to the measured volumes:
+Apply rule 3 to the measured volumes. **Which number you judge on depends on whether the campaign
+has a geography**, and the thresholds are not the same, because a county is a small fraction of a
+country and the original bar was set against national figures.
+
+**Campaign with a geography set** (judge on `local_monthly_volume`):
 
 | Verdict | When |
 |---|---|
-| **KEEP, clear demand** | 50 or more monthly searches on at least one translated phrase |
-| **KEEP, foothold defense** | 10 or more monthly searches and the owned organization is already cited in AI answers for that prompt |
+| **KEEP, clear demand** | 50 or more local monthly searches on at least one translated phrase, **or** 20 or more local with 5,000 or more national on that same phrase, which shows the topic is real and the county is simply small |
+| **KEEP, foothold defense** | 10 or more local monthly searches and the owned organization is already cited in AI answers for that prompt |
 | **RESCUE** | worth tracking despite missing the threshold, with an explicit rationale and a re-check date |
-| **DROP** | the default: zero volume, or below threshold with no rescue rationale |
+| **DROP** | the default: zero local volume, or below threshold with no rescue rationale |
+
+**Campaign with no geography** (national figures only, the original bar): 50 or more monthly
+searches for clear demand, 10 or more plus an existing citation for foothold defense.
+
+**The local thresholds above are provisional and should be recalibrated as more campaigns run
+locally.** They exist because the 50/mo bar was calibrated on national volumes and applying it
+unchanged to county volumes rejects almost everything: on a 480,000-person county, only 3 of 11
+already-tracked phrases cleared 50 locally, including several the institution was already winning
+in AI answers. If you find the bar rejecting prompts whose baseline visibility is strong, that is
+evidence the bar is wrong, not evidence the prompt is.
 
 Then **de-duplicate**. The candidate set was generated wide on purpose, so several prompts are
 near-paraphrases mapping to the same umbrella phrase and the same intent. Collapse each cluster to
@@ -176,11 +297,14 @@ rejected. **On a dry run, stop here.**
 ## 5. Commit the experiment and the prompts
 
 1. **The experiment record, as a draft.** `create-experiment(team_id, name, campaign_id, description,
-   status: "draft")`. Create it before the prompts, so the workflow state, the event log, and the
-   handoff note have a home from the first phase and any operator can pick this up. **Pass no dates**
-   (rule 7): `started_at` starts the measurement clock, and the clock starts when the article goes
-   live, not today. If a draft experiment for this topic already exists on the campaign, reuse it
-   rather than creating a second.
+   status: "draft", target_responses?)`. Every new experiment carries a response target, 40 per
+   window unless you pass one; pass a lower number only when the operator chose it in step 1. Create
+   it before the prompts, so the workflow state, the event log, and the handoff note have a home
+   from the first phase and any operator can pick this up. **Pass no dates**
+   (rule 7): `create-experiment` has no start-date argument, because an experiment is never born
+   live. The live date arrives when the article does, from the publication record. If a draft
+   experiment for this topic already exists on the campaign, reuse it rather than creating a
+   second.
 2. **The prompts.** `create-prompt(team_id, campaign_id, content)` for each kept candidate, and only
    for kept candidates. The recorded keep set is the audit boundary: a prompt that is not in it is
    never created. `list-prompts(team_id, campaign_id)` first when reusing a campaign, and skip any
@@ -192,12 +316,34 @@ rejected. **On a dry run, stop here.**
    verdict, and notes, with the geography in the caption and a footer carrying the unique demand
    total, the distinct-phrase count, and the raw sum. That document is what a client can be shown.
    Write the per-prompt detail as a `keyword-research` document when the reasoning is worth keeping.
+5. **Attach the kept prompts to the experiment.** `update-experiment(team_id, experiment_id,
+   prompt_ids: [the kept ids], prompt_ids_mode: "add")`. On a targeted experiment that is not live,
+   this is what starts the baseline: the platform's runner dispatches its first pass the moment the
+   prompts are attached, up to 5 responses per prompt, then tops the baseline up once a day until
+   the window holds the target or the article goes live. Nothing else needs to be called.
 
-## 6. Run the prompts
+## 6. Get the baseline running
 
-`count` is the samples per prompt you sized in step 1, never a number picked here. The
-institution-citation gate in the next phase reads body text, so one response per prompt is not
-enough to work with, and two is the floor.
+**On a targeted experiment, do not run the prompts by hand.** Attaching them in step 5 already
+dispatched the runner's first baseline pass, and a `run-campaign-prompts` or `run-prompt` call on
+top of it spends the same quota twice. Responses the runner gathers are tagged with the experiment:
+the experiment's own score and `get-campaign-readiness` count them, and the campaign and
+organization visibility ratios leave them out so a heavily run experiment cannot tilt the campaign's
+numbers. A manual run is untagged and is campaign data.
+
+Two things to say about the runner's responses whenever you describe the baseline:
+
+- **Which provider they came from** (rule 6). The runner picks the provider; `list-responses` shows
+  it. A baseline that came back from one provider is a single-provider baseline in every document
+  you write about it.
+- **Trials get the target and the depth warning but no automatic runs.** On a trial team the runner
+  stays off, and the manual run below is the only way to gather a baseline. Say so.
+
+**The manual run stays the right tool in two cases:** a campaign being monitored without an
+experiment (the `campaign-setup` path), and an experiment created before targets existed, which
+`get-experiment` shows with no run mode line. There, `count` is the samples per prompt the plan
+can afford, never below two, because the institution-citation gate in the next phase reads body
+text and one response per prompt is not enough to work with.
 
 - **A campaign with no prior baseline:** `run-campaign-prompts(team_id, campaign_id, providers,
   count)`.
@@ -213,38 +359,55 @@ a single-provider baseline in every document you write about it (rule 6).
 
 If a run tool refuses, report its exact reason and stop there. A quota refusal names the responses
 needed against the responses remaining, which means the sizing in step 1 was off; re-size to what it
-reports rather than retrying the same call. The campaign, the experiment, and the prompts already
+reports rather than retrying the same call. The same goes for the runner: a `Runner skipped for
+quota` line on `get-experiment` means the plan ran out before a pass, and the fix is the operator's
+(quota, or a smaller target), not a manual run around it. The campaign, the experiment, and the prompts already
 exist, so running again once the reason is resolved picks up exactly where you left off. Nothing
 needs to be recreated.
 
 Log it: `add-experiment-event(team_id, experiment_id, kind: "prompts-created", summary)` with the
 count, the campaign, and the unique demand total, and `actor_label` naming yourself as the agent.
 
-## 7. Read readiness, then hand off
+## 7. Read where the baseline stands, then hand off
 
-Responses populate asynchronously, over minutes to hours. **There is no polling loop.**
-`get-campaign-readiness(team_id, campaign_id)` reports the share of prompts with enough completed
-responses, the per-prompt counts and latest response dates, any in-progress jobs, and the auto-run
-schedule. It is a fact you read, not a gate that refuses.
+Responses populate asynchronously, over minutes to hours. **There is no polling loop.** Read each
+of these once, report what it says, and stop.
 
-It counts responses inside a lookback window, 28 days and three responses per prompt by default, so
-a campaign you reused reads as empty when its baseline predates the window. `window_days` widens it
-when you want to see what already exists.
+**`get-experiment(team_id, experiment_id)` is the read that matters on a targeted experiment.** It
+prints:
 
-**Pass `min_responses` equal to the samples per prompt you budgeted in step 1.** The default of
-three is a bar a two-sample baseline never clears, so leaving it alone on a tight plan reports 0
-percent populated on a campaign that is exactly as populated as you paid for. Say which number you
-read it at when you report the percentage.
+- `**Run mode:**` `baseline`, `monitoring`, or `off`. Derived on every read, never stored.
+  `baseline` means the article is not live and the runner is filling the baseline window;
+  `monitoring` means the live date is set and the runner is pacing the measurement toward the
+  target by day 28, then up to 5 per prompt per day until it is met (the measurement closes once it
+  holds the target and day 28 has passed; there is no time cap, a stuck experiment waits for a
+  person); `off` means the experiment is parked, closed, or untargeted. No mode line at all means an experiment created before targets existed, which keeps
+  the old 28-day arithmetic.
+- `**Responses against target:** baseline N of T, measurement N of T`, with `+P pending` for
+  placeholders still resolving. The baseline number is the one this phase hands off on. "Baseline
+  15 of 40" is a baseline in progress, not a baseline that is done.
+- `**Runner skipped for quota:**` when the team's monthly quota ran out before a pass. That line is
+  an action for the operator, more quota or a smaller target, not something to work around with
+  manual runs.
 
-Read it once, report it plainly, and stop. Then:
+`get-campaign-readiness(team_id, campaign_id)` still answers a different question: did the prompts
+populate at all. It reports the share of prompts with completed responses inside a lookback window
+(28 days and three responses per prompt by default; `window_days` widens it, `min_responses` sets
+the bar), the per-prompt counts and latest response dates, and any jobs still running. It does not
+say whether the baseline is deep enough; only `get-experiment` does. On a manual run, pass
+`min_responses` equal to the samples per prompt you budgeted, or a two-sample baseline reads as 0
+percent populated forever, and say which number you read it at.
 
-- `set-experiment-workflow(team_id, experiment_id, status: "in-progress", note)` with a note the
-  next operator can act on: what was created, what is running, what the sizing was, and what the
-  next step is.
+Then:
+
+- `set-experiment-workflow(team_id, experiment_id, note)` with a note the next operator can act on:
+  what was created, the target, where the baseline stands against it, and what the next step is.
+  There is no status argument; the experiment's stage is derived from its dates.
 - Tell your operator that **exp-build** is what analyzes the responses and scores the opportunity,
-  and that it is worth starting once readiness is at or above the 80 percent line, read at the
-  `min_responses` you sized for. Name it and let them choose. Do not start it yourself, and do not
-  analyze the responses here.
+  and that it is worth starting once readiness shows the prompts populated, which the runner's first
+  pass reaches on its own. The baseline keeps filling toward the target in the background until the
+  article goes live; the live date is what waits for "baseline T of T", not the analysis. Name it and
+  let them choose. Do not start it yourself, and do not analyze the responses here.
 
 ## Judgment calls
 
@@ -256,6 +419,8 @@ Read it once, report it plainly, and stop. Then:
   baseline (rule 6). Do not call a single-provider baseline multi-model coverage.
 - **An ask that sounds like a new campaign is often a resumption.** Check `list-campaigns` and
   `list-experiments` for the team and topic before creating anything.
+- **A team with no campaign at all is an onboarding, not an experiment.** Hand it to
+  `campaign-setup` and say why: the baseline is what tells you which topic is worth an experiment.
 - **Web access is whatever your host gives you.** A real browser tool reads client-rendered pages
   that a plain fetch cannot, and where there is no browsing at all, say a claim is unverified rather
   than assuming it. Nothing in this phase depends on browsing.

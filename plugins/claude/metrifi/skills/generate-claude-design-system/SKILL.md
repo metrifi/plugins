@@ -24,11 +24,11 @@ Fetch the canonical stage-1 process from the MetriFi knowledge store and follow 
 
 `get-doc("docs/generate-claude-design-system.md")`
 
-(Through the MetriFi plugin it surfaces as `mcp__metrifi__get-doc`.) That doc is the single source of truth — preflight, brand-input resolution, driving Claude Design, landing tokens with `set-brand`, compliance identity, and the approval gate. Don't reconstruct the steps from memory; read it fresh each run.
+That doc is the single source of truth — preflight, brand-input resolution, driving Claude Design, landing tokens with `set-brand`, compliance identity, and the approval gate. Don't reconstruct the steps from memory; read it fresh each run.
 
 ## Guardrails (hold regardless)
 
 - Requires the MetriFi connection and, for this stage, the local `@pro-vi/designer` engine (the doc covers setup). If the engine can't come up, say so and stop — never hand-fake a design system.
 - The design system reflects the CLIENT's brand; a client site never consumes MetriFi's own brand package.
 - Never invent legal/disclosure text; compliance facts are resolved and recorded, wording is client-approved or a tracked placeholder.
-- STOP at the approval gate: show the preview, then offer stage 2 (the prototype). Never publish anything without explicit human approval.
+- STOP at the approval gate: show the preview (the link comes from `get-preview-url`), then offer stage 2 (the prototype). Never publish anything without explicit human approval.

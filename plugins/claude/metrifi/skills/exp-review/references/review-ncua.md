@@ -235,8 +235,16 @@ figures.
    - **Compliance officer sign-off:** the checklist, every time, even on a clean article.
 
 2. `record-deliverable-check` with `type: "ncua-compliance"`, the `result`, a one-line `summary`,
-   the `findings` array with a regulation citation inside each `issue`,
+   the `findings` array with a regulation citation inside each `issue`, the `verifications` array,
    `document_kind: "review-ncua"`, and `recorder` naming yourself.
+
+   **This battery's verification rows are the regulation areas you walked**, one row each: 740.2
+   accuracy, 740.4 the official advertising statement, 740.5 insured status of non-deposit products,
+   707.8 Truth in Savings advertising, the Regulation Z trigger terms, Regulation E, Regulation B
+   and the Equal Housing line, and field of membership. `item` names the citation and what you
+   looked for; `source` is the passage or section you read it against. An area the article never
+   touches is `n/a` with the reason in `note`, which is itself a real answer. Record only the areas
+   you actually walked.
 
 ## What this battery does not do
 

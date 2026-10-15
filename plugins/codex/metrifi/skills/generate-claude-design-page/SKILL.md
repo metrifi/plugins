@@ -24,11 +24,11 @@ Fetch the canonical stage-2 process from the MetriFi knowledge store and follow 
 
 `get-doc("docs/generate-claude-design-page.md")`
 
-(Through the MetriFi plugin it surfaces as `mcp__metrifi__get-doc`.) That doc is the single source of truth — preflight, fetching the conversion rubric with test citations, driving Claude Design, the acceptance check, handoff, building in code per the Page Design Process conventions, QA, and the approval gate. Read it fresh each run.
+That doc is the single source of truth — preflight, fetching the conversion rubric with test citations, driving Claude Design, the acceptance check, handoff, building in code per the Page Design Process conventions, QA, and the approval gate. Read it fresh each run.
 
 ## Guardrails (hold regardless)
 
 - Design decisions cite the A/B evidence (`get-proven-pattern`, `get-anti-patterns`, test IDs); if the data is silent, say so — never invent citations.
 - Every rate renders through the managed rate components; never type a rate number into a page.
 - Requires the local `@pro-vi/designer` engine; if it can't come up, say so and stop — never fake a generated design.
-- STOP at the approval gate with the preview URL. Never publish without explicit human approval.
+- STOP at the approval gate with the preview URL from `get-preview-url`. Never publish without explicit human approval.

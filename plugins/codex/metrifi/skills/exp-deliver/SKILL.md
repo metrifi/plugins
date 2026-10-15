@@ -1,6 +1,6 @@
 ---
 name: exp-deliver
-description: "Build a MetriFi GEO client deliverable and get it in front of the institution's contact, behind the send gate: assemble and validate the client page, read every warning it returns, preview the notification email to your own inbox first, and send for real only after your human operator says so explicitly in the conversation. Use when a reviewed draft is ready to go out: 'ship it', 'send the deliverable', 'send it to the client', 'build the deliverable', 'rebuild the client page', 'get this in front of the client', 'is it ready to send', 'send the revision', 'nudge the client', 'they never responded', 'why is the send refusing', 'what is the client link'. The real send emails real people and is a one-way door, so it never happens on an implied yes, on an earlier approval, or without naming the recipient first. When the server refuses a send, follow the refusal rather than recording a check nobody ran. NOT the check step (exp-review), NOT the client's sign-off."
+description: "Build a MetriFi GEO client deliverable and get it in front of the institution's contact, behind the send gate: assemble and validate the client page, read every warning it returns, preview the notification email to your own inbox first, and send for real only after your human operator says so explicitly. Use when a reviewed draft is ready to go out: 'ship it', 'send the deliverable', 'send it to the client', 'build the deliverable', 'get this in front of the client', 'is it ready to send', 'send the revision', 'nudge the client', 'what is the client link', 'give me the deliverable URL'. The client URL is always available: hand it over immediately from get-deliverable, then offer to record the delivery. The real send emails real people and is a one-way door: never on an implied yes, an earlier approval, or without naming the recipient first; incomplete pre-publish checks come back as a warning to act on, not a refusal. NOT the check step (exp-review), NOT the client's sign-off."
 ---
 
 # exp-deliver: build it, preview it, then ask
@@ -29,14 +29,15 @@ Everything else in this skill runs without pausing.
 1. `get-experiment-workflow(team_id, experiment_id)` for where things stand, the deliverable, its
    open blocking items, and the latest check results.
 2. `list-deliverable-checks(team_id, deliverable_id)` when any check looks missing or stale. All four
-   conventional checks (`hygiene`, `ncua-compliance`, `accessibility`, `fact-verification`) need a
-   recorded, non-failing result against the current article before any real send that carries the
-   article will go, whatever the status, and before any ready, scheduled, or published send at all.
+   conventional checks (`hygiene`, `ncua-compliance`, `accessibility`, `fact-verification`) should
+   have a recorded, non-failing result against the current article before prose reaches a client;
+   the server will not refuse a send over them, but it appends a warning naming each incomplete one.
 3. `get-deliverable(team_id, deliverable_id)` for the article, the checklist, the action items with
-   their statuses, and the participants already on the record.
+   their statuses, the participants already on the record, and the `client_url`.
 
-If a check is missing, failing, or stale, that is review work, not send work. Say which checks and
-stop. Do not send around it.
+If a check is missing, failing, or stale, say which checks plainly before asking for the send OK.
+The decision to send anyway is the operator's to make, not yours to block and not yours to make
+silently.
 
 ## 1. Build
 
@@ -59,13 +60,12 @@ the dossier sections, the checklist, the action items, the version. Warnings are
 exactly why they get skipped and then turn up as the thing the client noticed. Report the counts and
 every warning to your human in plain language before going near the send.
 
-**The status is not a way past the gate.** The trigger is the article, not the label: the platform
-refuses any real send whose manifest carries an article until the four checks are current, whatever
-the status says, and it refuses a ready, scheduled, or published send on the same blockers whether or
-not there is an article. A `needs-input` send is ungated only when it carries no article, which is
-the collaboration loop asking the client questions before there is prose to check. So set the status
-because it is the honest description of where the deliverable stands, and when a check is stale,
-re-run the check.
+**The checks warn on send; publish still refuses.** The trigger is the article, not the label: any
+real send whose manifest carries an article (or whose status is in the ready family) comes back
+with a warning naming each check that is missing, failing, or stale against the current article. A
+`needs-input` send with no article warns about nothing, which is the collaboration loop asking the
+client questions before there is prose to check. Set the status because it is the honest
+description of where the deliverable stands, and when a check is stale, re-run the check.
 
 ## 2. Preview to yourself
 
@@ -105,14 +105,14 @@ captures the institution's contact as the client participant, and it is what mak
 followable up on later. Without it, the deliverable can never be nudged and the quiet-client path
 below is closed for good. Get the address right the first time and read it back before sending.
 
-**The platform withholds the client link until the send; never try to reconstruct it.** Before the
-first send, every tool that would print the client URL prints a line saying it is withheld until then
-instead, and the raw token appears nowhere at any time. That is deliberate output hygiene, not a
-missing field: the link is a live credential for the review page, and an operator who has it early
-tends to paste it into their own email, which skips the participant record, the activity ledger, and
-every followup after. Do not assemble the URL from a slug or a token or a pattern you saw somewhere
-else. After the send, `get-deliverable` returns it as it always did, and it is fine to share with
-your own operator.
+**The client link is always available; hand it over on request, then record the delivery.** `get-deliverable`,
+`list-deliverables`, and `list-deliverables-needing-attention` return `client_url`, sent or not. When your operator asks for the link, give it
+immediately, no conditions, then follow up with one line offering the record: say "send" to email
+it from the platform, or "shared" if you handed it to the customer yourself and I'll record it.
+`record-deliverable-shared` stamps `sent_at` and emails nobody; pass `client_email` when they name
+the contact (that is what opens followup nudges), or omit it to record the share with no contact
+captured. Recording matters because it is what keeps the worklist and the followup cadence honest;
+it is bookkeeping, never a precondition for the URL.
 
 ### When there is no client contact
 
@@ -128,8 +128,9 @@ and it has its own shape:
   it goes only to the participants already on the record, which in practice means whoever the action
   items are assigned to. Name them. If that set is only you, say that too, plainly, so nobody
   believes a client was contacted.
-- **The gate still applies.** A send with no client contact is still a real send: it still needs the
-  explicit OK, and if it carries the article it still needs the four checks current.
+- **The human gate still applies.** A send with no client contact is still a real send: it still
+  needs the explicit OK, and if it carries the article with incomplete checks, the warning that
+  comes back is still work to report and do.
 
 ## 5. Report, then hand back
 
@@ -138,29 +139,96 @@ and it has its own shape:
   `idempotency_key` with a stable value, such as `deliverable-sent-v3`, so a resumed run cannot
   double-log: a key that already exists means this send was already logged, and the call returns that
   event instead of appending a second one.
-- `set-experiment-workflow(team_id, experiment_id, status, note)` with a note the next operator can
+- `set-experiment-workflow(team_id, experiment_id, note)` with a note the next operator can
   act on: what went out, to whom, and what we are waiting for.
 
 Then stop. The next move is the client's, and their answers come back as activity on the deliverable
 for the revise phase to pick up.
 
-## When the server refuses
+## 6. Recording that the article went live
 
-The refusal message names the way through. Take it literally.
+Most articles are published by hand in the institution's own CMS, and the platform only hears about
+it if you tell it. `record-deliverable-publication(team_id, deliverable_id, published_url,
+published_at, note)` is how you tell it, and it is the right call for an article that is already
+live, however long ago.
 
-- **A missing, failing, or stale check** on any send that carries the article, and on any ready,
-  scheduled, or published send. It names each check with its own reason (no result recorded, latest
-  result is fail, recorded against an older article) and names `record-deliverable-check` as the way
-  through. When the trigger was the article rather than the status, the refusal says so in its first
-  sentence, so read that line before deciding the status is the problem. The way through is to re-run
-  that check and record the result. Not lowering the status, not recording a result nobody earned,
-  not calling the preview a send. There is no force flag and no operator override.
-- **A build contract failure**: an anchor quote that no longer resolves, an illegal enum, an em dash
-  in client copy. The way through is the article or the manifest, and the message says which.
-- **`published` refused.** That status needs the client's approval plus a genuinely publish-ready
-  deliverable: no outstanding blocking items, pre-publish checks cleared. Approval alone is not
-  enough, because a client can approve while a requested change is still pending. Apply the
-  outstanding corrections first. Never fabricate an approval or a sign-off, ever, for any reason.
+- **`published_at` is the real date the article went live**, `YYYY-MM-DD`, not today's date and not
+  the date you found out. A future date is refused. If the operator only remembers the month, ask;
+  a wrong live date anchors the measurement window on the wrong days.
+- **`published_url` is the address it is live at**, absolute and starting with `https://`. Read it
+  back before you record it.
+- **It records nothing about checks and claims nothing about them.** That is the point: it skips
+  the three publish refusals because it states a fact about the world rather than certifying a
+  decision. Never describe a recorded publication as having passed anything.
+- **It is correctable.** Wrong date or wrong URL, call it again with the right one; the correction
+  goes on the activity ledger. Nothing has to be undone first.
+- **It sets the experiment's live date too**, which is what anchors the measurement window, and it
+  CORRECTS a date already there rather than only filling an empty one. A publication record
+  outranks a migrated or typed date and overwrites it without asking. That re-grades the
+  experiment, so say so when you record a publication on an experiment that already had a date:
+  a published result may have moved, and the changed-outcomes report is where it shows up.
+- **It stops at two things and guesses at neither.** A live date another publication already set,
+  and an experiment carrying two or more deliverables, where which one published is not a question
+  the tool can answer. In both cases it leaves the date alone, logs the disagreement, and says so
+  in its response. Report that line to your operator rather than swallowing it: a human has to pick.
+
+Use `set-deliverable-status published` only for an article being published now, through the normal
+flow, with the approval and the checks genuinely in hand. For anything historical, this is the tool.
+
+## 7. Once the article is live
+
+The one post-send step this skill owns. When the client publishes and you have the live URL,
+classify what actually shipped:
+
+```
+set-deliverable-tags(team_id, deliverable_id, tags, primary_intention)
+```
+
+Judge the page at its published URL, not the draft you sent and not the recommendation that
+preceded it. **Rule 24 in `references/methodology-rules.md` is the rule**, including the Content
+Location tie-break (presentation wins over URL structure) and the one-primary-plus-optional-secondary
+shape for Content Intention. Call the tool with no tags to have it print the live vocabulary and
+each value's definition.
+
+Two things worth saying plainly:
+
+- **This is what makes the experiment evidence rather than an anecdote.** Every cross-experiment
+  finding about length, format and intention is computed from these tags. An unclassified
+  deliverable contributes nothing, and one classified from the draft contributes something worse.
+- **If nobody has told you the article is live, do not guess.** Ask, or record the live URL first.
+  The tool will warn when the deliverable has no `published_url`, because a classification of a
+  page the platform has no address for cannot be re-checked by anyone.
+
+## Warnings and refusals
+
+The send never refuses, **except after a publication is recorded**. What can come back, and what to
+do with it:
+
+- **A send on a deliverable whose article is already published is refused outright**, by
+  `send-deliverable` (preview included) and by `send-deliverable-followup`. The refusal names the
+  recorded live date and URL. Do not route around it: every email either tool could produce asks
+  the client about work that already shipped, either for input on a published article or for
+  approval of a draft they published themselves. To reach the client about a change, push the
+  change with `push-deliverable-revision` first. To record that you handed over the link,
+  `record-deliverable-shared`. If the publication record itself is wrong, correct it with
+  `record-deliverable-publication`. Say which of the three you are doing, and why.
+
+- **A check warning on the send** names each check that was missing, failing, or stale at the
+  moment the client got the article, with its own reason (no result recorded, latest result is
+  fail, recorded against an older article) and `record-deliverable-check` as the way to clear it.
+  The send already happened, so treat the list as immediate work: run each check, record the
+  result, and if one now fails, the fix goes to the client as a revision. Never clear a warning by
+  recording a result nobody earned.
+- **A build contract failure** still refuses: an anchor quote that no longer resolves, an illegal
+  enum, an em dash in client copy. The way through is the article or the manifest, and the message
+  says which.
+- **`set-deliverable-status published` still refuses.** That status needs the client's approval plus
+  a genuinely publish-ready deliverable: no outstanding blocking items, pre-publish checks cleared.
+  Approval alone is not enough, because a client can approve while a requested change is still
+  pending. Apply the outstanding corrections first. Never fabricate an approval or a sign-off, ever,
+  for any reason, and never record a check nobody ran to get past this. If the article is already
+  live, the refusal is not the obstacle it looks like: that is what
+  `record-deliverable-publication` above is for.
 
 ## When the client goes quiet
 

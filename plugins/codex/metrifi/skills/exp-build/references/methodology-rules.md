@@ -28,7 +28,7 @@ answer looks like today is competitive intelligence (who is cited, what shape th
 and it never contributes to a keep or drop verdict. Record the verdict with
 `record-keyword-research` so the number and the decision travel together.
 
-**Where it came from:** an abandoned Wisconsin credit-union experiment (experiment 102), first
+**Where it came from:** an abandoned Wisconsin credit-union experiment (ID 102), first
 triage pass. Seventeen prompts were kept on "rich AI Mode answer" as a soft signal. The corrected
 pass, on strict volume, kept ten.
 
@@ -43,24 +43,48 @@ form. Geo-anchored variants go second. Stacked-modifier prompt-literal forms go 
 out. When a candidate comes back all zeros in a batch, re-run it with umbrella forms before
 believing the zero.
 
+**A geo-anchored keyword is not a measurement of local demand, and never was.** Writing the county
+into the phrase measures how many people type the county into a search box, which is almost nobody.
+Set the campaign's geography with `set-campaign-location` and measure the umbrella form there
+instead. Side by side in Example County on 2026-08-19: "business loans exampleton" returned 0/mo and
+no national figure, while "small business loan" measured 140/mo in that same county.
+
+**This clause is about KEYWORDS ONLY. It says nothing about prompt text, which points the opposite
+way.** A prompt must name the place (rule 22): the campaign's location is never sent to the LLM
+providers, so the prompt text is the only thing that scopes the answer to the client's market.
+Stripping the geography out of a prompt because of this rule is a misreading that has produced
+campaigns full of prompts measuring a national market.
+
 **Where it came from:** the same campaign dropped `first time home buyer wisconsin` because four
 prompt-literal phrasings all returned zero. The next batch caught the identical intent with the
 umbrella form at 1,300 a month. The lesson had to be relearned twice more in a later
 lender-decision campaign.
 
-### Rule 3: triage threshold is 50 a month, or 10 a month plus a foothold
+### Rule 3: triage threshold is 50 a month, or 10 a month plus a foothold, and the market it is measured in decides which
 
 Apply this to the volumes `research-keywords` returns, then write the verdict into
 `record-keyword-research` with a reason. Record the drops too: that is what stops a later pivot
 from re-proposing something already rejected.
 
-- **KEEP, clear demand:** 50 or more monthly searches on at least one translated phrase.
+**Judge on the campaign's own market.** Where a geography is set, that means
+`local_monthly_volume`, not the national figure.
+
+- **KEEP, clear demand:** 50 or more monthly searches on at least one translated phrase. Where the
+  campaign has a geography, 20 or more local also qualifies when that phrase carries 5,000 or more
+  nationally, which shows the topic is real and the county is simply small.
 - **KEEP, foothold defense:** 10 or more monthly searches and the owned organization is already
   cited in AI answers for that prompt.
 - **RESCUE:** anything else worth tracking despite missing the threshold (a metro-cluster phrasing
-  variation, a national-overflow probe). Requires an explicit rationale in `verdict_reason` and a
-  re-check date.
+  variation, a national-overflow probe, a product the institution is actively advertising). Requires
+  an explicit rationale in `verdict_reason` and a re-check date.
 - **DROP, the default:** zero volume, or below threshold with no rescue rationale.
+
+**The local thresholds are provisional.** The 50/mo bar was calibrated when every volume this
+platform could buy was a United States national figure. County-level buying arrived on 2026-08-18
+and the bar did not move with it, which makes it far harsher than it was designed to be: applied to
+a 480,000-person county, only 3 of 11 already-tracked phrases cleared 50 locally, several of them
+prompts the institution was already winning in AI answers. Recalibrate as more campaigns run
+locally. A bar that rejects a prompt whose baseline visibility is strong is a broken bar.
 
 ### Rule 4: the kept set is an auditable artifact, not a mental note
 
@@ -88,26 +112,138 @@ the build phase may need.
 `get-team-usage(team_id)` before proposing a candidate set, take the GEO responses remaining in the
 current period, and size the experiment to that number.
 
-- **Reserve about a third** of what remains for the pivot, the re-runs, and the second look the
-  build phase legitimately asks for. Size the baseline inside the rest.
-- **The arithmetic is prompts times samples per prompt.** Providers are a pool, not a multiplier:
-  the run tools spread the requested count across the providers they can actually run, so naming
-  three providers does not triple the cost or the sample.
-- **Cut prompt count before cutting samples per prompt**, down to a floor of two samples. Rule 5
-  reads body text for institution mentions, and one response per prompt cannot tell a structurally
-  closed slot from an unlucky draw.
-- **State the tradeoff to the operator in one plain sentence**, in their terms: fewer tracked
-  prompts than usual, or a thinner baseline behind each one, and which you chose.
-- **Carry the sized number forward.** Pass `min_responses` to `get-campaign-readiness` equal to the
-  samples per prompt you budgeted, or the population line measures a bar nobody paid for and reads
-  as 0 percent forever.
+**There is a target, and the plan is measured against it rather than replacing it.** Since
+2026-09-24 the platform carries it: every new experiment has `target_responses`, the usable
+responses wanted per window, 40 by default (the number the report's test needs to call a 0 to 20
+percent lift), settable from 8 to 400 and fixed once the experiment is live. The platform's runner
+gathers toward it, before the live date (an immediate pass of up to 5 per prompt when prompts are
+attached, then a top-up once a day) and after it (paced to reach the target by day 28, then up to
+5 per prompt per day until it is met). So an experiment costs about 2 times its target over its
+life, roughly 80 responses at the default, plus a reserve for a pivot, whatever the prompt count. Ten to fifteen
+tracked prompts still cover the space the build phase picks from, and below 5 responses a prompt's
+visibility figure is noise: on a real campaign a prompt read 67% visibility at 3 responses and 25%
+at 8; nothing changed but the sample. Compute what the target costs, then compare it to what the
+plan has.
+
+- **When the plan cannot buy the target, tell the operator before you build something smaller.**
+  Name the number needed, the number remaining, the shortfall, and the fact that the plan is what is
+  capping the quality, then let them choose to run at a lower target or to wait for the reset. Sizing down quietly inside the budget is the failure this clause exists to stop: it
+  produces a campaign that looks finished, and nobody learns otherwise until a client is shown a
+  visibility score computed on three responses. Absorbing the constraint is not thrift, it is a
+  decision taken on someone else's behalf.
+- **Reserve part of what remains for the pivot.** Attaching new prompts to a targeted experiment
+  gathers a baseline pass on them out of the same quota. Size the target inside the rest.
+- **Never gather a targeted experiment's baseline by hand.** Attaching prompts with
+  `update-experiment` starts the runner; a `run-campaign-prompts` or `run-prompt` call on top of it
+  spends the quota twice, and the manual responses are untagged campaign data besides. The manual
+  run is for a campaign monitored without an experiment, an experiment created before targets
+  existed (no run mode line on `get-experiment`), and a trial team, where the runner stays off.
+- **The arithmetic for a manual run is prompts times samples per prompt.** Providers are a pool,
+  not a multiplier: the run tools spread the requested count across the providers they can actually
+  run, so naming three providers does not triple the cost or the sample.
+- **Size down by lowering the target, not by running less.** On a targeted experiment lower
+  `target_responses` before the live date. On a manual run cut prompt count before cutting samples
+  per prompt, down to a floor of two samples: rule 5 reads body text for institution mentions, and
+  one response per prompt cannot tell a structurally closed slot from an unlucky draw.
+- **State the tradeoff to the operator in one plain sentence**, in their terms: a lower target
+  behind the experiment, or fewer tracked prompts than usual, and which you chose.
+- **Carry the sized number forward.** On a targeted experiment the number is `get-experiment`'s
+  "baseline N of T", and a `Runner skipped for quota` line there is the operator's call (quota, or
+  a smaller target), not a gap to fill with manual runs. On a manual run, pass `min_responses` to
+  `get-campaign-readiness` equal to the samples per prompt you budgeted, or the population line
+  measures a bar nobody paid for and reads as 0 percent forever.
 - **Always run the best experiment the plan allows.** Never refuse the experiment over the budget,
   and never quietly exceed it. On a generous plan none of this changes anything.
+- **Cover the product space, not just the brief.** The candidate set walks deposits, consumer
+  lending, business banking, wealth and trust, digital and servicing, and local discovery, and
+  includes at least one candidate in each category the institution actually offers. A campaign built
+  only around the angle in the brief measures the angle in the brief: on a real engagement two
+  campaigns were both scoped to the pitch story and consumer lending went unmeasured, which later
+  turned out to carry more local demand than either of them and the best demand-to-difficulty phrase
+  in the account. A category that does not fit the campaign's scope gets its own campaign, proposed
+  out loud, rather than being crammed into one whose name then stops describing its contents.
 
 **Where it came from:** Ryan's decision, 2026-07-27, after the M14 QA run: "the methodology never
 assumes a fixed sampling volume", it "sizes the experiment to it", and the skill "always does the
 best experiment the plan allows rather than refusing or blowing the cap". The QA team was on
 Starter, 50 responses a month, which put the old absolute gates out of reach from the first call.
+Updated 2026-09-24 when the platform took over gathering (metrifi-platform #413, #476, #477): the
+target moved from a hand-run sample to `target_responses`, and the runner spends the quota this
+rule sizes.
+
+### Rule 22: the prompt text carries the geography, because nothing else does
+
+**The trap:** the campaign has a location set, so the prompt reads as scoped. It is not. A
+campaign's location is a demand-measurement setting: it tells `research-keywords` which market to
+buy volume in. **It is never sent to the LLM providers when a prompt runs.** The only thing the
+model sees is the prompt text. So "who offers them locally", "do local banks offer this", and "near
+me" all get answered nationally, and a community institution is not in a national answer. The
+prompt then measures a zero it was never going to escape, and that zero reads as a finding.
+
+**The rule:** every prompt on a campaign with a geography names that place in its own words. "in
+Example County", not "locally". The place can be the county, the city, or the metro, and the state
+is a weak substitute rather than a scoped prompt. `create-prompt` warns when the place is missing;
+treat the warning as a defect to fix, not a note to acknowledge.
+
+**Do not confuse this with rule 2, which points the other way for a different artifact.** A
+geo-anchored KEYWORD is wrong, because it measures how many people type the county into a search
+box. A geo-anchored PROMPT is required, because it is the only thing that tells the model which
+market to answer for. Same place name, opposite verdicts, because a keyword is measured by a search
+endpoint and a prompt is answered by a model. Reading rule 2 as a general instruction to keep
+geography out is exactly the mistake this rule exists to stop.
+
+**Where it came from:** Example Community Bank's Example County consumer-lending campaign, read 2026-08-19.
+Three prompts were written without a place name ("who offers them locally", "do local banks offer
+consolidation loans") or scoped to the whole state. All three read 0% visibility across five
+samples each. The three that named Example County or Exampleton in their text read 100%, 100% and
+60%. Geography in the text is necessary and not sufficient: one prompt that did name the county
+still read 0%, which is a real visibility gap rather than a defective prompt.
+
+### Rule 23: a team's first campaign is the broad flagship; every one after it goes narrow
+
+**The trap:** the first campaign gets scoped to whatever topic the pitch conversation landed on.
+It measures that topic well and says nothing about anything else, so there is no answer to "how
+visible is this institution", only "how visible is it for HELOCs". Every later campaign is then
+compared against a baseline that never existed.
+
+**The rule:** the first campaign for a new team is the **flagship**: wide across the products, in
+one market. It covers the top 80 percent of what the institution actually offers, at roughly one
+prompt per product line: auto loans, home loans, checking, savings, CDs, retirement, personal
+loans, plus anything else that is genuinely core for that institution. That set is what gives a
+high-level visibility figure across the topics that matter, and what the client's progress is read
+against later.
+
+**Broad means broad across PRODUCTS. It does not mean every geography the institution serves.**
+That reading is the one to watch, because it sounds like the same idea and breaks the campaign:
+
+- **The geography is the most populated area the institution actually serves**, not its
+  headquarters town and not its whole charter footprint. Determine it from the branch footprint,
+  the field of membership or charter language, and the population of each area, then say which one
+  you picked and why. A first campaign scoped to a small home town measures a market too thin to
+  move.
+- **One campaign, one geography.** A campaign carries a single `set-campaign-location` value, so
+  one spanning three counties cannot buy local demand for any of them, and its prompts cannot all
+  name the place (rule 22). Additional markets are additional campaigns.
+
+**Every campaign after the flagship goes narrow:** one product or service, with granular consumer
+prompts, built by `exp-research` on whichever product the flagship shows is both weak and in
+demand. That ordering is the point. A first campaign chosen for depth is a guess about where the
+opportunity is; the flagship measures it.
+
+**Granular is not the same as unscoped.** A narrow campaign's prompts still name the place, exactly
+as the flagship's do: "best used car loan in Example County", not "best auto loan rate near me".
+
+**Experiments attach the narrow campaign's granular prompts, never the flagship's.** An
+institution-level prompt dilutes the measurement of what one article did, and the flagship's job is
+to stay comparable over time rather than to move. Attach every granular prompt the article could
+plausibly move: an effect that lands on a sibling prompt is invisible to a single-prompt
+experiment.
+
+**Where it came from:** Ryan, 2026-08-19, reviewing new-team setup. Example Community Bank had three
+campaigns, all narrow single-topic ones (consumer lending, deposits, business banking) and no
+flagship, so there was no single number for the institution's visibility and no way to say whether
+it was improving. The "every geography it serves" reading was written into the skills the same day
+and corrected here: it cannot be satisfied by a campaign, which holds one geography.
 
 ---
 
@@ -129,12 +265,12 @@ citation list, and say the sample size in the analysis whenever N is below four,
 two-of-two read is a weaker verdict than a two-of-four one and the client's reviewer deserves to see
 which they are looking at.
 
-**Where it came from:** the abandoned experiment 102. Thirty-two baseline responses across four
-target prompts contained zero specific lender mentions in body text. The article would have
-published into a slot the model never fills. The pivot to lender-decision-shaped prompts, where the
-gate passes, is what made the follow-on experiment work. The absolute four became budget-relative
-after the M14 QA run (2026-07-27), where a Starter team's 50 responses a month made a fixed four
-per prompt unreachable across a normal candidate set.
+**Where it came from:** the same abandoned Wisconsin experiment (ID 102). Thirty-two baseline
+responses across four target prompts contained zero specific lender mentions in body text. The
+article would have published into a slot the model never fills. The pivot to lender-decision-shaped
+prompts, where the gate passes, is what made the follow-on experiment work. The absolute four became
+budget-relative after the M14 QA run (2026-07-27), where a Starter team's 50 responses a month made
+a fixed four per prompt unreachable across a normal candidate set.
 
 ### Rule 6: document the single-provider caveat every time
 
@@ -152,14 +288,26 @@ before anyone leans on the result for cross-model claims.
 
 ## Experiment design
 
-### Rule 7: do not pre-set the measurement start date
+### Rule 7: never type a live date
 
-**The trap:** setting `started_at` when the experiment record is created starts the 28-day
-measurement clock before the article is live. Baseline drift accumulates while days tick off.
+**The trap:** dating the experiment when the record is created starts the measurement clock before
+the article is live. Baseline drift accumulates while days tick off, and the grade that comes out
+is anchored on the day somebody filled in a form.
 
-**The rule:** create the experiment as `status: "draft"` with no dates. The status flips to
-`published` when the article actually goes live, and that is what starts the clock. The baseline
-window derives from the pre-publish period.
+**The rule:** an experiment has ONE date, its live date, and it is the day the article actually
+went live. `create-experiment` has no start-date argument at all. The live date arrives with the
+publication: `record-deliverable-publication` for an article published in the institution's own
+CMS, `set-deliverable-status published` for one published through the platform. Both set it and
+both re-grade the experiment. Recording a workflow note sets no date.
+
+`update-experiment(live_date)` is the last resort, for an experiment with no deliverable to
+propagate from. It is recorded as **asserted**: a human's claim with no artifact behind it. Every
+live date carries a source — `inherited` (migrated, nobody checked it), `asserted`, `recorded`
+(from a publication with a URL) — and **none of them means verified**. Nothing in the platform
+proves an article was live on the day it claims, so never present a date as confirmed.
+
+Correcting a live date re-grades the experiment and files a changed-outcomes row, so a correction
+is a real event with a real consequence, not a tidy-up. Make it deliberately.
 
 ### Rule 8: targets are a subset of the campaign, and non-targets keep running
 
@@ -167,10 +315,19 @@ window derives from the pre-publish period.
 away their visibility tracking. A prompt that fails the institution-citation gate today can pass it
 later as model training data moves.
 
-**The rule:** the campaign holds every demand-grounded prompt. Experiment targets are a subset,
-typically six to ten, attached with `update-experiment`. Non-target prompts stay in the campaign
-for monitoring; they simply do not get the article's structural attention. When a pivot adds
-prompts, attach them with `prompt_ids_mode: "add"` so the originals are not detached.
+**The rule:** the campaign holds every demand-grounded prompt. The experiment attaches its
+measurement scope: the locked targets plus every campaign prompt the planned article could
+plausibly move. There is no required count — sweep the campaign with `list-prompts`, attach for
+coverage, and name any campaign prompt you excluded and why. What matters is that at measurement
+time no prompt the article lifted was left off the experiment. Prompts left unattached stay in
+the campaign for monitoring; they simply do not get the article's structural attention. When a
+pivot adds prompts, attach them with `prompt_ids_mode: "add"` so the originals are not detached.
+A consumer question the article answers that no campaign prompt covers may become a new prompt
+only through the demand gate (rules 1 to 3) and only before the article goes live, so it accrues
+a baseline — a prompt created at publish time has no baseline and can never be measured. A new
+prompt must then be attached (`prompt_ids_mode: "add"`) and its responses confirmed populated
+before publish; created-but-unattached is still invisible. The article never justifies a prompt;
+demand does.
 
 ---
 
@@ -302,6 +459,76 @@ person, no regulation numbers. Context: two sentences at most, why it matters (c
 the regulation in plain terms), then the default if nobody answers. Every non-attestation item has a
 stated default, and an item with a safe default is `blocking: false`. The attestation goes last.
 Target: zero action items per deliverable.
+
+---
+
+### Rule 24: classify the article that shipped, against the live page
+
+**The trap:** the content tags used to be set during the build phase, on the recommendation,
+before anything was published, and nothing revisited them afterwards. So they recorded what we
+meant to publish. One hand-audited experiment moved from Resource Page to Blog Post and from Long
+to Medium the moment someone read the live page, and "long-form resource pages win" is computed
+from these labels. A classification nobody checked against the artifact is not evidence.
+
+**The rule:** once the article is live, call `set-deliverable-tags` on its deliverable, judging
+the page at its published URL. Not the outline, not the draft, not the recommendation.
+
+**The vocabulary is fixed, and its definitions live on the platform.** These are the current
+values, quoted from `geo_tags.description`:
+
+| Group | Value | Definition, verbatim |
+|---|---|---|
+| Content Length | `Short` | `0-500 words` |
+| Content Length | `Medium` | `500-3000 words` |
+| Content Length | `Long` | `3000+ words` |
+| Content Location | `Blog Post` | `Time-based or thought leadership content` |
+| Content Location | `Resource Page` | `Evergreen educational content (guides, research, explainers)` |
+| Content Location | `Product / Service Page` | `Core offering or feature pages` |
+| Content Location | `Landing Page` | conversion-focused campaign pages |
+| Content Location | `Support Page` | help and service content |
+| Content Location | `Trust Page` | credibility and reassurance content |
+| Content Intention | `Explain` | what X is |
+| Content Intention | `Guide` | how to do X |
+| Content Intention | `Compare` | X versus Y |
+| Content Intention | `Persuade` | why us |
+
+**The platform's own values are authoritative, not this table.** Staff can edit a tag's
+description at any time, so this copy can go stale and the platform's cannot. `set-deliverable-tags`
+reads the live rows on every refusal, so calling it with a name it does not recognise prints the
+current groups, values and definitions. Do not invent a value, do not rename one, and do not
+write a competing definition anywhere.
+
+**Content Location: presentation wins over URL structure.** A dated permalink is an artifact of
+the publishing tool, not an editorial decision, and the definitions above say nothing about URLs.
+One observable test, in order. Take the first step that answers yes and stop:
+
+1. **Is it a core offering or feature page?** Then `Product / Service Page`. This is asked first
+   because a product page routinely carries a rate-effective or "last updated" date, and that
+   date is a maintenance artifact, not evidence that the page is a post.
+2. **Otherwise, does the page present itself as dated?** A visible publication or "last updated"
+   date, or it sits in a rolling posts or blog index. If yes, `Blog Post`.
+3. **Otherwise, is it evergreen educational content?** Then `Resource Page`, **even under a dated
+   permalink**.
+
+Record the signals you observed alongside the tag, in the decision document, so a later reviewer
+can see why the page was filed where it was. Expect this test to GROW the Resource Page bucket
+rather than shrink it; say so plainly when the numbers move.
+
+**Content Length at a band boundary: take the higher band.** The published bands touch at 500 and
+3000, so an article of exactly 500 words is `Medium` and one of exactly 3000 words is `Long`. That
+is the reading `3000+` already implies. The band text itself is the platform's and is quoted
+verbatim above; this settles how to read it, and does not edit it.
+
+**Content Intention: one primary, optionally one secondary.** An article may genuinely both
+explain and compare. Pass the leading intention as `primary_intention` and the other in `tags`.
+**Insights count the primary only**, so nothing is ever counted in two buckets — double counting
+is exactly what inflated the finding this rule exists to make trustworthy. Content Length and
+Content Location take one value each; there is no secondary there, and an article that seems to
+need one is a classification question, not a second tag.
+
+**Where it came from:** issue #338. Only 26 of 67 finished experiments carried a complete tag
+set, agents had no write path at all, and the tags that did exist described intentions rather
+than artifacts.
 
 ---
 
