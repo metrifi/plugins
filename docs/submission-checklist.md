@@ -730,7 +730,7 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > justifications at `b1c67b6` (the September appeal got names in two days). A handler audit
 > against OpenAI's current plugin guide ("Correct annotation": destructive false "only for
 > additive writes without destructive or irreversible effects"; open world "Connectivity alone
-> does not determine this value") changed 36 hints in METRIFI_PLATFORM_PR at surface 1.4.18,
+> does not determine this value") changed 36 hints in [metrifi-platform#647](https://github.com/metrifi/metrifi-platform/pull/647) at surface 1.4.18,
 > fingerprint `e2683da8aa38cd042aca383761514b594adcbac720da3815c91c92dc3af5dc98`: 25 reads that
 > only touch the team's own GitHub repo, Vercel project, Google Analytics or Supabase went closed
 > world; `create-site`, `run-prompt`, `run-campaign-prompts`, `generate-recommendation` and
