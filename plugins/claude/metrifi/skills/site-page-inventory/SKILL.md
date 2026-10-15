@@ -3,6 +3,7 @@ name: site-page-inventory
 description: >-
   Crawl a financial institution's existing website and produce a page-count analysis that splits every page into
   build buckets: pages worth conversion copywriting, pages that only need content migrated, and pages to drop.
+  Its headline is the quote page count, the one number to enter in MetriFi's pricing calculator.
   Use when scoping a new credit union or community bank site build, sizing a quote, or answering "how big is
   their site really and where does the copywriting effort actually go?" Trigger phrases include "run a crawl of
   their site", "page count analysis", "inventory their website", "how many pages does [institution] have",
@@ -11,24 +12,54 @@ description: >-
   (that is the client-report skill), and not for pages on a site MetriFi already built.
 metadata:
   author: metrifi
-  version: '1.0'
+  version: '1.1'
 ---
 
 # Site page inventory
 
 Crawl an institution's existing site once, then turn the raw page list into a scoping decision.
 
-The crawl is commodity. The value is the categorization and the junk it exposes, so do not stop at a
-page count. A bare number ("232 pages") is almost useless for scoping, and worse than useless when a
-big blog archive is inflating it.
+The crawl is commodity. The value is the categorization and the junk it exposes. But the person
+reading the result has one question first: **what number goes into the pricing calculator?** Answer
+that before anything else, as one number, every time.
 
-**The headline is the non-blog page total, split into copywriting vs setup-only.** In that order,
-in the first two sentences, before any junk findings or duplicate analysis:
+## The quote page count
 
-> *"126 non-blog pages. Of those, 76 deserve copywriting attention and 47 are setup-only."*
+The **quote page count** is the number of pages to price the build on. It matches how MetriFi's
+pricing counts pages: blog and news posts are not counted, because migrating them is included at any
+volume.
 
-The total live page count is context, not the headline. The blog is bulk migration and does not scale
-the quote, so a total that folds it in overstates the job.
+> **Quote page count = live pages − blog and news posts − duplicates and junk**
+
+- **Live pages** are HTTP 200 and deduplicated on canonical URL (step 2).
+- **Blog and news posts** include their category, tag, and pagination archives. They also include
+  dated feed items such as event listings and press releases: they are news posts by another name.
+- **Duplicates and junk** are everything in the delete bucket (step 4): duplicate URLs, soft 404s,
+  empty stubs, test pages, expired content.
+- **Templated pages still count.** Twenty branch pages built from one location template are twenty
+  pages in the quote. The calculator counts pages, not templates.
+- **PDFs are not pages.** Report them on their own line if there are many.
+
+Every report opens with this block, before any table, finding, or explanation:
+
+```
+Quote page count: 123  (enter this in the pricing calculator)
+
+- Copywriting: 76 of the 123
+- Setup-only: 47 of the 123
+- Blog and news posts: 75, not counted
+- Removed as duplicates or junk: 34, not counted
+- Live pages crawled: 232
+```
+
+Before reporting, check that the numbers add up: copywriting + setup-only = quote page count, and quote
+page count + blog and news posts + removed = live pages crawled. If they don't add up, a page is in two
+buckets or none. Fix that before sending.
+
+Never lead with the live page count, and never give a number that still includes blog posts or
+duplicates as if it were the size of the job. A judgment call that moves the quote count goes right
+under the block, with the number each way. Example: *"115 if the 8 event pages count as news, 123
+if not."*
 
 ## When to use this
 
@@ -124,8 +155,9 @@ login help, transactional stubs.
 
 **Delete or duplicate** — should not carry to the new site. See step 4.
 
-**Blog / news** — split this out as a fourth bucket whenever the archive is large enough to distort
-the split (techcu.org had 40 of 117 pages in blog alone; fvsbank.com had 75 of 232). Treat it as bulk
+**Blog / news** — always its own bucket, because it is excluded from the quote page count. Event
+listings, press releases, and other dated feed items go here too. Archives are usually large enough to
+distort the split (techcu.org had 40 of 117 pages in blog alone; fvsbank.com had 75 of 232). Treat it as bulk
 migration with a prune pass, never per-page copywriting. Folding a blog archive into "setup-only"
 hides the real shape.
 
@@ -189,13 +221,14 @@ keep. On hondafcu.org it caught 12 pages that would otherwise have been migrated
 
 Match the deliverable to why the inventory was run. Do not default to a spreadsheet.
 
-- **Sales or scoping conversation** → the headline split in prose, plus the bucket lists grouped by
-  product family. Lead with the non-blog total and its copywriting/setup-only breakdown, because
-  together those are what size the quote.
+- **Sales or scoping conversation** → the quote page count block first, then the bucket lists
+  grouped by product family, then the junk findings.
 - **Build handoff** → a spreadsheet via the `xlsx` skill. Two tabs (Summary, Page Inventory),
   color-coded by category, sorted, filterable.
-- **CRM record** → a note on the deal with headline counts, the categorized inventory, and a method
-  line noting the count is distinct pages rather than template variants.
+- **CRM record** → a note on the deal that opens with the quote page count block, then the categorized
+  inventory.
+
+Every format, the spreadsheet's Summary tab included, opens with the same quote page count block.
 
 Always include the caveat that the copywriting count reflects distinct pages, not template variants.
 Several product pages usually collapse into shared layouts at build time, which only strengthens the
