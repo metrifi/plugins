@@ -722,6 +722,24 @@ folder, plugin, app, or other software... for inclusion in any Anthropic directo
 > cases' read tools returned the expected data. Until the decision: no tool text, schema, hint,
 > instruction or prompt change; do not change the reviewer's password (it revokes OAuth grants).
 >
+> **`[!]` REJECTED 2026-10-15** (v1.4.17; the portal labels it "MetriFi (v1.0.0)"). Same template
+> as 2026-09-17 and no tools named: "One or more of your tool's annotations do not appear to match
+> the tool's behavior. Please confirm annotations are explicitly set to true or false (not null)
+> for every tool." All 161 tools already emitted four booleans, so the operative clause is the
+> mismatch. An appeal asking for the named tools was drafted the same day, linking the v4
+> justifications at `b1c67b6` (the September appeal got names in two days). A handler audit
+> against OpenAI's current plugin guide ("Correct annotation": destructive false "only for
+> additive writes without destructive or irreversible effects"; open world "Connectivity alone
+> does not determine this value") changed 36 hints in [metrifi-platform#647](https://github.com/metrifi/metrifi-platform/pull/647) at surface 1.4.18,
+> fingerprint `e2683da8aa38cd042aca383761514b594adcbac720da3815c91c92dc3af5dc98`: 25 reads that
+> only touch the team's own GitHub repo, Vercel project, Google Analytics or Supabase went closed
+> world; `create-site`, `run-prompt`, `run-campaign-prompts`, `generate-recommendation` and
+> `record-deliverable-check` went destructive; `revoke-invitation`, `remove-member`,
+> `set-member-role`, `set-experiment-opportunity`, `set-experiment-document` and `create-prompt`
+> went open world. Justifications v5, checker no longer treats naming GitHub, Vercel or Google as
+> open world, release notes rewritten in `openai/package.json`. Lesson: our open-world rule
+> counted any outside API call; OpenAI counts what the tool reaches, not what it connects to.
+>
 > Post-approval: the MCP server origin is locked to `https://platform.metrifi.com/mcp`; skills
 > ship to Codex users only when the version bumps; ChatGPT pulls the published bundle.
 

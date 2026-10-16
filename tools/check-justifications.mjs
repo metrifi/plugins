@@ -85,12 +85,15 @@ if (!partial) {
 // Words that negate a keyword when they appear in the same sentence.
 const NEGATION = /\b(no|not|nothing|never|none|neither|nor|without|cannot|nobody|no one)\b|n't\b/i;
 
+// Naming GitHub, Vercel or Google is not a contradiction for open world false: a read of the
+// team's own private repo, Vercel project or Analytics property is closed world. OpenAI:
+// "Connectivity alone does not determine this value." (2026-10-15)
 const RULES = [
     {
         key: 'openWorld',
         when: false,
         what: 'says it reaches outside the team',
-        re: /\b(client|clients|client's|email|emails|emailed|recipients?|public|publicly|external|another customer|other customers?|GitHub|Vercel|Google|OpenAI|DataForSEO)\b/i,
+        re: /\b(client|clients|client's|email|emails|emailed|recipients?|public|publicly|external|another customer|other customers?|OpenAI|DataForSEO)\b/i,
     },
     { key: 'destructive', when: false, what: 'says it sends, deletes or overwrites', re: /\b(sends?|sent|emails|emailed|deletes?|deleted|overwrites?|overwritten)\b/i },
     { key: 'idempotent', when: true, what: 'says a repeat does more', re: /\b(each|every) call\b|\bagain creates?\b|\bcreates?\b[^.]*\bagain\b/i },
