@@ -154,8 +154,11 @@ on purpose; the MCP surface is just a side effect of ordinary feature work in an
 
 Three mechanisms keep that from happening again.
 
-**The surface lock.** The platform repo commits a `tools/list` snapshot and CI fails if a
-change moves it without the snapshot being regenerated deliberately. A handler fix leaves
+**The surface lock.** The platform repo commits a `tools/list` snapshot, and its pre-merge
+check and Forge deploy gate fail if a change moves it without the snapshot being
+regenerated deliberately. While a review is open, the submitted digest is pinned in Forge
+(the deploy gate refuses any other surface) and committed in
+`resources/mcp/submitted-surface.sha256` (the test suite fails on a regenerated snapshot). A handler fix leaves
 the snapshot untouched and deploys freely. A new tool, a renamed field or a reworded
 description shows up as a failing diff, which is the point. See
 `docs/mcp-surface-versioning.md` in the platform repo.
@@ -185,6 +188,31 @@ moved side effects out of four read paths so `get-site`, `get-preview-url`,
 `get-team-health` and `get-master-health` become read-only again. It was correct and it was
 held, because merging it would have made the live server contradict the submitted
 annotations mid-review.
+
+**What else must hold until the decision.** None of this is in the surface digest, so no
+gate catches it. Each one has broken, or could break, what the reviewer sees.
+
+- **The reviewer account.** Do not change `reviewer@metrifi.com`'s password (it revokes
+  OpenAI's sign-in), give it a platform role (it would list the staff-only tools), or remove
+  it from `MFA_EXEMPT_EMAILS` (it would need an emailed code). Its team,
+  `reviewer-test-account`, needs a paid GEO period, not a trial: `run-prompt` and
+  `run-campaign-prompts` refuse an ended trial, and `get-experiment-insights` refuses any
+  trial. Use "End trial" on `/id/admin/teams/reviewer-test-account`, which opens an
+  open-ended period without Stripe. `[LOCAL 2026-10-16]`: the trial had lapsed on the day of
+  the v1.4.18 resubmission.
+- **Forge environment.** `MCP_PUBLISHED_SURFACE`, `MCP_SUBMITTED_SURFACE_SHA256` and
+  `OPENAI_APPS_CHALLENGE_TOKEN` (domain verification, gate 10) stay as submitted.
+- **The portal.** Do not click "Upload new version" or rescan while signed in to MetriFi as
+  staff. The portal keeps the MCP sign-in it was given; a staff sign-in makes the scan list
+  171 tools and flag staff-only tools. To change it, revoke the ChatGPT clients at
+  `/id/account` as that user first. `[LOCAL 2026-10-16]`
+- **The justifications on `main`.** The release notes link to
+  `docs/openai-tool-justifications.md` on `main`, so it changes only with the surface.
+- **The demo data.** After each review round, check that the test cases still read true.
+  Test case 3 leaves a scheduled rate change on the `goldenpeakcu` draft; once its date
+  passes, the 12-month certificate reads 4.50% and test case 2's 4.25% is wrong. Delete
+  leftover changes with `cancel-scheduled-change`. Test case 5 quotes live Google Analytics
+  counts, which drift.
 
 ---
 
