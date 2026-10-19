@@ -14,7 +14,7 @@ There are **three separate submissions**, each with its own gate:
 
 | # | Directory | What is listed | Where to submit | Source |
 |---|-----------|----------------|-----------------|--------|
-| A | Claude plugin directory (lands in the `claude-community` marketplace, used by Claude Code, Cowork and Desktop) | this GitHub repo | [platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit) | [AN-PLUG] [CC-PLUG] |
+| A | Claude plugin directory (lands in the `claude-community` marketplace, used by Claude Code, Cowork and Desktop) | this GitHub repo | [claude.ai/directory/manage](https://claude.ai/directory/manage) (the Console form at `platform.claude.com/plugins/submit` is closed, found 2026-10-09) | [AN-PLUG] [CC-PLUG] |
 | B | Claude Connectors Directory (claude.ai + Desktop) | `https://platform.metrifi.com/mcp` | [claude.ai/admin-settings/directory/submissions/new](https://claude.ai/admin-settings/directory/submissions/new) | [AN-SUB] |
 | C | OpenAI Plugins Directory (ChatGPT **and** Codex, one listing) | plugin = MCP app + skills | [platform.openai.com/plugins](https://platform.openai.com/plugins) | [OA-SUBP] |
 
@@ -198,6 +198,10 @@ Checked against the live repo and the live server on **2026-07-23**, not assumed
 > lists `credibledata/credible-plugin` ("All rights reserved") and BSL-licensed plugins, and
 > 27 of 182 sampled listed repos have no license at all. The docs also recommend submitting
 > the MCP server separately as an **MCP connector** and pairing the two listings (section B).
+>
+> **Resubmission runbook:** [anthropic-resubmission.md](anthropic-resubmission.md) has the exact
+> form values, the step order, the 2026-10-19 validate results, and each prior denial reason
+> with how it is addressed.
 
 Automated screening of the repo. [AN-PLUG]: "Anthropic performs basic automated review on
 submissions before adding them to the directory." No functional test of the MCP server, so
@@ -292,7 +296,9 @@ being listed, and several developers have been stuck between the two for months.
   the listing description advertises." **Action: after listing, periodically verify the pinned
   `sha` in the catalog matches our latest release.**
 - **The README's submission link was dead.** [C-GH22] dspv, 2026-05-05: the URL "resolves to a
-  **non-existent domain** (`DNS_PROBE_FINISHED_NXDOMAIN`)". Use `platform.claude.com/plugins/submit`.
+  **non-existent domain** (`DNS_PROBE_FINISHED_NXDOMAIN`)". Use
+  [claude.ai/directory/manage](https://claude.ai/directory/manage); the Console form at
+  `platform.claude.com/plugins/submit` is closed (see the resubmission route above).
 
 ---
 
