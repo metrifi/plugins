@@ -239,7 +239,7 @@ submissions before adding them to the directory." No functional test of the MCP 
 - `[x]` Plugin bundles a coherent job. [AN-PLUG]: "The best plugins bundle related capabilities
   together into a coherent package that solves a specific job function or workflow end-to-end.
   Rather than exposing a single tool, a good plugin combines skills, connectors, slash commands,
-  and sub-agents." We ship a connector plus four skills.
+  and sub-agents." The Claude plugin ships a connector plus 11 skills (1.4.19).
 - `[ ]` Consider a `SETUP.md`. [AN-PLUG]: "Plugins can include a `SETUP.md` skill to guide Claude
   through configuring and connecting any MCP servers bundled in the plugin."
 - `[ ]` Prefer connectors already in the Connectors Directory. [AN-PLUG]: "we strongly encourage
@@ -481,7 +481,11 @@ source given; **do not repeat that number, it is unsourced.**
   "Reviewers should test within 10 minutes."
 - `[ ]` **Three working example prompts.** [AN-POL] requires developers "provide three working
   prompt examples demonstrating core features." [C-DEV] (first-hand) independently advises "At
-  least 3 example prompts exercising different tools" plus "Expected output samples."
+  least 3 example prompts exercising different tools" plus "Expected output samples." For the
+  plugin bundle (section A) this is done: the plugin README's **Try it** section carries three
+  read-only prompts (Site Builder, GEO, CRO) that run against the Golden Peak demo data on the
+  reviewer account, matching OpenAI test cases 2, 4 and 5, with a troubleshooting section for Policy 3C (Claude 1.4.19, #49). The connector listing still
+  needs its own. `[LOCAL]`
 - `[ ]` Privacy policy URL. [AN-SUB] warns: "Missing or incomplete privacy policies result in
   immediate rejection." Content must cover "Data collection practices / Usage and storage /
   Third-party sharing / Data retention / Contact information." `[LOCAL: policies exist]`

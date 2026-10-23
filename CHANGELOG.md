@@ -4,6 +4,10 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.4.19 (Claude only) — 2026-10-23
+
+- Claude only, no MCP surface change. Codex stays at 1.4.18, frozen while OpenAI reviews it, so `MCP_PUBLISHED_SURFACE` does not move: do not raise it to 1.4.19 for this release. Platform tools tagged `ShipsIn('1.4.19')` appear with the next OpenAI submission, which will be 1.4.20 or later. Anthropic directory readiness (#49): the Claude plugin drops `generate-claude-design-system` and `generate-claude-design-page` (the Codex plugin keeps them); `client-report` and `page-design-process` say their process docs are first-party content from the plugin's own `metrifi` connector; the client-link line in the workflow overview no longer reads like a credential; the plugin README gains three read-only example prompts on the Golden Peak demo data, a troubleshooting section, and discloses the local audit scripts the fetched `client-report` process doc asks for; `page-design-process` no longer names Claude Design. Tooling: `tools/hosts.json` pins the Codex freeze (`v1.4.18`, `6ef4817`) and lists the allowed Claude-only differences; `validate.mjs` hard-codes the same pin, fails when `hosts.json` disagrees with it (so lifting the freeze is a `validate.mjs` change), enforces the allowed differences, and fails closed on a missing or moved tag; `release.mjs` releases Claude only while Codex is frozen, and refuses `--host claude` when it isn't.
+
 ## 1.4.18 — 2026-10-15
 
 - OpenAI resubmission release. Justifications v5 for platform MCP surface 1.4.18: 36 tool hints re-read against OpenAI's current wording (25 reads closed world, 5 writes destructive, 6 writes open world). Checker no longer treats naming GitHub, Vercel or Google as open world. No skill changes.
