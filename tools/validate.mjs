@@ -1,17 +1,39 @@
 #!/usr/bin/env node
 // Structural validation for the MetriFi plugin release artifact. Runs without the
 // Claude Code CLI so it works in CI. Checks: manifests parse and carry a version;
-// the Claude and Codex plugins declare the same version; the Codex skills are a
-// byte-for-byte mirror of the Claude skills (they must never drift); each skill's
-// synced reference docs match their single source in reference-src/; and no skill
-// body carries anything that only works on one host or on one machine.
+// the Claude and Codex versions agree (while Codex is frozen, Claude may run ahead
+// but never behind); the Codex skills mirror the Claude skills byte for byte except
+// for the Claude-only differences listed in tools/hosts.json, and every listed
+// difference still exists; while Codex is frozen, nothing under its frozen paths has
+// changed since the freeze commit; each skill's synced reference docs match their
+// single source in reference-src/; and no skill body carries anything that only works
+// on one host or on one machine.
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { planReferenceSync, listSkillReferenceFiles, REFERENCE_SRC, REFERENCE_MAP } from './reference-sync.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const errors = [];
 const j = (p) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
+let hosts;
+try {
+    hosts = j('tools/hosts.json');
+} catch (e) {
+    console.error(`✗ validation failed:\n  - tools/hosts.json: ${e.message}`);
+    process.exit(1);
+}
+// The Codex freeze is pinned here, not only in tools/hosts.json, so editing hosts.json
+// (setting frozen: false, moving the tag, dropping a path) can't switch the gate off;
+// hosts.json must agree with this pin or validation fails. Lifting the freeze after
+// OpenAI decides is a deliberate change to this file: set CODEX_FREEZE to null and set
+// codex.frozen to false in hosts.json in the same commit.
+const CODEX_FREEZE = {
+    tag: 'v1.4.18',
+    commit: '6ef4817f604aa558c95f473dc70f730cb0af510e',
+    paths: ['plugins/codex', 'openai', '.agents', 'docs/openai-tool-justifications.md'],
+};
+const FROZEN = CODEX_FREEZE !== null;
 
 // 1. Marketplaces parse and reference the metrifi plugin.
 for (const mp of ['.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json']) {
@@ -41,9 +63,22 @@ try {
 } catch (e) {
     errors.push(`${codexManifest}: ${e.message}`);
 }
-if (cv && xv && cv !== xv) errors.push(`version mismatch: claude ${cv} vs codex ${xv} — run tools/release.mjs`);
+const semver = (v) => v.split('.').map(Number);
+const cmp = (a, b) => {
+    const [x, y] = [semver(a), semver(b)];
+    for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] - y[i];
+    return 0;
+};
+if (cv && xv && /^\d+\.\d+\.\d+$/.test(xv)) {
+    if (FROZEN && cmp(cv, xv) < 0) errors.push(`version: claude ${cv} is behind frozen codex ${xv}; Claude may run ahead of Codex, never behind`);
+    if (!FROZEN && cv !== xv) errors.push(`version mismatch: claude ${cv} vs codex ${xv} — run tools/release.mjs`);
+} else if (xv !== undefined) {
+    errors.push(`${codexManifest}: version must be x.y.z (got ${xv})`);
+}
 
-// 3. Codex skills must mirror Claude skills exactly (no drift).
+// 3. Codex skills mirror Claude skills exactly, except the Claude-only differences
+//    tools/hosts.json lists. An unlisted difference fails, and so does a listed one
+//    that no longer differs, so the allowlist can never outlive the drift it explains.
 const claudeSkills = 'plugins/claude/metrifi/skills';
 const codexSkills = 'plugins/codex/metrifi/skills';
 const listSkillFiles = (dir) => {
@@ -61,11 +96,25 @@ const listSkillFiles = (dir) => {
 try {
     const a = listSkillFiles(claudeSkills);
     const b = listSkillFiles(codexSkills);
+    const excluded = (hosts.claudeOnly?.excludedSkills || []).map((e) => e.skill);
+    const divergent = new Set((hosts.claudeOnly?.divergentFiles || []).flatMap((e) => e.paths));
+    const skillOf = (k) => k.split('/')[0];
     const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
     for (const k of keys) {
+        if (excluded.includes(skillOf(k))) continue;
         if (a[k] === undefined) errors.push(`codex has extra skill file: ${k}`);
         else if (b[k] === undefined) errors.push(`codex missing skill file: ${k} — run tools/release.mjs`);
-        else if (a[k] !== b[k]) errors.push(`skill drift in ${k}: codex differs from claude — run tools/release.mjs`);
+        else if (a[k] !== b[k] && !divergent.has(k)) errors.push(`skill drift in ${k}: codex differs from claude and tools/hosts.json does not list it`);
+    }
+    for (const skill of excluded) {
+        const inClaude = Object.keys(a).some((k) => skillOf(k) === skill);
+        const inCodex = Object.keys(b).some((k) => skillOf(k) === skill);
+        if (inClaude) errors.push(`stale allowlist entry: ${skill} is listed as excluded from Claude in tools/hosts.json but ${claudeSkills}/${skill} exists`);
+        if (!inCodex) errors.push(`stale allowlist entry: ${skill} is listed as excluded from Claude in tools/hosts.json but is not in ${codexSkills}`);
+    }
+    for (const k of divergent) {
+        if (a[k] === undefined || b[k] === undefined) errors.push(`stale allowlist entry: ${k} in tools/hosts.json is missing from ${a[k] === undefined ? 'claude' : 'codex'}`);
+        else if (a[k] === b[k]) errors.push(`stale allowlist entry: ${k} in tools/hosts.json no longer differs between claude and codex; remove it`);
     }
     // Every skill has frontmatter with name + description.
     for (const [k, body] of Object.entries(a)) {
@@ -137,8 +186,45 @@ try {
     errors.push(`skill bodies: ${e.message}`);
 }
 
+// 6. Codex freeze gate. While OpenAI reviews a Codex package, nothing under the frozen
+//    paths may change. The pinned tag must resolve to the pinned commit, and every
+//    git call must exit 0: a missing tag, a moved tag, a shallow clone without the
+//    commit, or any git error fails here instead of passing silently. The gate runs on
+//    CODEX_FREEZE above; tools/hosts.json only has to agree with it.
+if (FROZEN) {
+    const { tag, commit, paths } = CODEX_FREEZE;
+    const h = hosts.codex || {};
+    const samePaths = Array.isArray(h.paths) && h.paths.length === paths.length && paths.every((p) => h.paths.includes(p));
+    if (h.frozen !== true || h.frozenAt?.tag !== tag || h.frozenAt?.commit !== commit || !samePaths) {
+        errors.push(`freeze gate: tools/hosts.json codex block disagrees with the pin in tools/validate.mjs (frozen: true, ${tag}, ${commit}, paths ${paths.join(', ')}). Lifting the freeze is a change to validate.mjs, not to hosts.json`);
+    }
+    const git = (...a) => spawnSync('git', a, { cwd: ROOT, encoding: 'utf8' });
+    const why = (r) => (r.error ? r.error.message : (r.stderr || '').trim() || `exit ${r.status}`);
+    const t = git('rev-parse', '--verify', '--quiet', `refs/tags/${tag}^{commit}`);
+    if (t.status !== 0) {
+        errors.push(`freeze gate: tag ${tag} is missing (${why(t)}). Fetch tags (git fetch --tags origin) and run again`);
+    } else if (t.stdout.trim() !== commit) {
+        errors.push(`freeze gate: tag ${tag} resolves to ${t.stdout.trim()}, not the pinned ${commit}. The tag moved; do not repoint it`);
+    } else {
+        const d = git('diff', '--name-only', commit, '--', ...paths);
+        if (d.status !== 0) errors.push(`freeze gate: git diff against ${tag} failed (${why(d)})`);
+        else if (d.stdout.trim()) {
+            errors.push(`freeze gate: Codex is frozen at ${tag} (${hosts.codex?.reason || 'OpenAI review open'}) but these changed:\n` + d.stdout.trim().split('\n').map((f) => '      ' + f).join('\n'));
+        }
+        const u = git('ls-files', '--others', '--exclude-standard', '--', ...paths);
+        if (u.status !== 0) errors.push(`freeze gate: git ls-files failed (${why(u)})`);
+        else if (u.stdout.trim()) {
+            errors.push(`freeze gate: untracked files under frozen paths:\n` + u.stdout.trim().split('\n').map((f) => '      ' + f).join('\n'));
+        }
+    }
+}
+
 if (errors.length) {
     console.error('✗ validation failed:\n' + errors.map((e) => '  - ' + e).join('\n'));
     process.exit(1);
 }
-console.log(`✔ validation passed (metrifi plugin v${cv}, claude + codex in sync)`);
+console.log(
+    FROZEN
+        ? `✔ validation passed (claude v${cv}, codex v${xv} frozen at ${CODEX_FREEZE.tag} and unchanged; Claude-only differences match tools/hosts.json)`
+        : `✔ validation passed (metrifi plugin v${cv}, claude + codex in sync)`,
+);

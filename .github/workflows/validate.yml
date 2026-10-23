@@ -8,8 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The Codex freeze gate in validate.mjs diffs against the tag pinned in
+          # tools/hosts.json and fails closed when it is missing, so CI needs tags.
+          fetch-depth: 0
+          fetch-tags: true
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Structural validation (manifests + Claude/Codex skill parity)
+      - name: Structural validation (manifests, Claude/Codex parity and allowlist, Codex freeze gate)
         run: node tools/validate.mjs

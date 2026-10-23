@@ -18,7 +18,7 @@ steps. The skills work after step 4; the MetriFi tools need step 6.
    repository**
 2. Paste `metrifi/plugins` and click **Sync**
 3. Click **MetriFi** in the list
-4. Click **Install**. You should see 12 skills and 1 connector.
+4. Click **Install**. You should see 11 skills and 1 connector.
 5. On the MetriFi plugin page, open the **Connectors** tab, click **Install**
    next to `metrifi`, and confirm **Add** in the dialog that shows
    `https://platform.metrifi.com/mcp`
@@ -46,9 +46,11 @@ codex mcp login metrifi
 - Account tools: whoami (answers "Who am I on MetriFi?"), team and member
   management (invite, roles, switching)
 - The MetriFi connector (`https://platform.metrifi.com/mcp`; OAuth with your MetriFi sign-in)
-- Skills: `generate-claude-design-system` → `generate-claude-design-page` →
-  `page-design-process` (the three-stage MetriFi site-design workflow; the full
-  methodology is fetched from MetriFi at runtime, behind your sign-in)
+- Skills: `page-design-process` (design and build new pages on a site whose design
+  system is set up; the full methodology comes from the MetriFi connector at run time,
+  behind your sign-in) and `client-report` (a measured audit of an existing site). On
+  Codex, `generate-claude-design-system` and `generate-claude-design-page` set up the
+  design system and prototype page first; the Claude plugin does not include them
 - GEO experiment skills: `start` (orient, then point you at the right skill),
   `exp-status` (a read-only rollup of where every experiment and deliverable
   stands), `campaign-setup` (a new institution to a baseline campaign: its
@@ -88,18 +90,27 @@ hosted MCP server always updates on its own, on both apps.
 
 ## Releasing (MetriFi maintainers)
 
-One command, so the Codex skills can't drift from the Claude skills and the version
-can't be forgotten (Claude Code only ships an update when the version changes):
+One command, so the version can't be forgotten (Claude Code only ships an update when
+the version changes) and the Codex skills differ from the Claude skills only where
+[`tools/hosts.json`](tools/hosts.json) says they may:
 
 ```
 node tools/release.mjs --notes "what changed"     # patch bump; --minor / --set X.Y.Z
 ```
 
-It syncs the single-sourced reference docs into each consuming skill, regenerates the
-Codex skills from the Claude skills (Claude is the single source), bumps both manifests,
-updates the CHANGELOG, validates, and commits + tags + pushes.
+**While an OpenAI review is open, Codex is frozen.** The pin (tag, commit and frozen paths)
+is hard-coded in `tools/validate.mjs`, and `codex` in `tools/hosts.json` must match it, so
+lifting the freeze is a deliberate `validate.mjs` change, not a `hosts.json` edit. The release is Claude-only by default: it syncs the single-sourced reference docs into
+each consuming Claude skill, bumps only the Claude manifest, updates the CHANGELOG,
+validates, stages and commits only `plugins/claude`, `.claude-plugin/marketplace.json` and
+`CHANGELOG.md`, then tags and pushes. It never writes under `plugins/codex`, and refuses to
+run while anything under the frozen paths in `tools/hosts.json` (`plugins/codex`, `openai/`,
+`.agents/`, `docs/openai-tool-justifications.md`) is dirty. Once Codex is unfrozen and the
+Claude-only lists in `tools/hosts.json` are reconciled and empty, `--host all` is the joint
+release: it also regenerates the Codex skills from the Claude skills and bumps both
+manifests. `--host claude` is refused when Codex is not frozen.
 
-Both sync steps are deterministic file copies, so they can be run on their own, on any
+The sync steps are deterministic file copies, so they can be run on their own, on any
 branch, with no version bump and nothing committed:
 
 ```
@@ -115,8 +126,12 @@ once in `plugins/claude/metrifi/reference-src/` and copied by the map in
 `tools/reference-sync.mjs`. Add a doc there, list its consumers in that map, then run
 `--sync-only`.
 
-CI (`tools/validate.mjs`) guards structure, Claude/Codex parity, reference drift (a
-hand-edited copy fails the build), and the cross-host body rules: no skill may name a
+CI (`tools/validate.mjs`) guards structure, Claude/Codex parity (any difference not
+listed in `tools/hosts.json` fails, and so does a listed one that no longer differs), the
+Codex freeze (nothing under `plugins/codex`, `openai/`, `.agents/` or
+`docs/openai-tool-justifications.md` may change from the pinned tag, and a missing or moved
+tag fails), reference drift (a hand-edited copy fails the build), and the cross-host body
+rules: no skill may name a
 local runtime, a shell call, a host-specific variable, or a specific browser tool as a
 requirement.
 
@@ -148,4 +163,6 @@ See [NOTICE.md](NOTICE.md). Proprietary release artifact; not an open-source pro
 and not accepting external contributions. Authored content lives under
 `plugins/claude/metrifi/skills/` (the skills) and
 `plugins/claude/metrifi/reference-src/` (the shared reference docs); every synced copy
-and the whole Codex tree are generated by the release script.
+and the Codex skills are generated by the release script. While `tools/hosts.json` lists
+Claude-only differences, `plugins/codex/metrifi/skills/` is the only source for
+`generate-claude-design-system` and `generate-claude-design-page`.
