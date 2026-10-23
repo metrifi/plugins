@@ -10,6 +10,8 @@
   "homepage": "https://platform.metrifi.com",
   "repository": "https://github.com/metrifi/plugins",
   "license": "LicenseRef-Proprietary",
+  "icon": "./assets/icon.png",
+  "privacyPolicyUrl": "https://metrifi.com/legal/privacy-policy/",
   "keywords": [
     "metrifi",
     "credit-union",
