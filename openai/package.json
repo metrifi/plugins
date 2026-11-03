@@ -1,9 +1,6 @@
 {
   "name": "metrifi",
-  "excludeSkills": [
-    "generate-claude-design-system",
-    "generate-claude-design-page"
-  ],
+  "excludeSkills": [],
   "description": "One MetriFi sign-in connects ChatGPT and Codex to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) and adds the MetriFi skills: client-report for auditing an existing site, page-design-process for designing and building pages, campaign-setup for standing up a first baseline campaign, and the GEO experiment skills that run a campaign from research through to a reviewed client deliverable.",
   "extensions": {
     "com.openai": {
