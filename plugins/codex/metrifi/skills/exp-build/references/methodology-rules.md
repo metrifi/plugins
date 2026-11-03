@@ -297,8 +297,9 @@ is anchored on the day somebody filled in a form.
 **The rule:** an experiment has ONE date, its live date, and it is the day the article actually
 went live. `create-experiment` has no start-date argument at all. The live date arrives with the
 publication: `record-deliverable-publication` for an article published in the institution's own
-CMS, `set-deliverable-status published` for one published through the platform. Both set it and
-both re-grade the experiment. Recording a workflow note sets no date.
+CMS, `set-deliverable-status published` for one published through the platform. Both set it the
+same way and re-grade the experiment, except in the cases Rule 25 lists, where a publication leaves
+the date alone. Recording a workflow note sets no date.
 
 `update-experiment(live_date)` is the last resort, for an experiment with no deliverable to
 propagate from. It is recorded as **asserted**: a human's claim with no artifact behind it. Every
@@ -529,6 +530,53 @@ need one is a classification question, not a second tag.
 **Where it came from:** issue #338. Only 26 of 67 finished experiments carried a complete tag
 set, agents had no write path at all, and the tags that did exist described intentions rather
 than artifacts.
+
+### Rule 25: the launch date is the publication date, and a past window is never re-dated
+
+**The trap:** setting an experiment's live date re-grades it from the responses that exist today.
+During the September 2026 reconciliation, four concluded experiments were re-dated from their CMS
+publish dates and had to be put back the same day. The re-grades changed their stored scores, two
+came back with 0% baselines because moving the date also replaced a hand-set baseline window, and a
+fifth flipped LOSS to WIN on a URL-only correction whose date had not changed at all (issue #410).
+The platform has since closed those paths: a publication record no longer moves a concluded
+experiment's live date, a same-day record only relabels where the date came from and re-grades
+nothing, and moving a live date keeps a stored baseline window. One path still re-grades a finished
+experiment, on purpose: `update-experiment live_date`, which is how a person corrects a date
+deliberately.
+
+**The rule:** an experiment launched the day its content was published. That is the operator's
+definition, full stop. The launch date already on a past experiment is its publication date; if
+it was set differently at the time, there was a reason (a confound, a deliberate baseline reset),
+and it stands. What follows from that:
+
+- **`published_at` for an experiment that already has a launch date is that launch date.** A CMS
+  date that disagrees (a WordPress post stamp, a "last updated" line, a page re-created in a URL
+  clean-up) is informational. Note it with `add-experiment-event`; do not act on it.
+- **Never re-date a concluded experiment on your own.** `record-deliverable-publication` records
+  the deliverable as published but leaves a concluded experiment's live date alone, and its
+  response says so and points at `update-experiment live_date`. That call re-grades a result the
+  client may already have been told, so make it only when your operator explicitly asks for that
+  date to move. To attach a missing URL to a concluded experiment's deliverable, record the
+  publication with the launch date the experiment already carries; a same-day record re-grades
+  nothing.
+- **A second publication record corrects the deliverable, not the experiment.** It fixes the
+  deliverable's date and URL on the activity ledger, but it never overwrites a live date an earlier
+  publication record set: it logs the disagreement and says so. Report that line; whether the
+  experiment's date moves is a person's call.
+- **Moving a live date keeps a stored baseline.** Neither tool moves a hand-set baseline window.
+  With no stored baseline, the window is derived from the live date when the experiment is read,
+  so it moves with the date. To move a stored baseline on purpose, pass `baseline_started_at` and
+  `baseline_ended_at` to `update-experiment`.
+- **Confirm the URL is the artifact before classifying it.** Compare the deliverable's stored
+  article with the page at the URL. Same headings and FAQ: the URL is the artifact. A different
+  article at the same URL: the page was rewritten later, the stored article is the record of what
+  shipped, and the tags describe the stored article.
+- **A "#2" experiment with the same title as a "#1" is a secondary action on the same artifact**,
+  flagged confounded on purpose so the pair is read together. Do not clear that flag.
+
+**Where it came from:** Kaili's review of the reconciliation, 2026-09-16, issue #410, and the
+platform fix that keeps baselines and stops publication records from re-scoring finished
+experiments (#447).
 
 ---
 
