@@ -85,6 +85,13 @@ For each battery, in order, three steps:
    `document_kind` pointing at the report you just wrote, and `recorder` naming yourself as the
    agent.
 
+**Keep the fix out of `issue`.** A finding's `issue` says what is wrong; `suggested_fix` says what to
+do about it. The client page prints the resolved ones back as "found and fixed", so an `issue` that
+carries its own remedy reads to the client as "Fix: remove the term figure; keep terms and rates on
+the linked rates page", which is our internal instruction wearing their finding's clothes. Nothing
+truncates it, because cutting a sentence would misrepresent the record. Write the two fields as the
+two things they are.
+
 ## `verifications`: what you actually walked
 
 `findings` carries problems only. On a clean battery that is an empty array, so a day of review

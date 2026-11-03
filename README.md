@@ -18,7 +18,7 @@ steps. The skills work after step 4; the MetriFi tools need step 6.
    repository**
 2. Paste `metrifi/plugins` and click **Sync**
 3. Click **MetriFi** in the list
-4. Click **Install**. You should see 12 skills and 1 connector.
+4. Click **Install**. You should see 11 skills and 1 connector.
 5. On the MetriFi plugin page, open the **Connectors** tab, click **Install**
    next to `metrifi`, and confirm **Add** in the dialog that shows
    `https://platform.metrifi.com/mcp`
@@ -46,9 +46,9 @@ codex mcp login metrifi
 - Account tools: whoami (answers "Who am I on MetriFi?"), team and member
   management (invite, roles, switching)
 - The MetriFi connector (`https://platform.metrifi.com/mcp`; OAuth with your MetriFi sign-in)
-- Skills: `generate-claude-design-system` → `generate-claude-design-page` →
-  `page-design-process` (the three-stage MetriFi site-design workflow; the full
-  methodology is fetched from MetriFi at runtime, behind your sign-in)
+- Skills: `page-design-process` (design and build new pages on a site whose design
+  system is set up; the full methodology comes from the MetriFi connector at run time,
+  behind your sign-in) and `client-report` (a measured audit of an existing site)
 - GEO experiment skills: `start` (orient, then point you at the right skill),
   `exp-status` (a read-only rollup of where every experiment and deliverable
   stands), `campaign-setup` (a new institution to a baseline campaign: its

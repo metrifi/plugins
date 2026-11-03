@@ -153,24 +153,32 @@ published_at, note)` is how you tell it, and it is the right call for an article
 live, however long ago.
 
 - **`published_at` is the real date the article went live**, `YYYY-MM-DD`, not today's date and not
-  the date you found out. A future date is refused. If the operator only remembers the month, ask;
-  a wrong live date anchors the measurement window on the wrong days.
+  the date you found out. A future date is refused. **For an experiment that already has a launch
+  date, that launch date is the publication date** (Rule 25 in `references/methodology-rules.md`):
+  a CMS date that disagrees is informational, never a correction. When the experiment has none and
+  the operator only remembers the month, ask; a wrong live date anchors the measurement window on
+  the wrong days.
 - **`published_url` is the address it is live at**, absolute and starting with `https://`. Read it
   back before you record it.
 - **It records nothing about checks and claims nothing about them.** That is the point: it skips
   the three publish refusals because it states a fact about the world rather than certifying a
   decision. Never describe a recorded publication as having passed anything.
 - **It is correctable.** Wrong date or wrong URL, call it again with the right one; the correction
-  goes on the activity ledger. Nothing has to be undone first.
-- **It sets the experiment's live date too**, which is what anchors the measurement window, and it
-  CORRECTS a date already there rather than only filling an empty one. A publication record
-  outranks a migrated or typed date and overwrites it without asking. That re-grades the
-  experiment, so say so when you record a publication on an experiment that already had a date:
-  a published result may have moved, and the changed-outcomes report is where it shows up.
-- **It stops at two things and guesses at neither.** A live date another publication already set,
-  and an experiment carrying two or more deliverables, where which one published is not a question
-  the tool can answer. In both cases it leaves the date alone, logs the disagreement, and says so
-  in its response. Report that line to your operator rather than swallowing it: a human has to pick.
+  goes on the deliverable's activity ledger. Nothing has to be undone first. A corrected date does
+  not move a live date an earlier publication record already set on the experiment (below).
+- **It sets the experiment's live date too**, which is what anchors the measurement window, when the
+  experiment has none or carries a migrated or typed one, and overwrites that date without asking.
+  That re-grades the experiment, so say so when it replaced a date: a result may have moved, and the
+  response says whether the outcome changed. It keeps a stored baseline window as it is. A record on
+  the same day as the date already there re-grades nothing; it only marks the date as recorded.
+- **It leaves the live date alone in three cases and guesses at none.** A live date another
+  publication already set; an experiment carrying two or more deliverables, where which one
+  published is not a question the tool can answer; and an experiment that has concluded, because a
+  publication record does not re-score a finished result. In each case the deliverable is still
+  recorded as published, the experiment's date stays, the disagreement is logged, and the response
+  says so. Report that line to your operator rather than swallowing it: a human has to pick. The
+  concluded case points at `update-experiment live_date`; that re-grades a result the client may
+  already have seen, so make that call only when your operator explicitly asks for it (Rule 25).
 
 Use `set-deliverable-status published` only for an article being published now, through the normal
 flow, with the approval and the checks genuinely in hand. For anything historical, this is the tool.
@@ -184,10 +192,13 @@ classify what actually shipped:
 set-deliverable-tags(team_id, deliverable_id, tags, primary_intention)
 ```
 
-Judge the page at its published URL, not the draft you sent and not the recommendation that
-preceded it. **Rule 24 in `references/methodology-rules.md` is the rule**, including the Content
-Location tie-break (presentation wins over URL structure) and the one-primary-plus-optional-secondary
-shape for Content Intention. Call the tool with no tags to have it print the live vocabulary and
+First confirm the URL is the artifact: compare the deliverable's stored article with the page at
+the URL. Same headings and FAQ means the URL is the artifact. A different article at the same URL
+means the page was rewritten later; the stored article is then the record of what shipped, and the
+tags describe it (Rule 25). Otherwise judge the page at its published URL, not the draft you sent
+and not the recommendation that preceded it. **Rule 24 in `references/methodology-rules.md` is the
+rule**, including the Content Location tie-break (presentation wins over URL structure) and the
+one-primary-plus-optional-secondary shape for Content Intention. Call the tool with no tags to have it print the live vocabulary and
 each value's definition.
 
 Two things worth saying plainly:

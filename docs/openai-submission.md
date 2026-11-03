@@ -11,6 +11,14 @@ need six months from now when you are the one pressing Submit.
 Source tags resolve in the [source registry](submission-checklist.md#source-registry) of
 the checklist. `[LOCAL]` means we measured it ourselves on the stated date.
 
+**Current state, 2026-11-03.** OpenAI published v1.4.18 on 2026-10-30. v1.5.0 is cut, and is
+ready to submit once its PR merges to `main`: it removes the two Claude Design skills (the package already
+left them out, so `openai/package.json` `excludeSkills` is now empty), moves
+`page-design-process` to the four-phase process, and carries the GEO skill fixes. It is not
+skills-only: `delete-prompt` went live on 2026-11-01 with no review open, so the surface the
+reviewer sees has 162 non-staff tools, and justifications v6 declare it. The three
+Sitebuilder tools tagged `ShipsIn('1.4.19')` stay dark and are not part of 1.5.0.
+
 ---
 
 ## 1. What OpenAI reviews and the two ways to fail
@@ -208,6 +216,10 @@ gate catches it. Each one has broken, or could break, what the reviewer sees.
   `/id/account` as that user first. `[LOCAL 2026-10-16]`
 - **The justifications on `main`.** The release notes link to
   `docs/openai-tool-justifications.md` on `main`, so it changes only with the surface.
+- **The knowledge docs.** `get-doc` serves the platform's `resources/knowledge/docs/`, and
+  `page-design-process` and `client-report` follow those docs at run time, so a docs PR on
+  the platform (the Website Development Process docs in particular) changes what the reviewer
+  tests. Hold knowledge-doc PRs while a review is open.
 - **The demo data.** After each review round, check that the test cases still read true.
   Test case 3 leaves a scheduled rate change on the `goldenpeakcu` draft; once its date
   passes, the 12-month certificate reads 4.50% and test case 2's 4.25% is wrong. Delete

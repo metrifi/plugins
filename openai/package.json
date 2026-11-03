@@ -1,9 +1,6 @@
 {
   "name": "metrifi",
-  "excludeSkills": [
-    "generate-claude-design-system",
-    "generate-claude-design-page"
-  ],
+  "excludeSkills": [],
   "description": "One MetriFi sign-in connects ChatGPT and Codex to the MetriFi platform (Site Builder, GEO AI-search visibility, and CRO analytics) and adds the MetriFi skills: client-report for auditing an existing site, page-design-process for designing and building pages, campaign-setup for standing up a first baseline campaign, and the GEO experiment skills that run a campaign from research through to a reviewed client deliverable.",
   "extensions": {
     "com.openai": {
@@ -63,7 +60,7 @@
         "countries": [
           "US"
         ],
-        "release_notes": "Version 1.4.18, resubmitted after the annotation review. A handler-by-handler audit against the current hint guidance changed 36 tool annotations; no tool name, description, input schema or skill changed. 25 read tools that only read the signed-in team's own private site repository, hosting project, Google Analytics property or MetriFi's analytics database now declare openWorldHint false; extract-brand, which fetches any public URL, stays open world. create-site, run-prompt, run-campaign-prompts, generate-recommendation and record-deliverable-check now declare destructiveHint true, because they create external resources, spend quota and send content to an AI provider, or replace a verdict the client sees. revoke-invitation, remove-member, set-member-role, set-experiment-opportunity, set-experiment-document and create-prompt now declare openWorldHint true, because their effect reaches an invitee outside the team, the client's page or an AI provider. Every tool sets readOnlyHint, destructiveHint, idempotentHint and openWorldHint as explicit booleans. Per-tool justifications: https://github.com/metrifi/plugins/blob/main/docs/openai-tool-justifications.md"
+        "release_notes": "Version 1.5.0. One tool added, delete-prompt, which permanently deletes one of the team's own GEO prompts and refuses while a run of it is resolving or an experiment uses it; it declares readOnlyHint false, destructiveHint true, idempotentHint true and openWorldHint false. No other tool name, description, input schema or annotation changed. Skills: the two Claude Design skills are removed (this package already left them out); page-design-process follows MetriFi's four-phase website process and stops when a site has no approved design system or prototype; campaign-setup deletes the prompts it prunes before running a campaign; the GEO experiment skills record publication dates without re-dating finished experiments. Per-tool justifications: https://github.com/metrifi/plugins/blob/main/docs/openai-tool-justifications.md"
       }
     }
   }
