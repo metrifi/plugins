@@ -10,6 +10,13 @@ what happens after listing is in [marketplace-operations.md](marketplace-operati
 every check below. The README and LICENSE the portal requires landed in the plugin folder on
 2026-10-09 (`b1c67b6`). This document is the only addition.
 
+**Update for 1.5.0.** Version 1.5.0 changes the plugin folder: it removes
+`generate-claude-design-system` and `generate-claude-design-page`, so the plugin has 11 skills,
+names no local engine, and no longer mentions `claude.ai/design`. The check table below was
+measured on 1.4.18; re-measure its counts (skills, files, README words, description length) on
+the commit you submit. The risk and data-handling rows that named the design engine are
+updated below.
+
 ## Form values
 
 | Step | Field | Value |
@@ -136,8 +143,6 @@ None of these block submission. Each could put the version in **In review** with
 - **Proprietary license.** `LicenseRef-Proprietary`. The portal requires a license to exist,
   not an open one; listed plugins include "All rights reserved" and BSL-licensed repos (see
   [submission-checklist.md](submission-checklist.md#a-claude-plugin-directory)).
-- **Optional third-party engine.** Two skills need the local `@pro-vi/designer` package, which
-  the plugin does not install or run. It is disclosed in the README.
 - **Sends email and publishes sites.** Some MetriFi tools email clients or publish a website.
   The README discloses this and says the skills act only on the user's approval.
 
@@ -150,7 +155,7 @@ statements about MetriFi's data practices, so confirm each against the
 | Question | Draft answer |
 |---|---|
 | Does the plugin read or store personal data? | The plugin stores nothing itself. Through the MetriFi connector it reads the signed-in user's MetriFi account (name, email, teams, role) and MetriFi data for their team, including member contact details on deliverables and invitations and aggregate Google Analytics counts. Storage is on the MetriFi platform under its privacy policy. |
-| Does it send data to services other than its declared connectors? | No. All reads and writes go through the declared `metrifi` connector. Some skills read public web pages with the host's own fetch tools, and two optional skills drive claude.ai/design through a local engine the user installs. |
+| Does it send data to services other than its declared connectors? | No. All reads and writes go through the declared `metrifi` connector. Some skills read public web pages with the host's own fetch tools. |
 | How long does it keep data? | The plugin keeps none. MetriFi retains account and platform data as its privacy policy describes. |
 | Is it intended for people under 18? | No. It is for staff of credit unions, banks and MetriFi. |
 

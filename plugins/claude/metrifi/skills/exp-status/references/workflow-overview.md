@@ -176,17 +176,21 @@ The client link (`client_url`) is always disclosed: `get-deliverable`, `list-del
 When your operator asks for it, give it immediately, then offer the record as a follow-up: they say
 "send" and you email it from the platform (`send-deliverable`), or they say "shared" because they
 handed it over themselves and you record it (`record-deliverable-shared`, which stamps `sent_at`
-and emails nobody; `client_email` is optional). Only the raw token never prints as its own line.
+and emails nobody; `client_email` is optional). Give the link whole: never print the access code
+in `client_url` on a line by itself.
 
 When the article goes live, record it. `record-deliverable-publication(team_id, deliverable_id,
 published_url, published_at)` takes the real historical date and the URL it is live at, for an
 article published in the institution's own CMS however long ago. It skips the three publish
 refusals `set-deliverable-status published` enforces, because it states a fact about the world
 rather than certifying a decision, and it claims nothing about pre-publish checks. It is
-correctable, and it CORRECTS the experiment's live date rather than only filling an empty one: a
-publication record outranks a migrated or typed date, and the re-grade it triggers is reported in
-the changed-outcomes report. It stops only at a live date another publication already set, or at
-an experiment carrying two or more deliverables, and logs that disagreement for a human.
+correctable, and it sets the experiment's live date when the experiment has none or has a migrated
+or typed one, which re-grades the experiment; a stored baseline window is kept. It leaves the live
+date alone, logs the disagreement and says so in three cases: another publication already set the
+date, the experiment carries two or more deliverables, or the experiment has concluded (a
+publication record does not re-score a finished result). The launch date already on an experiment is
+its publication date, and re-dating a past window is the operator's decision, never the agent's
+(Rule 25).
 
 **Once a publication is recorded, `send-deliverable` and `send-deliverable-followup` refuse**, and
 the refusal names the recorded date and URL. Every email they could send asks the client about work
