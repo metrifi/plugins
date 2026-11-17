@@ -58,11 +58,11 @@ list-all-teams(top_customer: true, limit: 500)
 That is the cohort: every team carrying the manual `is_top_customer` flag, returned **as slugs**,
 which is what every later call needs. It is one cheap directory query.
 
-**Do not use `get-team-health` for this.** It covers the same cohort, but it builds a full
-visibility and AI-traffic board with per-team external calls to do it, takes around fifteen seconds,
-and then returns team **names** rather than slugs, so you would have to resolve every one of them
-against the directory anyway. Reach for it only when the sweep genuinely needs the health verdicts,
-and never just to find out who the top customers are.
+**Do not use `get-team-health` for this.** It covers the same cohort, but it reads the cached
+Client Health board, which may not exist for the window until `refresh-team-health` rebuilds it with
+per-team visibility and AI-traffic reads, and it returns client **names** rather than slugs, so you
+would have to resolve every one of them against the directory anyway. Reach for it only when the
+sweep genuinely needs the visibility verdicts, and never just to find out who the top customers are.
 
 Two more things to know:
 
@@ -71,9 +71,11 @@ Two more things to know:
   in one line and stop. Do not fall back to `list-teams` and sweep your own memberships instead:
   that is a different, smaller, quietly wrong cohort, and a sweep that silently changes what it
   covers is worse than one that refuses.
-- **`get-master-health`'s `top_clients` is not the cohort either.** It is a performance leaderboard
-  ranked by a composite of visibility movement, traffic movement, and deploy rate. Different thing,
-  similar name.
+- **Client Health's verdict is not "in motion" either.** Its `improving`, `flat`, `declining` and
+  `not_enough_data` come from the visibility trend alone, and its Launched and Drafts counts cover
+  only the selected date range. A team can read `flat` with no experiment launched this month while
+  a deliverable sits with its client. Section 3 decides motion from artifacts. Different thing,
+  similar question.
 
 Then, per team in the cohort, two reads that fill in the picture:
 
