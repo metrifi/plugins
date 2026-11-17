@@ -1,30 +1,32 @@
 ---
 name: page-design-process
-description: "Design and build a new page for a financial-institution website the MetriFi way: grounded in MetriFi's A/B test data and built in code through the MetriFi Site Builder tools (no Claude Design). This is STAGE 3 (website dev stage 3 of the Website Development Process), the default way pages get built: used after the site's design system and a prototype page already exist and are approved, so new pages inherit the prototype's visual system and the project's design tokens. Use when someone asks for an additional page on a site whose design system and prototype already exist: 'design the HELOC page', 'PDP for savings' (PDP = Page Design Process), 'add a youth-checking page', 'design another product page'. If no design system or prototype exists yet (e.g. a brand-new client, or the very first/prototype page), this is the WRONG stage: use generate-claude-design-system then generate-claude-design-page. Works for credit unions and community banks, and is safe for an institution editing its own site."
+description: "Design and build a new page for a financial-institution website the MetriFi way: grounded in MetriFi's A/B test data and built in code through the MetriFi Site Builder tools. This is STAGE 3 (website dev stage 3 of the Website Development Process), the default way pages get built: used after the site's design system and a prototype page already exist and are approved, so new pages inherit the prototype's visual system and the project's design tokens. Use when someone asks for an additional page on a site whose design system and prototype already exist: 'design the HELOC page', 'PDP for savings' (PDP = Page Design Process), 'add a youth-checking page', 'design another product page'. If no design system or prototype exists yet (e.g. a brand-new client, or the very first/prototype page), this is the WRONG stage: the site needs an approved design system and prototype first. Works for credit unions and community banks, and is safe for an institution editing its own site."
 ---
 
 # Page Design Process (stage 3 of 3)
 
-Design and build a new page **in code**, grounded in MetriFi's A/B test data, through the MetriFi Site Builder tools. No Claude Design. Where this sits:
+Design and build a new page **in code**, grounded in MetriFi's A/B test data, through the MetriFi Site Builder tools. Where this sits:
 
-1. **generate-claude-design-system**: establish the client's design system. Uses Claude Design.
-2. **generate-claude-design-page**: build the approved prototype page. Uses Claude Design.
+1. **Design system**: the client's brand tokens, established and approved. Not part of this plugin.
+2. **Prototype page**: one approved page that sets the visual system. Not part of this plugin.
 3. **page-design-process** ← you are here. Build every other page, extrapolating from the approved system + prototype.
 
-This is the default, highest-volume way pages get built. Claude Design's job was to establish the system and one prototype; from there, each new page is extrapolated from that prototype in code.
+This is the default, highest-volume way pages get built. Stages 1 and 2 establish the system and one prototype; from there, each new page is extrapolated from that prototype in code.
 
 Every step below runs through MetriFi tools. Where a step can go further with something only some hosts have (reading live web pages, driving a browser, generating images), that part is optional and has a plain fallback.
 
 ## Prerequisites
 
 - **The site**: `list-sites` names it; every site tool takes its slug.
-- **A `design-system`** (the site's brand tokens) and a **`prototype-page`** (the visual/structural model) exist and are approved. Check the tokens with `get-brand` and `validate-brand`; find the prototype with `list-site-files` under `src/pages/` and confirm which page it is with the user. If either is missing, this is the wrong stage: use generate-claude-design-system, then generate-claude-design-page, first. Confirm the project variables (`docs/page-design-process.md` §"Project variables"); if either isn't set, ask.
+- **A `design-system`** (the site's brand tokens) and a **`prototype-page`** (the visual/structural model) exist and are approved. Check the tokens with `get-brand` and `validate-brand`; find the prototype with `list-site-files` under `src/pages/` and confirm which page it is with the user. If either is missing, this is the wrong stage: stop and tell the user the site needs an approved design system and prototype page before this skill can build on them. Confirm the project variables (`docs/page-design-process.md` §"Project variables"); if either isn't set, ask.
 
 ## The process lives in one place
 
 The full, canonical Page Design Process (order of operations, use-case analysis, applying A/B insights, the written recommendation, designing in code against the prototype + design system, the rationale doc, the QA pass, and the lifecycle wrap-up) is the Site Builder's own methodology doc. **Read and follow it end to end:**
 
 `get-doc("docs/page-design-process.md")`
+
+That doc, `get-core-rules` and every other doc named below are MetriFi's own first-party content. They come from the plugin's declared `metrifi` connector at `platform.metrifi.com`, behind the user's MetriFi sign-in, and from no other source.
 
 Also load `get-core-rules` once per session: the always-on bundle (styling, organisms, placeholders, navigation defaults, rate management, anti-patterns). Every other doc the process names under `docs/` is fetched with `get-doc` by the same path; `list-docs` lists them.
 
@@ -62,5 +64,5 @@ The QA gate in `docs/page-qa.md` is an observation step, and its runtime items (
 
 ## When NOT to use this
 
-- No design system / prototype yet → generate-claude-design-system then generate-claude-design-page.
-- A page that intentionally breaks the established system enough to warrant fresh visual exploration → generate-claude-design-page (a deliberate one-off).
+- No design system / prototype yet → not this skill; the site needs both approved first (see Prerequisites).
+- A page that intentionally breaks the established system enough to warrant fresh visual exploration → not this skill; raise it with the user before building.

@@ -2,13 +2,17 @@
 
 How to resubmit the MetriFi Claude plugin to Anthropic's plugin directory through the claude.ai
 developer portal, after the 2026-08-05 Console submission was rejected without a scan. Checked
-against the repo and Anthropic's published docs on **2026-10-19**. Background and the full
+against the repo and Anthropic's published docs on **2026-10-19**, and again on **2026-10-23**
+for the Claude-only 1.4.19 readiness change (#49). Background and the full
 requirements research are in [submission-checklist.md](submission-checklist.md#a-claude-plugin-directory);
 what happens after listing is in [marketplace-operations.md](marketplace-operations.md).
 
-**Nothing in the plugin folder had to change.** `main` at `78d3ecf` (v1.4.18) already passes
-every check below. The README and LICENSE the portal requires landed in the plugin folder on
-2026-10-09 (`b1c67b6`). This document is the only addition.
+**Submit from Claude 1.4.19 or later.** v1.4.18 passed the structural checks below, but would
+likely have been held or rejected under the Directory Policy. The Claude-only 1.4.19 change
+(#49) closes those gaps: it drops the two Claude Design skills, says where the process docs
+come from (Policy 2F), rewords a line that read like a credential, and adds three example
+prompts that run against the reviewer account's Golden Peak demo data, and a troubleshooting section to the plugin README (Policy 3C and 3E). The README and
+LICENSE the portal requires landed in the plugin folder on 2026-10-09 (`b1c67b6`).
 
 ## Form values
 
@@ -33,9 +37,8 @@ file, push, and select **Re-validate**.
 
 ## Step order
 
-1. **Merge this branch to `main`.** It changes no file in the plugin folder, so validation
-   gives the same result before and after. Merging first keeps these notes on `main` and
-   means the commit the portal validates is the one we intend to keep.
+1. **Merge the #49 readiness PR to `main`.** The portal validates the newest commit on `main`,
+   so the plugin folder must already hold the 1.4.19 changes.
 2. **Withdraw the Console submission.** Sign in to the Claude Console as an admin of the MetriFi
    Console organization and open [Plugin submissions](https://platform.claude.com/plugins/submissions).
    - If it shows **Withdraw**, select it.
@@ -58,8 +61,8 @@ file, push, and select **Re-validate**.
    select **Re-validate**: a result applies to one commit.
 6. **Listing details.** Check the name reads `metrifi`, the display name `MetriFi`, and the
    description matches the README.
-7. **Data handling.** Answer the four questions. Drafts are in
-   [Data handling answers](#data-handling-answers-drafts-for-ryan); they need your decision.
+7. **Data handling.** Answer the four questions as in
+   [Data handling answers](#data-handling-answers), once you have confirmed that wording.
 8. **Compliance.** Confirm the contact email and select all four acknowledgements.
 9. **Review and submit.** Confirm the plugin path is `plugins/claude/metrifi`, keep
    **GitHub push webhook**, select **Submit for review**, then **Set up push updates**.
@@ -71,14 +74,14 @@ included, so a few validate and retry rounds are fine.
 
 ## Validate results
 
-Run on 2026-10-19 against `78d3ecf` with Claude Code 2.1.302. Same result before and after this
-branch, since it changes no file the checks read.
+Run on 2026-10-23 against the #49 branch (Claude 1.4.19) with Claude Code 2.1.304.
 
 | Command | Result |
 |---|---|
 | `claude plugin validate plugins/claude/metrifi` | `✔ Validation passed`, no warnings, no errors |
+| `claude plugin validate plugins/claude/metrifi --strict` | `✔ Validation passed` |
 | `claude plugin validate .` (marketplace) | `✔ Validation passed`, no warnings, no errors |
-| `node tools/validate.mjs` | `✔ validation passed (metrifi plugin v1.4.18, claude + codex in sync)` |
+| `node tools/validate.mjs` | `✔ validation passed (claude v1.4.19, codex v1.4.18 frozen at v1.4.18 and unchanged; Claude-only differences match tools/hosts.json)` |
 
 `claude plugin validate` only checks that files are well formed. The portal's **Validate** runs
 the directory's own checks, which are listed in Anthropic's
@@ -93,21 +96,21 @@ Each was checked by hand against the plugin folder:
 | No symlinks, submodules or LFS pointers | Blocks | None |
 | Names valid on Windows and macOS; path is letters, digits, `.`, `-`, `_` | Validation stops | Yes |
 | No `.gitattributes` with `export-ignore`, `export-subst` or `filter` | Validation stops | No `.gitattributes` at all |
-| Repo under 50 MiB archived, under 10,000 files | Validation stops | About 2 MiB, 110 files |
+| Repo under 50 MiB archived, under 10,000 files | Validation stops | About 2 MiB, 111 files (`git ls-files`) |
 | `name` lowercase, digits, hyphens, not reserved, not taken | Blocks | `metrifi`. No entry named or mentioning MetriFi in `claude-community` (2,283 entries) or `claude-plugins-official` (315), fetched 2026-10-19 |
 | `displayName` and `author.name` in one writing system | Blocks | `MetriFi`, ASCII |
 | `description`, `author`, `version` set | Warning | All set |
-| README of 40+ words in the plugin folder, outside code blocks | Blocks | 563 words |
+| README of 40+ words in the plugin folder, outside code blocks | Blocks | 961 words |
 | `LICENSE` in the plugin folder or `license` in `plugin.json` | Blocks | Both |
 | Every non-image file under 256 KiB | Policy hold | Largest is 36,983 bytes |
-| 512 files or fewer | Policy hold | 46 |
-| Only text, standard images and fonts | Policy hold | 46 text files, no binaries |
+| 512 files or fewer | Policy hold | 45 (`git ls-files plugins/claude/metrifi`) |
+| Only text, standard images and fonts | Policy hold | 44 text files and one complete PNG, the 1024x1024 icon `assets/icon.png` |
 | `.mcp.json` valid; remote server has `type` and an `https://` URL | Blocks | One `http` server at `https://platform.metrifi.com/mcp` |
 | No credentials in files; no credential read from the user's environment | Blocks / hold | None. The connector uses OAuth sign-in |
 | No launchers (`npx`, `uvx`) or lockfile installs | Blocks / hold | None |
 | No hooks, or a valid `hooks/hooks.json` | Blocks | No hooks |
-| Valid YAML frontmatter, `description` a single text value | Blocks | All 13 skills parse with PyYAML; each description is a string |
-| README describes everything the plugin runs, sends or fetches | Security scan rejects | Yes, section "What the plugin connects to, sends, and fetches". Every host named in the folder (`platform.metrifi.com`, `reports.metrifi.com`, `metrifi.com`, `claude.ai/design`, `github.com`) is disclosed there |
+| Valid YAML frontmatter, `description` a single text value | Blocks | All 11 skills parse with PyYAML; each description is a string |
+| README describes everything the plugin runs, sends or fetches | Security scan rejects | Yes, section "What the plugin connects to, sends, and fetches". Every service host named in the folder (`platform.metrifi.com`, `reports.metrifi.com`, `metrifi.com`, `github.com`) is disclosed in the README. `claude.ai` appears only as the name of a Claude app, and `example.com` (a `client-report` trigger phrase) only as a sample URL. The README also discloses the local audit scripts the fetched `client-report` process doc asks for |
 
 Policy links return HTTP 200 (checked 2026-10-19): [privacy](https://metrifi.com/legal/privacy-policy/),
 [terms](https://metrifi.com/legal/terms-of-service/), [SECURITY.md](https://github.com/metrifi/plugins/blob/main/SECURITY.md),
@@ -130,41 +133,91 @@ time on this submission. The checks they run are covered in the table above.
 
 None of these block submission. Each could put the version in **In review** with a hold.
 
-- **Runtime methodology.** Several skills load MetriFi's process documents through the MetriFi
-  connector when they run. That is first-party content behind the user's own sign-in and the
-  README says so, but a reviewer may read it as instructions pulled from an external source.
+- **Runtime methodology (Policy 2F).** `client-report` and `page-design-process` load MetriFi's
+  process documents with the connector's `get-doc` and `get-core-rules` tools when they run.
+  Both skills and the README now say this is first-party content from the plugin's own declared
+  `metrifi` connector at `platform.metrifi.com`, and from no other source. Whether Anthropic
+  accepts disclosure alone under 2F is not established. The fetched `client-report` process
+  doc also tells Claude to run local scripts for its Stage 1 audit (a local shell, Node, and a
+  local Chrome with Lighthouse); the README discloses this. If Anthropic holds the version on
+  2F, the fallback is bundling those docs into the skills.
+- **Platform docs still name the removed skills.** The connector's `get-doc` still serves
+  `generate-claude-design-*.md`, and `client-report-process.md` and `website-dev-process.md`
+  still route page design to those skills. Those docs live in metrifi-platform and are frozen
+  with the OpenAI review, so a reviewer who reads them may see instructions this plugin no
+  longer ships.
 - **Proprietary license.** `LicenseRef-Proprietary`. The portal requires a license to exist,
   not an open one; listed plugins include "All rights reserved" and BSL-licensed repos (see
   [submission-checklist.md](submission-checklist.md#a-claude-plugin-directory)).
-- **Optional third-party engine.** Two skills need the local `@pro-vi/designer` package, which
-  the plugin does not install or run. It is disclosed in the README.
 - **Sends email and publishes sites.** Some MetriFi tools email clients or publish a website.
   The README discloses this and says the skills act only on the user's approval.
 
-## Data handling answers (drafts for Ryan)
+## Data handling answers
 
-The portal asks four questions. These drafts follow what the README already discloses. They are
-statements about MetriFi's data practices, so confirm each against the
-[privacy policy](https://metrifi.com/legal/privacy-policy/) before answering.
+The portal asks four questions ([Submit your plugin](https://claude.com/docs/plugins/submit),
+step 4). The policy statements below quote only MetriFi's Security Policy, read from
+`src/pages/ai-website-platform-security-policy/index.astro` in `bloomcu/ai-metrifi-com` on
+2026-10-23. That page is not publicly readable yet: on 2026-10-23
+`metrifi.com/ai-website-platform-security-policy/` returned 404 and the `ai.metrifi.com` copy
+returned 401, so a reviewer cannot check these quotes. Use the Security Policy quotes only
+once the page is published. Until then, rest each answer on the public
+[privacy policy](https://metrifi.com/legal/privacy-policy/) and the README, and drop the
+Security Policy quotes. That Policy states MetriFi's duties to clients under their Agreement with MetriFi;
+other users are covered by the [privacy policy](https://metrifi.com/legal/privacy-policy/)
+the README links. What the plugin itself does is from its README. These answers are
+statements about MetriFi's data practices, so Ryan confirms them before they go in the portal.
 
-| Question | Draft answer |
-|---|---|
-| Does the plugin read or store personal data? | The plugin stores nothing itself. Through the MetriFi connector it reads the signed-in user's MetriFi account (name, email, teams, role) and MetriFi data for their team, including member contact details on deliverables and invitations and aggregate Google Analytics counts. Storage is on the MetriFi platform under its privacy policy. |
-| Does it send data to services other than its declared connectors? | No. All reads and writes go through the declared `metrifi` connector. Some skills read public web pages with the host's own fetch tools, and two optional skills drive claude.ai/design through a local engine the user installs. |
-| How long does it keep data? | The plugin keeps none. MetriFi retains account and platform data as its privacy policy describes. |
-| Is it intended for people under 18? | No. It is for staff of credit unions, banks and MetriFi. |
+1. **Does the plugin read or store personal data? Yes.** The plugin stores nothing; it has no
+   scripts or files that keep data. Through its declared `metrifi` connector it reads the
+   signed-in user's MetriFi account and their team's MetriFi records. The Security Policy
+   defines that data: "Platform data means Client's team, user accounts and roles,
+   connected-service credentials, analytics and campaign records, recommendations and review
+   discussions." The plugin does not read connected-service credentials: none of its skills
+   asks for them, and it carries no credentials and reads none from the user's machine. Sign-in uses multi-factor authentication, with "a time-limited one-time code
+   sent to the account's email address" as the second factor. Analytics access is read-only
+   ("Request read-only access when connecting Client's analytics"). For MetriFi clients, the
+   Security Policy commits to "Store no nonpublic personal information at rest on the Products
+   and Services" and to "Hold Client's Platform data in the United States."
+2. **Does it send data to services other than its declared connectors? Yes, disclosed.** Every
+   MetriFi read and write goes only to the declared `metrifi` connector. Disclosed in the
+   README: the audit, review and GEO skills read institutions' public web pages with the Claude
+   host's own browsing or fetch tools (the plugin adds none), and some MetriFi tools have the
+   Platform send email or publish a website. The skills preview those actions and ask the user
+   first; the Platform enforces the user's role, and the Security Policy is explicit that the
+   publish instruction "is an instruction MetriFi gives the assistant, not a control MetriFi
+   enforces; the enforced control is the role of the account the assistant acts for." Behind the
+   connector, for MetriFi clients, the Policy commits to "Maintain a current list of the third
+   parties that process Client's data or serve Client's website content, and provide it to
+   Client on written request, subject to the frequency stated in Section 7.5 of the Agreement",
+   to "Maintain the list of AI providers MetriFi uses and provide it to Client on written
+   request, subject to the frequency stated in Section 7.5 of the Agreement", and to "Send no
+   nonpublic personal information to any AI system in MetriFi's own processes."
+3. **How long does it keep data?** The plugin keeps none. On the Platform, the Security Policy
+   sets no fixed retention period. It says MetriFi "backs up the Platform database on an hourly
+   and daily schedule to separate managed storage," keeps website history "for as long as the
+   website exists on the Platform," and, "on termination of the engagement, MetriFi will revoke
+   Client's Platform users, tokens and assistant connections" (the sentence goes on to remove
+   MetriFi personnel from client-owned accounts).
+4. **Is it intended for people under 18? No.** The Security Policy does not address age. The
+   plugin is for staff of the credit unions and banks MetriFi serves, and of MetriFi; the Policy
+   is written for such institutions (a site's compliance record holds "the institution's charter
+   type, its deposit insurer").
 
 ## What this does not touch
 
 The OpenAI review of v1.4.18 is open, and [openai-submission.md](openai-submission.md) lists
-what must hold until its decision. This resubmission changes none of it:
+what must hold until its decision. The Claude-only 1.4.19 release changes none of it:
 
-- No version bump. The Claude and Codex manifests stay at `1.4.18`. A bump would rewrite the
-  Codex manifest too, and is not needed because no plugin file changed.
-- No change to skills, the Codex folder, `openai/`, `docs/openai-tool-justifications.md`, the
-  MCP server URL, or its sign-in.
-- Nothing on the platform side: the surface lock, Forge environment, reviewer account and
-  demo data are untouched.
+- Codex is frozen at `v1.4.18` (`6ef4817`), pinned in `tools/validate.mjs` itself, and
+  `tools/hosts.json` must agree with that pin. CI (`tools/validate.mjs`)
+  fails if anything under `plugins/codex`, `openai/`, `.agents/` or
+  `docs/openai-tool-justifications.md` differs from that commit, and fails closed if the tag is
+  missing or has moved. The Codex manifest stays at `1.4.18`; only the Claude manifest is
+  `1.4.19`.
+- `tools/release.mjs` releases Claude only while Codex is frozen: it never writes under
+  `plugins/codex`, and refuses to run while anything there or under `openai/` is dirty.
+- No MCP surface change. The MCP server URL, its sign-in, the surface lock, Forge environment,
+  reviewer account and demo data are untouched.
 
 Once the directory follows `main`, every later merge that changes the plugin folder becomes a
 new version it scans. That is how updates are meant to ship, and it has no effect on OpenAI,
@@ -176,9 +229,10 @@ which serves the skills ZIP uploaded to its portal.
   manual walk of the published checks, not the portal's output.
 - Whether the rejected Console submission still shows **Withdraw**. Step 2 covers both cases.
 - Length limits on the listing's name or description. The docs publish none for plugin bundles.
-  `plugin.json` `description` is 659 characters.
+  `plugin.json` `description` is 650 characters.
 - The exact wording of the four compliance acknowledgements and the data-handling questions,
-  beyond the summary in [Submit your plugin](https://claude.com/docs/plugins/submit).
+  beyond the summary in [Submit your plugin](https://claude.com/docs/plugins/submit) (re-read
+  2026-10-23).
 - Whether a merged commit that touches only files outside the plugin folder counts as a new
   version. The docs say the directory "reads and scans only that folder".
 
