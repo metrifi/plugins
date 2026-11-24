@@ -64,3 +64,7 @@ The QA gate in `docs/page-qa.md` is an observation step, and its runtime items (
 
 - No design system / prototype yet → generate-claude-design-system then generate-claude-design-page.
 - A page that intentionally breaks the established system enough to warrant fresh visual exploration → generate-claude-design-page (a deliberate one-off).
+
+## When something goes wrong
+
+If MetriFi has no tool for what the person asked, a tool keeps failing, or the person is unhappy with the result, offer once to tell MetriFi at https://platform.metrifi.com/id/tell-metrifi. Draft a short note for them to paste there, in general terms (what was asked, what happened, which tool), with no names, numbers or customer details. Never put the note in the link.

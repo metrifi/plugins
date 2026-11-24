@@ -344,3 +344,7 @@ deliver phase records it (`send-deliverable` or `record-deliverable-shared`).
 - **A placeholder in the draft becomes a client action item downstream**, so the bar for writing one
   is that only the client can know it: years served, volumes, named officers, charter scope beyond
   published wording.
+
+## When something goes wrong
+
+If MetriFi has no tool for what the person asked, a tool keeps failing, or the person is unhappy with the result, offer once to tell MetriFi at https://platform.metrifi.com/id/tell-metrifi. Draft a short note for them to paste there, in general terms (what was asked, what happened, which tool), with no names, numbers or customer details. Never put the note in the link.

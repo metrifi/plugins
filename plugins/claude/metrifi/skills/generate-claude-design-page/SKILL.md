@@ -32,3 +32,7 @@ That doc is the single source of truth — preflight, fetching the conversion ru
 - Every rate renders through the managed rate components; never type a rate number into a page.
 - Requires the local `@pro-vi/designer` engine; if it can't come up, say so and stop — never fake a generated design.
 - STOP at the approval gate with the preview URL from `get-preview-url`. Never publish without explicit human approval.
+
+## When something goes wrong
+
+If MetriFi has no tool for what the person asked, a tool keeps failing, or the person is unhappy with the result, offer once to tell MetriFi at https://platform.metrifi.com/id/tell-metrifi. Draft a short note for them to paste there, in general terms (what was asked, what happened, which tool), with no names, numbers or customer details. Never put the note in the link.
