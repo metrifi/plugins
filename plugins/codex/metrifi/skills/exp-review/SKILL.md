@@ -47,7 +47,10 @@ its claims are quoted from prose that just moved, but every check is pinned the 
    round found, who recorded it, and which results have gone stale.
 
 If checks already exist and none are stale, say so and ask what changed before re-running all four.
-Re-running a green check on an unchanged article costs the client's time for nothing.
+Re-running a green check on an unchanged article costs the client's time for nothing. One exception:
+the NCUA check also turns on the intended publication date, which the platform does not pin. If that
+date has crossed December 16, 2026 since the NCUA report was written, re-run that battery
+(`references/review-ncua.md`, "When the publication date moves").
 
 ## What to collect before you start
 
@@ -60,6 +63,9 @@ Ask once, in one message, rather than four times mid-battery:
 - **The website root.** Do not guess it. The fact battery verifies against this domain.
 - **The field of membership**, if it can be had. Without it, eligibility claims drop to `minor` with
   a question for the compliance officer instead of a verdict.
+- **The intended publication date**, from the deliverable's `publish_plan` when it is scheduled. It
+  decides whether the NCUA battery's 740.5 advertising-statement check applies (through December
+  15, 2026) or not (from December 16, 2026). Never substitute the review date.
 
 The first three usually sit in the experiment's documents already. Read before you ask.
 

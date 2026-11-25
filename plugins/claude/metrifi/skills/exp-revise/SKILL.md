@@ -160,7 +160,10 @@ heading hierarchy an accessibility review evaluates and can strand a claim whose
 gone), or the check predates section pinning and has no map to compare against.
 
 `list-deliverable-checks(team_id, deliverable_id)` names which results are stale, missing, or
-failing. For each one, do the same three steps the review phase does, one battery at a time:
+failing. It cannot see one case: a client moving the publication date across December 16, 2026
+stales nothing on the platform, but the NCUA verdict turns on it, so re-run that battery too
+(`references/review-ncua.md`, "When the publication date moves"). For each one, do the same three
+steps the review phase does, one battery at a time:
 
 1. Work the article against that battery's reference file: `review-hygiene.md`, `review-ncua.md`,
    `review-ada.md`, `review-fact.md`.
