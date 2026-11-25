@@ -64,4 +64,4 @@ if (/test_credentials|reviewer_instructions/.test(JSON.stringify(m))) fail('cred
 rmSync(out, { force: true });
 execFileSync('zip', ['-qr', out, '.', '-x', '*.DS_Store'], { cwd: work });
 rmSync(join(work, '..'), { recursive: true });
-console.log(`built ${out}: v${m.version}, skills without ${overlay.excludeSkills.join(', ')}`);
+console.log(`built ${out}: v${m.version}, ${overlay.excludeSkills.length ? 'skills without ' + overlay.excludeSkills.join(', ') : 'every skill included'}`);

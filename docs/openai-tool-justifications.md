@@ -1,6 +1,6 @@
-# MCP tool annotation justifications (v5 for the v1.4.18 resubmission)
+# MCP tool annotation justifications (v6 for the v1.5.0 submission)
 
-Surface 1.4.18, 161 tools, lock order, four hints each. v5, 2026-10-15: OpenAI rejected v1.4.17 on annotations without naming tools, and a handler audit against OpenAI's current hint wording changed 36 hints. 25 reads that only touch the team's own GitHub repo, Vercel project, Google Analytics property or MetriFi's analytics database are now closed world ("Connectivity alone does not determine this value"); five writes that spend quota or cannot be undone are now destructive; six writes whose effect reaches an invitee, the client page or OpenAI are now open world. The new portal reads hints from the server and asks for no justifications, so this file is the reference for an appeal. v4 was regenerated 2026-09-30 from `resources/mcp/surface.lock.json` on platform main. Only tools without a `visibility` tag are listed, because the reviewer signs in as an ordinary user and never sees the 10 staff tools (`transfer-team-ownership` joined them on 2026-09-30, after OpenAI's automated scan failed it). On 2026-10-01 `manage-review-item` was retired into `set-review-items-done`, `set-review-items-archived`, `unassign-review-items` and `reopen-feedback`. Every write tool's handler was read for this version; each line says what that tool does, against the value beside it. `node tools/check-justifications.mjs <path to surface.lock.json>` checks this file against the lock.
+Surface 1.4.18, 162 tools, lock order, four hints each. v6, 2026-11-03: `delete-prompt` added. It went live on 2026-11-01, with no review open, by dropping its `ShipsIn` tag rather than raising the published surface (platform `docs/mcp-surface-versioning.md`), so the lock still reads 1.4.18 and the next submission declares it. No other tool or hint changed. v5, 2026-10-15: OpenAI rejected v1.4.17 on annotations without naming tools, and a handler audit against OpenAI's current hint wording changed 36 hints. 25 reads that only touch the team's own GitHub repo, Vercel project, Google Analytics property or MetriFi's analytics database are now closed world ("Connectivity alone does not determine this value"); five writes that spend quota or cannot be undone are now destructive; six writes whose effect reaches an invitee, the client page or OpenAI are now open world. The new portal reads hints from the server and asks for no justifications, so this file is the reference for an appeal. v4 was regenerated 2026-09-30 from `resources/mcp/surface.lock.json` on platform main. Only tools without a `visibility` tag are listed, because the reviewer signs in as an ordinary user and never sees the 10 staff tools (`transfer-team-ownership` joined them on 2026-09-30, after OpenAI's automated scan failed it). On 2026-10-01 `manage-review-item` was retired into `set-review-items-done`, `set-review-items-archived`, `unassign-review-items` and `reopen-feedback`. Every write tool's handler was read for this version; each line says what that tool does, against the value beside it. `node tools/check-justifications.mjs <path to surface.lock.json>` checks this file against the lock.
 
 ## list-teams
 
@@ -141,6 +141,13 @@ Surface 1.4.18, 161 tools, lock order, four hints each. v5, 2026-10-15: OpenAI r
 - **Open World: true** In a paid team's campaign with auto-run turned on, the new prompt is sent to OpenAI on the campaign's next scheduled run without any further tool call.
 - **Destructive: false** It only adds a prompt and changes no existing prompt or response, and it spends no quota itself: any run, by a run tool or the campaign's own schedule, is a separate step.
 - **Idempotent: false** A repeat with the same text adds a second, duplicate prompt to the campaign.
+
+## delete-prompt
+
+- **Read Only: false** It permanently removes one of the team's prompts, after checking that no run of it is still resolving and that no experiment outside the trash uses it.
+- **Open World: false** It removes only the team's own prompt and its stored responses and links in MetriFi's database, nothing is sent to any AI provider, and no one outside the team is notified.
+- **Destructive: true** It deletes the prompt for good, and its stored responses and experiment links are deleted with it. No tool restores them, and quota already spent is not refunded.
+- **Idempotent: true** A repeat finds no prompt left to remove and changes nothing.
 
 ## list-responses
 

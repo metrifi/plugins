@@ -4,6 +4,13 @@ Bump the plugin `version` on every release so installed clients get the update
 with `/plugin marketplace update metrifi` (no reinstall). Claude Code keys
 updates off this field — same version, no update.
 
+## 1.5.0 — 2026-11-03
+
+- OpenAI submission release, batching every skill change since 1.4.18. Removes generate-claude-design-system and generate-claude-design-page from both plugins (11 skills); the OpenAI package already left them out.
+- page-design-process is Phase 2, step 1 of the four-phase Website Development Process (metrifi-platform#769): it stops and points to Phase 1 when the design system or prototype is missing. It and client-report disclose that their process docs are first-party content from the metrifi connector.
+- GEO: Rule 25 (the launch date is the publication date; a past window is never re-dated), and the publication wording in exp-deliver and the workflow overview now matches the platform: a publication record leaves a concluded experiment's live date alone and keeps stored baselines. exp-review keeps the fix out of a finding's issue text.
+- campaign-setup deletes the prompts it pruned with delete-prompt before run-campaign-prompts. Justifications v6 declare delete-prompt, live on the platform since 2026-11-01 (162 tools); no other tool or hint changed.
+
 ## 1.4.18 — 2026-10-15
 
 - OpenAI resubmission release. Justifications v5 for platform MCP surface 1.4.18: 36 tool hints re-read against OpenAI's current wording (25 reads closed world, 5 writes destructive, 6 writes open world). Checker no longer treats naming GitHub, Vercel or Google as open world. No skill changes.

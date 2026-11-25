@@ -35,7 +35,9 @@ Four read-only calls:
    constrains anything: running a prompt spends the plan's GEO responses, and the campaign you can
    afford is sized against what is left (rule 21). The target is 10 to 15 tracked prompts at 5
    samples each, which needs a budget of prompts times 5 times 1.5, the extra half being the
-   reserve the build phase spends later out of the same pool.
+   reserve the build phase spends later out of the same pool. A prompt you prune while sizing the
+   set to that budget is deleted, not left in the campaign: a campaign run queues every prompt the
+   campaign holds, so a superseded one spends quota on every run (step 7 says how).
 2. **`list-campaigns(team_id)`.** If a campaign already exists, this may be a resumption rather
    than an onboarding. Read it with `get-campaign` before proposing anything new.
 3. **`get-org-visibility(team_id, campaign_id, limit: 0)`** on any campaign that exists. This is
@@ -215,6 +217,23 @@ rather than moving on.
 when a team has no owned organization; read that warning rather than running past it, because
 responses collected while it is unregistered consume the same quota and score nothing. Past
 responses are rescanned when the registration lands, so this is a delay and not lost work.
+
+**Delete what you pruned before you run.** `run-campaign-prompts` queues every prompt in the
+campaign, and so does the campaign's own schedule where auto-run is on, so a prompt this session
+superseded (one rewritten after a geography warning, a candidate cut to fit the budget) still costs
+a response per sample if it stays. Remove each one with `delete-prompt(team_id, prompt_id)` before
+the run. The delete is permanent and no tool restores it, so delete only prompts you superseded, by
+id, and read what each call returns:
+
+- **A run of the prompt is still in progress:** it refuses. Retry once its responses resolve, then
+  run the campaign.
+- **An experiment uses the prompt:** it refuses, and `force` does not override that. For a draft
+  experiment, detach the prompt first with `update-experiment(team_id, experiment_id, prompt_ids)`,
+  passing the set without it, then call again. For a live or finished experiment, keep the prompt:
+  that experiment measured its result with it, and removing it would rewrite the result.
+- **The prompt already has responses, or links to trashed experiments:** nothing is deleted, and
+  the response says what would go. Those responses are tracked history and their quota is not
+  refunded, so pass `force: true` only when your operator agrees. A prompt with responses is rarely one to prune (rule 8).
 
 `run-campaign-prompts(team_id, campaign_id, providers, count)` for a campaign with no prior
 baseline, or `run-prompt(team_id, prompt_id, providers, count)` per prompt when the campaign
