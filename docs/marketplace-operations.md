@@ -79,8 +79,9 @@ Test this once we are listed and update this section either way.
 
 Four hops. A change is only live for a user when all four have happened.
 
-1. **We push to `main`** in `github.com/metrifi/plugins`, with a bumped `version` in both
-   plugin manifests (`tools/release.mjs` does this).
+1. **We push to `main`** in `github.com/metrifi/plugins`, with a bumped `version` in the
+   plugin manifest of each host the release ships (`tools/release.mjs` does this; while
+   Codex is frozen in `tools/hosts.json`, only the Claude manifest moves).
 2. **Anthropic's CI bumps our pinned SHA** in the community catalog.
    [Create plugins](https://code.claude.com/docs/en/plugins): "Approved plugins are pinned
    to a specific commit SHA in the `anthropics/claude-plugins-community` catalog, and CI
@@ -209,7 +210,7 @@ different surfaces read different copies.
 |------|-------|
 | `.claude-plugin/marketplace.json` (plugin entry) | the public listing card once Anthropic's CI copies it into the community catalog: `displayName`, `description`, `category`, `keywords`, `author`, `homepage`, `repository`, `license` |
 | `plugins/claude/metrifi/.claude-plugin/plugin.json` | what Claude Code shows in `/plugin`, and the authority for component paths and the version gate |
-| `.agents/plugins/marketplace.json` and `plugins/codex/metrifi/.codex-plugin/plugin.json` | the Codex equivalents, kept in step by `tools/release.mjs` |
+| `.agents/plugins/marketplace.json` and `plugins/codex/metrifi/.codex-plugin/plugin.json` | the Codex equivalents, kept in step by `tools/release.mjs --host all`; frozen at `v1.4.18` while `tools/hosts.json` marks Codex frozen |
 | each `skills/*/SKILL.md` frontmatter `description` | when Claude decides to invoke a skill. On OpenAI this is hard-capped at 1,024 characters and a longer one is a hard reject (`skill_description_too_long`) |
 | the MCP server's own tool names and descriptions | live from the platform, not from this repo |
 
@@ -249,7 +250,7 @@ Plugins run in Cowork as well as Claude Code, and the submission form covers bot
 
 | When | Check |
 |------|-------|
-| Every release | `node tools/validate.mjs` and `claude plugin validate ./plugins/claude/metrifi --strict` both pass; version bumped in both manifests |
+| Every release | `node tools/validate.mjs` and `claude plugin validate ./plugins/claude/metrifi --strict` both pass; version bumped in the manifest of each host the release ships |
 | First week after listing | Install from `@claude-community` on a clean machine and confirm the skills are actually present |
 | First week after listing | Our catalog entry is `git-subdir` with the right `path` (§5) |
 | Monthly | Our pinned `sha` in the community catalog is within a release or two of `main` |

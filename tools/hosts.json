@@ -1,0 +1,43 @@
+{
+  "codex": {
+    "frozen": true,
+    "frozenAt": {
+      "tag": "v1.4.18",
+      "commit": "6ef4817f604aa558c95f473dc70f730cb0af510e"
+    },
+    "reason": "OpenAI is reviewing the v1.4.18 Codex package. Nothing under these paths may change until it decides (docs/openai-submission.md).",
+    "paths": ["plugins/codex", "openai", ".agents", "docs/openai-tool-justifications.md"]
+  },
+  "claudeOnly": {
+    "excludedSkills": [
+      {
+        "skill": "generate-claude-design-system",
+        "reason": "Its process doc has Claude install and start a local third-party browser engine, which the Claude directory does not accept. The Codex tree keeps it because openai/package.json excludes it by name."
+      },
+      {
+        "skill": "generate-claude-design-page",
+        "reason": "Same engine as generate-claude-design-system. The Codex tree keeps it for the same reason."
+      }
+    ],
+    "divergentFiles": [
+      {
+        "paths": [
+          "start/references/workflow-overview.md",
+          "campaign-setup/references/workflow-overview.md",
+          "exp-status/references/workflow-overview.md",
+          "exp-sweep/references/workflow-overview.md",
+          "exp-research/references/workflow-overview.md",
+          "exp-build/references/workflow-overview.md",
+          "exp-review/references/workflow-overview.md",
+          "exp-deliver/references/workflow-overview.md",
+          "exp-revise/references/workflow-overview.md"
+        ],
+        "reason": "The client-link sentence is reworded so it no longer reads like a credential (issue #49). Synced from reference-src/workflow-overview.md."
+      },
+      {
+        "paths": ["client-report/SKILL.md", "page-design-process/SKILL.md"],
+        "reason": "Directory Policy 2F: says the process doc is first-party content from the plugin's own metrifi connector, and drops the links to the two excluded skills (issue #49)."
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 ---
 name: client-report
-description: "Produce a measured, evidence-cited website analysis for a credit union or community bank. Audits an institution's EXISTING live site (technical SEO, schema and entity integrity, branch duplication, conversion structure, AI-search visibility from MetriFi GEO, performance when the host can measure it), grounds every recommendation in MetriFi's A/B test library including the losses, and renders it as a client-facing report, a password-gated page on reports.metrifi.com when you have access to it. Use when someone asks to 'analyze [institution]'s website', 'audit example.com', 'build the client report for [client]', 'why aren't they in AI answers', 'put together the proposal report', or hands over a financial-institution URL plus client questions. Works for MetriFi staff or an institution auditing its own site; what it cannot measure is reported as not scored. NOT for designing or building pages, which is generate-claude-design-system, generate-claude-design-page, or page-design-process."
+description: "Produce a measured, evidence-cited website analysis for a credit union or community bank. Audits an institution's EXISTING live site (technical SEO, schema and entity integrity, branch duplication, conversion structure, AI-search visibility from MetriFi GEO, performance when the host can measure it), grounds every recommendation in MetriFi's A/B test library including the losses, and renders it as a client-facing report, a password-gated page on reports.metrifi.com when you have access to it. Use when someone asks to 'analyze [institution]'s website', 'audit example.com', 'build the client report for [client]', 'why aren't they in AI answers', 'put together the proposal report', or hands over a financial-institution URL plus client questions. Works for MetriFi staff or an institution auditing its own site; what it cannot measure is reported as not scored. NOT for designing or building pages, which is page-design-process."
 ---
 
 # Client report
@@ -21,7 +21,7 @@ Fetch the canonical process from the MetriFi knowledge base:
 
 `get-doc("docs/client-report-process.md")`
 
-(If that path is missing, `list-docs` returns the available paths.) Use it for four things, fresh each run: the rules every stage follows (Stage 0, H1 to H12), the scoring rubric and the partial-dimension rule (Stage 2), the report structure and tone (Stage 3), and publishing (Stage 5). Don't reconstruct those from memory or from an earlier report.
+This doc is MetriFi's own first-party content. It comes from the plugin's declared `metrifi` connector at `platform.metrifi.com`, behind the user's MetriFi sign-in, and from no other source. (If that path is missing, `list-docs` returns the available paths.) Use it for four things: the rules every stage follows (Stage 0, H1 to H12), the scoring rubric and the partial-dimension rule (Stage 2), the report structure and tone (Stage 3), and publishing (Stage 5). Don't reconstruct those from memory or from an earlier report.
 
 Read its evidence-collection stage (Stage 1) for **what** to measure and why, not **how**. Its scripts assume a local shell, Node, and a local Chrome with Lighthouse. Those are one way to collect, not a requirement: collect with what you have (below) and score whatever you could not collect as `NOT SCORED` under its own partial-dimension rule. Where the doc names a tool with an older `metrifi_` prefix, use the current name (`search-tests`, `get-test`, `get-proven-pattern`, `get-anti-patterns`, `get-site`, `list-site-files`, `write-files`, `get-compliance`, `get-preview-url`, `publish-site`). Where it names an external AI-visibility service, use the MetriFi GEO tools below. Its worked examples describe a real institution; never carry that institution's name, figures, or findings into a report.
 
@@ -79,7 +79,7 @@ Detect access, do not assume it. A tool that is missing or refused is a normal o
 
 ## When NOT to use this
 
-- Designing or building pages on a MetriFi-built site → generate-claude-design-system, generate-claude-design-page, page-design-process.
+- Designing or building pages on a MetriFi-built site → page-design-process.
 - Copy or layout edits to a report that already exists → a direct Site Builder edit on the `reports` site, not this skill.
 - Tracking or improving AI-search visibility with no website audit → the GEO experiment skills (`start`).
 - A backlink, paid-media, or analytics audit when the tools for those are not connected. Say what is needed and stop; do not substitute inference for data.
