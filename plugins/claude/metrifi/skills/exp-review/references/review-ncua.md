@@ -15,6 +15,11 @@ compliance officer. The value is taking the first pass off that person, never re
   still follow Part 740. Note the charter type in the report.
 - The **field of membership** if you can get it, as a sentence describing who is eligible to join.
   Without it, treat broad eligibility claims as `minor` and ask the compliance officer to confirm.
+- The **intended publication date**: the deliverable's `publish_plan` date when it is scheduled,
+  otherwise ask. Never the date of the review. The 740.5 check turns on it (see Part 740 below).
+- **Institution-specific disclosure requirements**, if the client has any: its compliance officer's
+  instructions, the experiment's documents, or the compliance identity recorded for its site. They
+  still apply where federal rules no longer reach.
 
 Do not guess the institution's name from the article body; names get mangled. Ask once.
 
@@ -37,22 +42,60 @@ several, and then several rules apply to it.
 
 ## Part 740: accuracy of advertising and insured status
 
-**740.4, the official advertising statement.** A federally insured institution must carry the
-official statement when it advertises insured products. Three acceptable forms: the long form
-("This credit union is federally insured by the National Credit Union Administration"), the short
-form ("Federally insured by NCUA"), or the official NCUA sign image. It must be clear and
-conspicuous, which in a long-form article means a closing line or a footer, not a buried inline
-mention.
+Part 740 changes on **December 16, 2026**. NCUA's final rule (91 FR 73430, published November 16,
+2026, effective December 16, 2026) removes 740.5, the official advertising statement. It leaves
+740.4, the official sign, and 740.2, accuracy of advertising, unchanged. Decide every 740.5 question
+by the intended publication date, never the review date. When the date is unknown and the answer
+depends on it, ask a human rather than guessing.
 
-`major` when the article promotes insured deposit products and none of the three forms appears
-anywhere in its own copy. Flag it as an absence rather than a rewrite: you cannot see the site chrome
-the article will render inside, and the reviewer can.
+**740.5, the official advertising statement (publication through December 15, 2026).** Applies
+only when the article publishes on or before December 15, 2026. Every advertisement, including the
+main internet page, carries the statement unless a 740.5(c) exception applies. Accepted forms: "This
+credit union is federally insured by the National Credit Union Administration", "Federally insured
+by NCUA", "Insured by NCUA", or the official sign image. It must be clearly legible and no smaller
+than the smallest type used for other consumer information (740.5(b)(2)), which in a long-form
+article means a closing line or a footer, not a buried inline mention. The exceptions that most
+often reach an article: it does not relate to member accounts, for example loan-only content
+((c)(11)); it already states that the credit union or its accounts are insured by NCUA ((c)(10)); it
+does not name the credit union ((c)(4)). Check the full list in 740.5(c) when another might apply.
 
-**740.5, non-deposit investment products.** Content advertising securities, mutual funds, annuities,
+- `major` when the article promotes member accounts, no exception applies, and no accepted form
+  appears in the rendered output you reviewed. If you saw only the article copy, it is still `major`,
+  but word it as an absence from the copy, not a rewrite: you cannot see the site chrome the article
+  renders inside, and the reviewer can confirm it there.
+- **Publishing on or after December 16, 2026:** a missing statement is no longer a federal finding
+  by itself. Record the row `n/a` with the date and the reason. If the institution's own policy
+  requires the statement, a missing one is still a `major`, cited to that policy ("institution
+  policy: [where it is written]"), not to 12 CFR. A statement the article keeps voluntarily must
+  still be accurate (740.2).
+- **Publication date unknown** and the statement absent: `minor`, with the question "Confirm the
+  intended publication date. If it is on or before December 15, 2026, 12 CFR 740.5 requires the
+  official advertising statement, and it is absent from [the rendered page | the article copy]."
+
+**740.4, the official sign (unchanged).** The official NCUA sign (the image in 740.4(b), font size
+adjustable for legibility) must appear on the internet page where the credit union accepts deposits
+or opens accounts (740.4(a)). NCUA treats mobile banking the same way and expects the sign on the
+main page, the log-on screen, and the membership application page (91 FR 73432, note 13). It applies
+when the article is, or renders as part of, such a screen, for example an embedded account-opening or
+membership form. An article that only links to account opening is not that screen: record the row
+`n/a` with that reason. Footer wording such as "Federally insured by NCUA" is the advertising
+statement, not the official sign, and does not satisfy 740.4.
+
+- `major` when the article is such a screen, you reviewed its rendered output, and the sign is
+  absent, including when footer wording is the only insurance notice.
+- If you saw only the article copy, you cannot tell. Do not pass it. Route it to a human reviewer as
+  a `minor` with the question "Confirm the rendered [screen] displays the official NCUA sign (12 CFR
+  740.4(a)). Footer wording does not substitute."
+
+**Non-deposit investment products.** Content advertising securities, mutual funds, annuities,
 brokerage, or insurance products must clearly disclose all three: not federally insured, not
-guaranteed by the institution, may lose value. If the article promotes both insured and non-deposit
-products, the distinction has to be drawn so no reader thinks the non-deposit product is insured.
-`blocker` when the three statements are absent.
+guaranteed by the institution, may lose value. `blocker` when the three statements are absent. This
+three-part disclosure is not a Part 740 requirement, so do not cite 740.5 for it. Cite it as
+"non-deposit disclosure (authority to be confirmed by the compliance officer)", and ask the
+compliance officer, in the finding, which authority and scope apply to this institution. Separately,
+740.2 applies: if the article promotes both insured and non-deposit products, the distinction has to
+be drawn so no reader thinks the non-deposit product is insured (91 FR 73432). That confusion is a
+740.2 `blocker`.
 
 **740.2, misleading representations.** No statement may misrepresent the institution's services,
 accounts, financial condition, or its relationship with NCUA or the federal government. Standing
@@ -60,7 +103,8 @@ blockers:
 
 - "100% safe", "100% guaranteed", "absolutely guaranteed" applied to deposits. Insurance is to
   $250,000 and conditional, so an unqualified claim misrepresents it.
-- "Backed by the federal government" used loosely. NCUA insurance is the correct framing.
+- "Backed by the federal government" used loosely. NCUA insurance is the correct framing. The
+  official sign's own wording is not this claim.
 - Anything implying the institution is a government agency.
 - "FDIC insured" on a credit union. Credit unions are NCUA insured. Always a blocker.
 
@@ -175,7 +219,7 @@ The same scale as every battery, and the values `record-deliverable-check` store
 | severity | meaning |
 |---|---|
 | `blocker` | a clear violation as written; cannot publish without a rewrite |
-| `major` | something required is absent from the article entirely, most often the insurance statement or the Equal Housing line |
+| `major` | something required is absent from the article entirely, most often the insurance statement (publication through December 15, 2026), the official sign on an account-opening screen, or the Equal Housing line |
 | `minor` | a gray area; the compliance officer decides, and every one carries a specific question for them |
 | `note` | best practice, used sparingly so it does not drown the real issues |
 
@@ -195,9 +239,12 @@ Cite the specific regulation on every finding: "12 CFR 740.4", "12 CFR 707.8(c)"
 Every blocker and every major carries a rewrite or a specific instruction. Prefer these standard
 phrasings; they are what a compliance officer expects to see.
 
-- **Insurance statement, short form:** "Federally insured by NCUA."
+- **Insurance statement, short form:** "Federally insured by NCUA." Required under 740.5 for
+  publication through December 15, 2026, or wherever institution policy requires it.
 - **Insurance statement, long form:** "This credit union is federally insured by the National Credit
   Union Administration."
+- **Official sign:** "Place the official NCUA sign image (12 CFR 740.4(b)) on this screen." Text
+  does not substitute.
 - **Non-deposit disclosure:** "Not federally insured. Not guaranteed by [institution]. May lose
   value."
 - **APY block, savings or money market:** "APY accurate as of [date]. Minimum balance to obtain APY:
@@ -223,7 +270,8 @@ figures.
 
 1. `set-experiment-document` with `kind: "review-ncua"`, a client-readable title, and this body:
 
-   - **Header:** institution name, charter type, and the date of the review.
+   - **Header:** institution name, charter type, the date of the review, and the intended
+     publication date the 740.5 check used (or "unknown").
    - **Summary:** counts by severity and the recommendation, which is one of: "Do not publish
      without addressing the blockers"; "Address the missing items, then advance to compliance
      officer review"; "Safe to advance to compliance officer review"; "No major issues found; the
@@ -239,12 +287,23 @@ figures.
    `document_kind: "review-ncua"`, and `recorder` naming yourself.
 
    **This battery's verification rows are the regulation areas you walked**, one row each: 740.2
-   accuracy, 740.4 the official advertising statement, 740.5 insured status of non-deposit products,
-   707.8 Truth in Savings advertising, the Regulation Z trigger terms, Regulation E, Regulation B
-   and the Equal Housing line, and field of membership. `item` names the citation and what you
-   looked for; `source` is the passage or section you read it against. An area the article never
-   touches is `n/a` with the reason in `note`, which is itself a real answer. Record only the areas
-   you actually walked.
+   accuracy, 740.4 the official sign on deposit and account-opening screens, 740.5 the official
+   advertising statement (its `note` names the intended publication date it was judged against),
+   the non-deposit disclosure, 707.8 Truth in Savings advertising, the Regulation Z trigger terms,
+   Regulation E, Regulation B and the Equal Housing line, and field of membership. `item` names the
+   citation and what you looked for; `source` is the passage or section you read it against. An area
+   the article never touches is `n/a` with the reason in `note`, which is itself a real answer. A
+   question you routed to a human (an unknown publication date, a rendered screen you could not
+   see) is a finding, not a `pass` row. Record only the areas you actually walked.
+
+## When the publication date moves
+
+Checks are pinned to the article prose, so the platform does not stale an NCUA check when only the
+publication date changes. Re-run and re-record this battery, even on unchanged copy, when the
+intended publication date crosses December 16, 2026 in either direction, or when a date that was
+unknown at review becomes known. Moving later (to December 16 or after) can clear a 740.5 finding.
+Moving earlier (to December 15 or before) can add a `major` one, and that is the direction a stale
+green check hides. The other three batteries do not depend on the date.
 
 ## What this battery does not do
 
