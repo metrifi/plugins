@@ -835,6 +835,13 @@ Surface 1.4.18, 161 tools, lock order, four hints each. v5, 2026-10-15: OpenAI r
 - **Destructive: false** It only issues an upload link. Existing uploads and site files are left as they were.
 - **Idempotent: false** A repeat issues another, separate signed upload link with a fresh 30 minute expiry, so each call hands out one more live upload credential for the site.
 
+## generate-site-image
+
+- **Read Only: false** It starts an image generation and stages the result in the site's upload storage.
+- **Open World: true** It sends the agent's scene description to OpenAI's Images API, an outside service.
+- **Destructive: true** Each start spends MetriFi's AI credits and sends content to an outside AI provider; neither can be undone.
+- **Idempotent: false** Each start is a new, separately billed generation with its own id, so repeating a call bills again.
+
 ## list-site-assets
 
 - **Read Only: true** It lists the images staged for this site in Vercel Blob storage, with each one's link, size and upload time. Nothing is stored or removed.
