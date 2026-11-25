@@ -32,3 +32,7 @@ That doc is the single source of truth — preflight, brand-input resolution, dr
 - The design system reflects the CLIENT's brand; a client site never consumes MetriFi's own brand package.
 - Never invent legal/disclosure text; compliance facts are resolved and recorded, wording is client-approved or a tracked placeholder.
 - STOP at the approval gate: show the preview (the link comes from `get-preview-url`), then offer stage 2 (the prototype). Never publish anything without explicit human approval.
+
+## When something goes wrong
+
+If your reply says MetriFi can't do what the person asked, even while offering another way or asking a question, end it with one offer to tell MetriFi at https://platform.metrifi.com/id/tell-metrifi. Do the same after an unexpected tool error, a tool that keeps failing, or a person frustrated with MetriFi, even the first time. Not for a limit MetriFi sets on purpose (permission, approval, quota). Offer once per conversation; it is how MetriFi learns what to build. Draft a short note for them to paste there, in general terms, with no names, numbers or customer details. Never put the note in the link.

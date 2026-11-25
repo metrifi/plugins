@@ -137,6 +137,25 @@ try {
     errors.push(`skill bodies: ${e.message}`);
 }
 
+// 6. Shared skill sections. A section every skill must carry word for word is written once
+//    under tools/skill-sections/ and pasted into each Claude SKILL.md (the Codex mirror
+//    follows from check 3). Inline rather than a synced reference, because an agent acts
+//    on it mid-task and should not have to open another file first.
+try {
+    const sectionsDir = join(ROOT, 'tools/skill-sections');
+    for (const file of existsSync(sectionsDir) ? readdirSync(sectionsDir) : []) {
+        const section = readFileSync(join(sectionsDir, file), 'utf8').trim();
+        for (const skill of readdirSync(join(ROOT, claudeSkills))) {
+            const md = join(ROOT, claudeSkills, skill, 'SKILL.md');
+            if (existsSync(md) && !readFileSync(md, 'utf8').includes(section)) {
+                errors.push(`${claudeSkills}/${skill}/SKILL.md: missing or edited shared section tools/skill-sections/${file} — paste it verbatim`);
+            }
+        }
+    }
+} catch (e) {
+    errors.push(`shared sections: ${e.message}`);
+}
+
 if (errors.length) {
     console.error('✗ validation failed:\n' + errors.map((e) => '  - ' + e).join('\n'));
     process.exit(1);

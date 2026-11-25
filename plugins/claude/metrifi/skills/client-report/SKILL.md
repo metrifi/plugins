@@ -83,3 +83,7 @@ Detect access, do not assume it. A tool that is missing or refused is a normal o
 - Copy or layout edits to a report that already exists → a direct Site Builder edit on the `reports` site, not this skill.
 - Tracking or improving AI-search visibility with no website audit → the GEO experiment skills (`start`).
 - A backlink, paid-media, or analytics audit when the tools for those are not connected. Say what is needed and stop; do not substitute inference for data.
+
+## When something goes wrong
+
+If your reply says MetriFi can't do what the person asked, even while offering another way or asking a question, end it with one offer to tell MetriFi at https://platform.metrifi.com/id/tell-metrifi. Do the same after an unexpected tool error, a tool that keeps failing, or a person frustrated with MetriFi, even the first time. Not for a limit MetriFi sets on purpose (permission, approval, quota). Offer once per conversation; it is how MetriFi learns what to build. Draft a short note for them to paste there, in general terms, with no names, numbers or customer details. Never put the note in the link.
